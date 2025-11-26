@@ -1,0 +1,112 @@
+<template>
+  <form @submit.prevent="submitRegister" class="auth-form">
+    <div class="form-group">
+      <label class="form-label">CNPJ</label>
+      <input v-model="cnpj" required class="form-input" placeholder="00.000.000/0000-00" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <input v-model="senha" type="password" required class="form-input" placeholder="Sua senha" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Responsável</label>
+      <input v-model="responsavel" required class="form-input" placeholder="Nome do responsável" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Inscrição Municipal</label>
+      <input v-model="inscricaoMunicipal" required class="form-input" placeholder="Sua inscrição municipal" />
+    </div>
+
+    <div class="button-container">
+      <button type="submit" class="submit-btn">Cadastrar</button>
+    </div>
+  </form>
+</template>
+
+<script setup>
+import { ref } from "vue";
+import { useAuthStore } from "../../store/authStore";
+
+const cnpj = ref("");
+const senha = ref("");
+const responsavel = ref("");
+const inscricaoMunicipal = ref("");
+
+const auth = useAuthStore();
+
+async function submitRegister() {
+  await auth.register({
+    cnpj: cnpj.value,
+    senha: senha.value,
+    responsavel: responsavel.value,
+    inscricaoMunicipal: inscricaoMunicipal.value
+  });
+
+  alert("Cadastro realizado!");
+}
+</script>
+
+<style scoped>
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-input {
+  padding: 14px 16px;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fff;
+  width: 100%;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #daa520;
+  box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.submit-btn {
+  padding: 16px 48px;
+  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, #e6b028 0%, #c9960c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+}
+</style>
