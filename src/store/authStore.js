@@ -15,6 +15,11 @@ export const useAuthStore = defineStore("auth", {
 
     async register(data) {
       await authService.register(data);
+    },
+
+    logout() {
+      this.empresa = null;
+      console.log("Usuário deslogado");
     }
   }
 });

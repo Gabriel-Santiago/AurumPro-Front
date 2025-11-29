@@ -19,6 +19,7 @@
 <script setup>
 import { ref } from "vue";
 import { useAuthStore } from "../../store/authStore";
+import router from "../../router";
 
 const email = ref("");
 const senha = ref("");
@@ -26,7 +27,8 @@ const senha = ref("");
 const auth = useAuthStore();
 
 async function submitLogin() {
-  await auth.login(email.value, senha.value);
+  const empresa = await auth.login(email.value, senha.value);
+  router.push("/clientes");
   alert("Login realizado!");
 }
 </script>
