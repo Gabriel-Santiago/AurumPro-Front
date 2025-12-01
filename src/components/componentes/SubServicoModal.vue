@@ -22,18 +22,6 @@
           </select>
         </div>
         
-        <div class="form-row">
-          <div class="form-group">
-            <label>Valor por Hora (R$)</label>
-            <input v-model="form.valorHora" type="number" step="0.01" placeholder="0.00" />
-          </div>
-          
-          <div class="form-group">
-            <label>Quantidade de Horas</label>
-            <input v-model="form.qtdHora" type="number" step="0.5" placeholder="0.0" />
-          </div>
-        </div>
-        
         <div class="form-group">
           <label>Descrição</label>
           <textarea v-model="form.descricao" placeholder="Descrição do subserviço" rows="3"></textarea>
@@ -65,8 +53,6 @@ const servicos = ref([]);
 const form = ref({
   nome: "",
   servicoId: "",
-  valorHora: "",
-  qtdHora: "",
   descricao: ""
 });
 
@@ -86,8 +72,6 @@ const handleSubmit = async () => {
       id: authStore.empresa?.empresaId,
       servicoId: form.value.servicoId,
       nome: form.value.nome,
-      valorHora: form.value.valorHora ? parseFloat(form.value.valorHora) : null,
-      qtdHora: form.value.qtdHora ? parseFloat(form.value.qtdHora) : null,
       descricao: form.value.descricao
     };
 
@@ -97,8 +81,8 @@ const handleSubmit = async () => {
     emit("close");
   } catch (err) {
     console.error("Erro ao criar subserviço:", err);
-    console.log(form.servicoId)
-    console.log(dados)
+    console.log("servicoId selecionado:", form.value.servicoId);
+    console.log("Dados enviados:", dados);
     window.alert("Erro ao criar subserviço");
   }
 };
@@ -109,14 +93,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Mesmo CSS do CriarServicoModal, com adições para textarea e select */
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
 select, textarea {
   padding: 10px 12px;
   border-radius: 8px;

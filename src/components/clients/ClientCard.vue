@@ -26,11 +26,12 @@
       </div>
 
       <div class="actions">
-        <button class="proposal" @click="$emit('criarProposta')">Criar proposta</button>
+        <button class="proposal" @click="abrirPropostaModal">Criar proposta</button>
       </div>
     </div>
+  </div>
 
-    <!-- Modais -->
+  <!-- Modais -->
     <UpdateEmailTelefoneModal
       v-if="showEmailTelefoneModal"
       :cliente="cliente"
@@ -51,7 +52,13 @@
       @close="closeDeleteModal"
       @deleted="handleClienteDeleted"
     />
-  </div>
+
+    <CriarPropostaModal
+      v-if="showPropostaModal"
+      :cliente="cliente"
+      @close="fecharPropostaModal"
+      @created="handlePropostaCriada"
+    />
 </template>
 
 <script setup>
@@ -60,6 +67,7 @@ import { useThemeStore } from "../../store/themeStore";
 import UpdateEmailTelefoneModal from "./UpdateEmailTelefoneModal.vue";
 import UpdateEnderecoModal from "./UpdateEnderecoModal.vue";
 import DeleteClienteModal from "./DeleteClienteModal.vue";
+import CriarPropostaModal from "../componentes/PropostaModal.vue"
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -78,6 +86,7 @@ const showMenu = ref(false);
 const showEmailTelefoneModal = ref(false);
 const showEnderecoModal = ref(false);
 const showDeleteModal = ref(false);
+const showPropostaModal = ref(false);
 
 // Iniciais do nome para o avatar
 const initials = computed(() => {
@@ -119,6 +128,10 @@ const openDelete = () => {
   closeMenu();
 };
 
+const abrirPropostaModal = () => {
+  showPropostaModal.value = true;
+};
+
 // Modal close functions
 const closeEmailTelefoneModal = () => {
   showEmailTelefoneModal.value = false;
@@ -130,6 +143,10 @@ const closeEnderecoModal = () => {
 
 const closeDeleteModal = () => {
   showDeleteModal.value = false;
+};
+
+const fecharPropostaModal = () => {
+  showPropostaModal.value = false;
 };
 
 // Handle modal events - AGORA EMITE 'refresh'
@@ -157,6 +174,14 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
+
+const handlePropostaCriada = () => {
+  console.log("Proposta criada com sucesso!");
+  fecharPropostaModal();
+  emit("propostaCriada");
+  emit("refresh"); // Adicione se precisar atualizar a lista
+}
+
 </script>
 
 <style scoped>

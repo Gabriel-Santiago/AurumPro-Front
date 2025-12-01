@@ -6,11 +6,8 @@ const api = axios.create({
 });
 
 export default {
-  criar(data) {
-    return api.post('/convenios', data);
-  },
-  
-  listarPorEmpresa(empresaId) {
-    return api.get(`/convenios/${empresaId}`);
+  criar(dados) {
+    const response = api.post('/itensProposta', dados);
+    return response;
   }
 };

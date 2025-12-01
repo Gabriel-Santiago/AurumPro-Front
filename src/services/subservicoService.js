@@ -10,7 +10,11 @@ export default {
     return api.post('/microServicos', data);
   },
   
-  listarPorEmpresa(empresaId) {
-    return api.get(`/microServicos/empresa/${empresaId}`);
+  listarTodos(servicoId) {
+    return api.get(`/microServicos/${servicoId}`);
+  },
+
+  atualizarValores(dados){
+    return api.patch('/microServicos', dados);
   }
 };
