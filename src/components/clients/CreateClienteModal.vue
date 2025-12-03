@@ -70,8 +70,8 @@
           <div class="form-grid-pj">
             <!-- Linha 1: Razão Social -->
             <div class="form-group full-width">
-              <label>Razão Social *</label>
-              <input v-model="pj.nome" placeholder="Digite a razão social" required />
+              <label>Responsável *</label>
+              <input v-model="pj.responsavel" placeholder="Digite o responsável" required />
             </div>
 
             <!-- Linha 2: Email -->
@@ -130,7 +130,7 @@ const pf = ref({
 });
 
 const pj = ref({
-  nome: "",
+  responsavel: "",
   email: "",
   numero: "",
   cnpj: ""
@@ -170,7 +170,7 @@ const submitPJ = async () => {
     // Preparar dados para enviar - incluir empresaId como 'id'
     const dadosPJ = {
       id: empresaId, // empresaId será enviado como 'id' no DTO
-      nome: pj.value.nome,
+      responsavel: pj.value.nome,
       email: pj.value.email,
       numero: pj.value.numero,
       cnpj: pj.value.cnpj

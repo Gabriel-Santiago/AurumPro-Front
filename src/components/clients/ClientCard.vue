@@ -6,7 +6,7 @@
 
     <div class="info">
       <div class="top">
-        <div class="name">{{ cliente.nome }}</div>
+        <div class="name">{{ displayName }}</div>
         
         <div class="menu-wrapper">
           <button class="menu-btn" @click="toggleMenu">
@@ -90,13 +90,23 @@ const showPropostaModal = ref(false);
 
 // Iniciais do nome para o avatar
 const initials = computed(() => {
-  if (!props.cliente.nome) return "#";
-  return props.cliente.nome
+  const name = props.cliente.tipoPessoa === 'PJ' ? props.cliente.responsavel : props.cliente.nome;
+  if (!name) return "#";
+  return name
     .split(" ")
     .map(s => s[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
+});
+
+// Nome para exibição - PF usa nome, PJ usa responsável
+const displayName = computed(() => {
+  if (props.cliente.tipoPessoa === 'PJ') {
+    return props.cliente.responsavel || "Responsável não informado";
+  } else {
+    return props.cliente.nome || "Nome não informado";
+  }
 });
 
 // Texto para mostrar "PF - Estado" ou "PJ - Estado"
