@@ -7,14 +7,14 @@ const api = axios.create({
 
 export default {
   criar(data) {
-    return api.post('/consultores', data);
+    return api.post('/colaboradores', data);
   },
   
   listarPorEmpresa(empresaId) {
-    return api.get(`/consultores/${empresaId}`);
+    return api.get(`/colaboradores/${empresaId}`);
   },
 
-  listarTiposConsultor() {
-    return api.get("/consultores");
+  listarFuncoes() {
+    return api.get("/colaboradores/funcoes");
   }
 };

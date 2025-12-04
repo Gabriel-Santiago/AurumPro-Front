@@ -5,7 +5,7 @@
     </div>
 
     <nav class="right">
-      <button class="nav-btn" @click="abrirConsultorModal">Consultor</button>
+      <button class="nav-btn" @click="abrirColaboradorModal">Colaborador</button>
       <button class="nav-btn" @click="abrirServicoModal">Serviços</button>
       <button class="nav-btn" @click="abrirSubservicoModal">Sub Serviços</button>
       <button class="nav-btn" @click="abrirConvenioModal">Convênios</button>
@@ -19,9 +19,9 @@
       <button class="icon-btn logout" title="Logout" @click="$emit('logout')">⎋</button>
     </nav>
 
-    <CriarConsultorModal
-      v-if="showConsultorModal"
-      @close="fecharConsultorModal"
+    <CriarColaboradorModal
+      v-if="showColaboradorModal"
+      @close="fecharColaboradorModal"
       @created="handleCreated"
     />
 
@@ -49,7 +49,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useThemeStore } from '../../store/themeStore';
-import CriarConsultorModal from '../componentes/ConsultorModal.vue';
+import CriarColaboradorModal from '../componentes/ColaboradorModal.vue';
 import CriarServicoModal from '../componentes/ServicoModal.vue';
 import CriarSubservicoModal from '../componentes/SubservicoModal.vue';
 import CriarConvenioModal from '../componentes/ConvenioModal.vue';
@@ -58,18 +58,18 @@ defineProps({
   empresaNome: { type: String, default: "Empresa" }
 });
 
-defineEmits(['abrirConsultor', 'abrirServicos', 'abrirSubServicos', 'abrirConvenios', 'goPropostas', 'logout', 'toggleTheme']);
+defineEmits(['abrirColaborador', 'abrirServicos', 'abrirSubServicos', 'abrirConvenios', 'goPropostas', 'logout', 'toggleTheme']);
 
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
 
-const showConsultorModal = ref(false);
+const showColaboradorModal = ref(false);
 const showServicoModal = ref(false);
 const showSubservicoModal = ref(false);
 const showConvenioModal = ref(false);
 
-const abrirConsultorModal = () => {
-  showConsultorModal.value = true;
+const abrirColaboradorModal = () => {
+  showColaboradorModal.value = true;
 };
 
 const abrirServicoModal = () => {
@@ -85,8 +85,8 @@ const abrirConvenioModal = () => {
 };
 
 // Funções para fechar modais
-const fecharConsultorModal = () => {
-  showConsultorModal.value = false;
+const fecharColaboradorModal = () => {
+  showColaboradorModal.value = false;
 };
 
 const fecharServicoModal = () => {
@@ -104,7 +104,7 @@ const fecharConvenioModal = () => {
 const handleCreated = () => {
   console.log("Item criado com sucesso!");
   // Fecha todos os modais após criação
-  fecharConsultorModal();
+  fecharColaboradorModal();
   fecharServicoModal();
   fecharSubservicoModal();
   fecharConvenioModal();

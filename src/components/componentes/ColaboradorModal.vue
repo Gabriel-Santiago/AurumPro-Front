@@ -2,18 +2,18 @@
     <div class="modal-backdrop" @click.self="closeModal" :class="theme">
         <div class="modal" :class="theme">
             <div class="modal-header">
-                <h3>Gerenciar Consultores</h3>
+                <h3>Gerenciar Colaboradores</h3>
                 <button class="close-btn" @click="closeModal">×</button>
             </div>
 
             <div class="modal-content">
-                <!-- Lado esquerdo: Adicionar consultor -->
+                <!-- Lado esquerdo: Adicionar colaborador -->
                 <div class="add-section">
-                    <h4>Adicionar Novo Consultor</h4>
+                    <h4>Adicionar Novo Colaborador</h4>
                     <form @submit.prevent="handleSubmit" class="add-form">
                         <div class="form-group">
                             <label>Nome *</label>
-                            <input v-model="form.nome" placeholder="Digite o nome do consultor" required
+                            <input v-model="form.nome" placeholder="Digite o nome do colaborador" required
                                 :disabled="loading" ref="nomeInput" />
                         </div>
 
@@ -23,19 +23,25 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Tipo de Consultor *</label>
-                            <select v-model="form.tipoConsultor" required :disabled="loading || loadingTipos">
-                                <option value="">Selecione o tipo</option>
-                                <option v-for="tipo in tiposConsultor" :key="tipo.key" :value="tipo.key">
-                                    {{ tipo.value }}
+                            <label>Função *</label>
+                            <input v-model="form.funcao" list="funcoes-list"
+                                placeholder="Selecione ou digite uma nova função" required
+                                :disabled="loading || loadingFuncoes" class="funcao-input" />
+                            <datalist id="funcoes-list">
+                                <option v-for="funcao in funcoes" :key="funcao.id || funcao.key"
+                                    :value="funcao.nome || funcao.value">
+                                    {{ funcao.nome || funcao.value }}
                                 </option>
-                            </select>
-                            <small v-if="loadingTipos" class="loading">Carregando tipos...</small>
+                            </datalist>
+                            <small v-if="loadingFuncoes" class="loading">Carregando funções...</small>
+                            <small v-if="!loadingFuncoes && funcoes.length === 0" class="info">
+                                Nenhuma função cadastrada. Digite uma nova função.
+                            </small>
                         </div>
 
-                        <button type="submit" class="btn-submit" :disabled="loading || loadingTipos">
+                        <button type="submit" class="btn-submit" :disabled="loading || loadingFuncoes">
                             <span v-if="loading">Criando...</span>
-                            <span v-else>Criar Consultor</span>
+                            <span v-else>Criar Colaborador</span>
                         </button>
 
                         <div v-if="successMessage" class="success-message">
@@ -48,19 +54,18 @@
                     </form>
                 </div>
 
-                <!-- Lado direito: Listar consultores -->
-                <!-- Lado direito: Listar consultores -->
+                <!-- Lado direito: Listar colaboradores -->
                 <div class="list-section">
                     <div class="list-header">
-                        <h4>Consultores Cadastrados</h4>
+                        <h4>Colaboradores Cadastrados</h4>
                         <div class="list-controls">
-                            <select v-model="filtroTipo" @change="filtrarConsultores" class="filter-select">
-                                <option value="">Todos os tipos</option>
-                                <option v-for="tipo in tiposConsultor" :key="tipo.key" :value="tipo.key">
-                                    {{ tipo.value }}
+                            <select v-model="filtroFuncao" @change="filtrarColaboradores" class="filter-select">
+                                <option value="">Todas as funções</option>
+                                <option v-for="funcao in funcoesUnicas" :key="funcao" :value="funcao">
+                                    {{ funcao }}
                                 </option>
                             </select>
-                            <button class="btn-refresh" @click="carregarConsultores" :disabled="loadingList"
+                            <button class="btn-refresh" @click="carregarColaboradores" :disabled="loadingList"
                                 title="Atualizar lista">
                                 <span v-if="loadingList">⟳</span>
                                 <span v-else>↻</span>
@@ -68,34 +73,37 @@
                         </div>
                     </div>
 
-                    <div class="consultores-list" v-if="!loadingList && consultoresFiltrados.length > 0">
-                        <div v-for="consultor in consultoresFiltrados" :key="consultor.id" class="consultor-item">
-                            <div class="consultor-nome">{{ consultor.nome }}</div>
-                            <div class="consultor-tipo">
-                                <span class="tipo-badge" :class="getTipoClass(consultor.tipoConsultor)">
-                                    {{ getDescricaoTipo(consultor.tipoConsultor) }}
-                                </span>
+                    <div class="colaboradores-list" v-if="!loadingList && colaboradoresFiltrados.length > 0">
+                        <div v-for="colaborador in colaboradoresFiltrados" :key="colaborador.id"
+                            class="colaborador-item">
+                            <div class="colaborador-info">
+                                <div class="colaborador-nome">{{ colaborador.nome }}</div>
+                                <div class="colaborador-funcao">
+                                    <span class="funcao-badge">
+                                        {{ colaborador.funcao }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="empty-state" v-else-if="!loadingList && consultoresFiltrados.length === 0">
-                        <div v-if="filtroTipo">
-                            Nenhum consultor do tipo selecionado.
+                    <div class="empty-state" v-else-if="!loadingList && colaboradoresFiltrados.length === 0">
+                        <div v-if="filtroFuncao">
+                            Nenhum colaborador com a função selecionada.
                         </div>
                         <div v-else>
-                            Nenhum consultor cadastrado ainda.
+                            Nenhum colaborador cadastrado ainda.
                         </div>
                     </div>
 
                     <div class="loading-state" v-else>
-                        Carregando consultores...
+                        Carregando colaboradores...
                     </div>
 
                     <div class="list-info">
                         <small>
-                            Total: {{ consultoresFiltrados.length }} consultor(es)
-                            <span v-if="filtroTipo"> (filtrado)</span>
+                            Total: {{ colaboradoresFiltrados.length }} colaborador(es)
+                            <span v-if="filtroFuncao"> (filtrado)</span>
                         </small>
                     </div>
                 </div>
@@ -112,7 +120,7 @@
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
-import consultorService from "../../services/consultorService";
+import colaboradorService from "../../services/colaboradorService";
 
 const emit = defineEmits(["close", "created"]);
 
@@ -120,25 +128,21 @@ const themeStore = useThemeStore();
 const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
-const tiposConsultor = ref([]);
-const consultores = ref([]);
+const funcoes = ref([]);
+const colaboradores = ref([]);
 const form = ref({
     nome: "",
     telefone: "",
-    tipoConsultor: ""
+    funcao: ""
 });
 
-const filtroTipo = ref("");
+const filtroFuncao = ref("");
 const loading = ref(false);
 const loadingList = ref(false);
-const loadingTipos = ref(false);
+const loadingFuncoes = ref(false);
 const nomeInput = ref(null);
 const successMessage = ref("");
 const errorMessage = ref("");
-
-// Campos dinâmicos baseados na estrutura do retorno
-const tipoEnumField = ref("CONSULTOR"); // Campo do enum name
-const tipoDescricaoField = ref("Consultor"); // Campo da descrição
 
 const empresaId = computed(() => authStore.empresa?.empresaId);
 
@@ -148,107 +152,113 @@ onMounted(() => {
 });
 
 const carregarDados = async () => {
-    await Promise.all([carregarTiposConsultor(), carregarConsultores()]);
+    await Promise.all([carregarFuncoes(), carregarColaboradores()]);
 };
 
-const carregarTiposConsultor = async () => {
+const carregarFuncoes = async () => {
     try {
-        loadingTipos.value = true;
-        const response = await consultorService.listarTiposConsultor();
-
-        // O backend retorna: [{"CONSULTOR":"Consultor"},{"INSTRUTOR":"Instrutor"},{"PALESTRANTE":"Palestrante"}]
-        // Cada item é um objeto com uma única propriedade {chave: valor}
+        loadingFuncoes.value = true;
+        const response = await colaboradorService.listarFuncoes();
 
         if (response.data && Array.isArray(response.data)) {
-            // Transformar cada item do array
-            tiposConsultor.value = response.data.map(item => {
-                // Cada item tem formato: {"CONSULTOR": "Consultor"}
-                const keys = Object.keys(item);
-                if (keys.length > 0) {
-                    const key = keys[0];
-                    return {
-                        key: key, // ex: "CONSULTOR"
-                        value: item[key] // ex: "Consultor"
-                    };
-                }
-                return null;
-            }).filter(item => item !== null); // Remove possíveis valores nulos
+            // Se o backend retornar um array de strings simples
+            if (typeof response.data[0] === 'string') {
+                funcoes.value = response.data.map(funcao => ({
+                    nome: funcao,
+                    key: funcao.toUpperCase().replace(/\s+/g, '_')
+                }));
+            }
+            // Se o backend retornar um array de objetos {chave: valor}
+            else if (typeof response.data[0] === 'object') {
+                funcoes.value = response.data.map(item => {
+                    const keys = Object.keys(item);
+                    if (keys.length > 0) {
+                        return {
+                            key: keys[0],
+                            value: item[keys[0]],
+                            nome: item[keys[0]]
+                        };
+                    }
+                    return null;
+                }).filter(item => item !== null);
+            }
+            // Se o backend retornar um array de objetos com propriedades específicas
+            else if (response.data[0] && response.data[0].nome) {
+                funcoes.value = response.data;
+            }
 
-            console.log("Tipos de consultor processados:", tiposConsultor.value);
+            console.log("Funções carregadas:", funcoes.value);
         } else {
             console.error("Formato inesperado de resposta:", response.data);
-            // Fallback para os tipos padrão
-            tiposConsultor.value = [
-                { key: "CONSULTOR", value: "Consultor" },
-                { key: "INSTRUTOR", value: "Instrutor" },
-                { key: "PALESTRANTE", value: "Palestrante" }
-            ];
+            funcoes.value = []; // Lista vazia ao invés de padrão
         }
 
     } catch (err) {
-        console.error("Erro ao carregar tipos de consultor:", err);
-        // Fallback para os tipos padrão se a API falhar
-        tiposConsultor.value = [
-            { key: "CONSULTOR", value: "Consultor" },
-            { key: "INSTRUTOR", value: "Instrutor" },
-            { key: "PALESTRANTE", value: "Palestrante" }
-        ];
-        errorMessage.value = "Erro ao carregar tipos de consultor. Usando tipos padrão.";
+        console.error("Erro ao carregar funções:", err);
+        funcoes.value = []; // Lista vazia ao invés de padrão
+        errorMessage.value = "Erro ao carregar funções. Digite uma nova função.";
         setTimeout(() => errorMessage.value = "", 3000);
     } finally {
-        loadingTipos.value = false;
+        loadingFuncoes.value = false;
     }
 };
 
-const carregarConsultores = async () => {
+const carregarColaboradores = async () => {
     if (!empresaId.value) return;
 
     try {
         loadingList.value = true;
-        const response = await consultorService.listarPorEmpresa(empresaId.value);
-        consultores.value = response.data || [];
+        const response = await colaboradorService.listarPorEmpresa(empresaId.value);
+        colaboradores.value = response.data || [];
+
+        // Atualizar lista de funções únicas a partir dos colaboradores existentes
+        atualizarFuncoesUnicas();
     } catch (err) {
-        console.error("Erro ao carregar consultores:", err);
-        errorMessage.value = "Erro ao carregar consultores: " + (err.response?.data?.message || err.message);
+        console.error("Erro ao carregar colaboradores:", err);
+        errorMessage.value = "Erro ao carregar colaboradores: " + (err.response?.data?.message || err.message);
         setTimeout(() => errorMessage.value = "", 3000);
     } finally {
         loadingList.value = false;
     }
 };
 
-// Consultores filtrados
-const consultoresFiltrados = computed(() => {
-    if (!filtroTipo.value) {
-        return consultores.value;
-    }
-    return consultores.value.filter(consultor => consultor.tipoConsultor === filtroTipo.value);
+// Extrair funções únicas dos colaboradores existentes
+const atualizarFuncoesUnicas = () => {
+    const funcoesExistentes = [...new Set(colaboradores.value.map(c => c.funcao).filter(Boolean))];
+
+    // Adicionar funções que ainda não estão na lista
+    funcoesExistentes.forEach(funcao => {
+        if (!funcoes.value.some(f => f.nome === funcao || f.value === funcao)) {
+            funcoes.value.push({
+                nome: funcao,
+                key: funcao.toUpperCase().replace(/\s+/g, '_'),
+                value: funcao
+            });
+        }
+    });
+};
+
+// Funções únicas para o filtro (remover duplicatas)
+const funcoesUnicas = computed(() => {
+    const todasFuncoes = funcoes.value.map(f => f.nome || f.value).filter(Boolean);
+    return [...new Set(todasFuncoes)];
 });
 
-const filtrarConsultores = () => {
+// Colaboradores filtrados
+const colaboradoresFiltrados = computed(() => {
+    if (!filtroFuncao.value) {
+        return colaboradores.value;
+    }
+    return colaboradores.value.filter(colaborador => colaborador.funcao === filtroFuncao.value);
+});
+
+const filtrarColaboradores = () => {
     // Apenas atualiza a lista filtrada (já é computed)
-};
-
-// Obter a descrição do tipo baseado no enum
-const getDescricaoTipo = (tipoEnum) => {
-    if (!tipoEnum) return "";
-    const tipo = tiposConsultor.value.find(t => t.key === tipoEnum);
-    return tipo ? tipo.value : tipoEnum;
-};
-
-const getTipoClass = (tipo) => {
-    // Classes CSS baseadas no tipo
-    const tipoClasses = {
-        'CONSULTOR': 'tipo-consultor',
-        'INSTRUTOR': 'tipo-instrutor',
-        'PALESTRANTE': 'tipo-palestrante',
-        'default': 'tipo-default'
-    };
-    return tipoClasses[tipo] || tipoClasses.default;
 };
 
 const handleSubmit = async () => {
     if (!form.value.nome.trim()) {
-        errorMessage.value = "Por favor, informe o nome do consultor";
+        errorMessage.value = "Por favor, informe o nome do colaborador";
         setTimeout(() => errorMessage.value = "", 3000);
         return;
     }
@@ -259,8 +269,8 @@ const handleSubmit = async () => {
         return;
     }
 
-    if (!form.value.tipoConsultor) {
-        errorMessage.value = "Por favor, selecione o tipo de consultor";
+    if (!form.value.funcao) {
+        errorMessage.value = "Por favor, selecione ou digite uma função";
         setTimeout(() => errorMessage.value = "", 3000);
         return;
     }
@@ -280,19 +290,34 @@ const handleSubmit = async () => {
             empresaId: empresaId.value,
             nome: form.value.nome.trim(),
             telefone: form.value.telefone.trim(),
-            tipoConsultor: form.value.tipoConsultor
+            funcao: form.value.funcao.trim() // Enviar o texto digitado/selecionado
         };
 
         console.log("Enviando dados:", dados);
-        await consultorService.criar(dados);
+        await colaboradorService.criar(dados);
 
         // Exibir mensagem de sucesso
-        successMessage.value = "Consultor criado com sucesso!";
+        successMessage.value = "Colaborador criado com sucesso!";
+
+        // Adicionar nova função à lista se não existir
+        const novaFuncao = dados.funcao;
+        const funcaoExiste = funcoes.value.some(f =>
+            (f.nome && f.nome.toLowerCase() === novaFuncao.toLowerCase()) ||
+            (f.value && f.value.toLowerCase() === novaFuncao.toLowerCase())
+        );
+
+        if (!funcaoExiste) {
+            funcoes.value.push({
+                nome: novaFuncao,
+                key: novaFuncao.toUpperCase().replace(/\s+/g, '_'),
+                value: novaFuncao
+            });
+        }
 
         // Limpar formulário
         form.value.nome = "";
         form.value.telefone = "";
-        form.value.tipoConsultor = "";
+        form.value.funcao = "";
 
         // Focar novamente no campo de entrada
         await nextTick();
@@ -300,8 +325,8 @@ const handleSubmit = async () => {
             nomeInput.value.focus();
         }
 
-        // Recarregar lista de consultores
-        await carregarConsultores();
+        // Recarregar lista de colaboradores
+        await carregarColaboradores();
 
         // Emitir evento para o componente pai
         emit("created");
@@ -312,11 +337,11 @@ const handleSubmit = async () => {
         }, 3000);
 
     } catch (err) {
-        console.error("Erro ao criar consultor:", err);
+        console.error("Erro ao criar colaborador:", err);
         console.log("Status:", err.response?.status);
         console.log("Dados do erro:", err.response?.data);
 
-        let mensagemErro = "Erro ao criar consultor";
+        let mensagemErro = "Erro ao criar colaborador";
         if (err.response?.data?.message) {
             mensagemErro += ": " + err.response.data.message;
         } else if (err.message) {
@@ -336,41 +361,42 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-/* Mantenha o mesmo CSS, apenas ajuste as cores dos badges */
-
-.tipo-consultor {
-    background: #10b981;
-}
-
-.modal.dark .tipo-consultor {
-    background: #059669;
-}
-
-.tipo-instrutor {
+/* Estilos para badges de função dinâmicos */
+.funcao-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     background: #3b82f6;
+    /* Cor padrão */
+    color: white;
 }
 
-.modal.dark .tipo-instrutor {
-    background: #1d4ed8;
+/* Cores dinâmicas baseadas no hash da função */
+.funcao-badge {
+    background: var(--funcao-color, #3b82f6);
 }
 
-.tipo-palestrante {
-    background: #8b5cf6;
+.modal.dark .funcao-badge {
+    opacity: 0.9;
 }
 
-.modal.dark .tipo-palestrante {
-    background: #6d28d9;
+/* Classe adicional para informações */
+small.info {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-style: italic;
 }
 
-.tipo-default {
-    background: #6b7280;
+.modal.dark small.info {
+    color: #9ca3af;
 }
 
-.modal.dark .tipo-default {
-    background: #4b5563;
-}
-
-/* O restante do CSS permanece igual ao anterior */
+/* O restante do CSS permanece igual... */
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -749,7 +775,7 @@ small.loading {
     animation: spin 1s linear infinite;
 }
 
-.consultores-list {
+.colaboradores-list {
     flex: 1;
     overflow-y: auto;
     border: 1px solid;
@@ -759,92 +785,63 @@ small.loading {
     max-height: 350px;
 }
 
-.modal.light .consultores-list {
+.modal.light .colaboradores-list {
     border-color: #e6e6e6;
     background: #fafafa;
 }
 
-.modal.dark .consultores-list {
+.modal.dark .colaboradores-list {
     border-color: #444;
     background: #2a2a2a;
 }
 
-.consultor-item {
+.colaborador-item {
     padding: 12px;
     border-bottom: 1px solid;
     transition: all 0.3s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
-.modal.light .consultor-item {
+.modal.light .colaborador-item {
     border-color: #f0f0f0;
 }
 
-.modal.dark .consultor-item {
+.modal.dark .colaborador-item {
     border-color: #444;
 }
 
-.consultor-item:last-child {
+.colaborador-item:last-child {
     border-bottom: none;
 }
 
-.consultor-info {
+.colaborador-info {
     flex: 1;
 }
 
-.consultor-nome {
+.colaborador-nome {
     font-weight: 600;
     font-size: 0.95rem;
     margin-bottom: 4px;
     transition: color 0.3s ease;
 }
 
-.modal.light .consultor-nome {
+.modal.light .colaborador-nome {
     color: #333;
 }
 
-.modal.dark .consultor-nome {
+.modal.dark .colaborador-nome {
     color: #daa520;
 }
 
-.consultor-telefone {
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.modal.dark .consultor-telefone {
-    color: #888;
-}
-
-.consultor-tipo {
+.colaborador-funcao {
     display: flex;
     gap: 4px;
 }
 
-.tipo-badge {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.modal.light .tipo-badge {
-    color: white;
-}
-
-.modal.dark .tipo-badge {
-    color: white;
-}
-
-.modal.light .consultor-item:hover {
+.modal.light .colaborador-item:hover {
     background: #f8f9fa;
 }
 
-.modal.dark .consultor-item:hover {
+.modal.dark .colaborador-item:hover {
     background: #333;
 }
 
@@ -957,7 +954,7 @@ small.loading {
         gap: 20px;
     }
 
-    .consultores-list {
+    .colaboradores-list {
         min-height: 200px;
         max-height: 250px;
     }
@@ -976,16 +973,6 @@ small.loading {
     .list-controls {
         width: 100%;
         justify-content: space-between;
-    }
-
-    .consultor-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .consultor-telefone {
-        align-self: flex-start;
     }
 }
 </style>
