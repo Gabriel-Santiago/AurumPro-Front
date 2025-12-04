@@ -280,7 +280,7 @@ const handleSubmit = async () => {
     
     // Formatar dados corretamente para o backend
     const dados = {
-      empresaId: empresaId.value,  // Envia empresaId
+      id: empresaId.value,  // Envia empresaId
       servicoId: form.value.servicoId,  // Envia servicoId
       nome: form.value.nome.trim(),
       descricao: form.value.descricao.trim()

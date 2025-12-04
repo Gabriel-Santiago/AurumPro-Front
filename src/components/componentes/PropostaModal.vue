@@ -3,18 +3,19 @@
         <div class="modal-backdrop" @click.self="handleClose" :class="theme">
             <div class="modal" :class="theme" ref="modalElement">
                 <div class="modal-header">
-                    <h3>Criar Proposta - Passo {{ currentPage }} de 5</h3>
+                    <h3>Criar Proposta - Passo {{ currentPage }} de 6</h3>
                     <button class="close-btn" @click="handleClose">×</button>
                 </div>
 
                 <div class="progress-bar">
-                    <div class="progress" :style="{ width: `${(currentPage / 5) * 100}%` }"></div>
+                    <div class="progress" :style="{ width: `${(currentPage / 6) * 100}%` }"></div>
                     <div class="steps">
                         <span :class="{ active: currentPage >= 1 }">1</span>
                         <span :class="{ active: currentPage >= 2 }">2</span>
                         <span :class="{ active: currentPage >= 3 }">3</span>
                         <span :class="{ active: currentPage >= 4 }">4</span>
                         <span :class="{ active: currentPage >= 5 }">5</span>
+                        <span :class="{ active: currentPage >= 6 }">6</span>
                     </div>
                 </div>
 
@@ -147,15 +148,104 @@
                         <div v-if="form.tipoDesconto !== 'NENHUM'" class="desconto-preview">
                             <p>Desconto aplicado:
                                 <span v-if="form.tipoDesconto === 'VALOR'">R$ {{ (form.valorDesconto || 0).toFixed(2)
-                                    }}</span>
+                                }}</span>
                                 <span v-if="form.tipoDesconto === 'PORCENTAGEM'">{{ form.porcentagemDesconto || 0
-                                    }}%</span>
+                                }}%</span>
                             </p>
                         </div>
                     </div>
 
-                    <!-- PÁGINA 4: Convênio (Origem do Cliente) -->
+                    <!-- PÁGINA 4: Selecionar Colaborador/colaborador -->
                     <div v-else-if="currentPage === 4" class="page">
+                        <h4>Atribuir Colaborador</h4>
+                        <p class="page-subtitle">
+                            Selecione um colaborador para vincular à proposta (opcional)
+                        </p>
+
+                        <div class="form-group">
+                            <div class="radio-group">
+                                <label class="radio-option large">
+                                    <input type="radio" v-model="form.colaboradorSelecao" value="NENHUM" />
+                                    <div class="option-content">
+                                        <span class="option-title">Não atribuir colaborador</span>
+                                        <span class="option-description">A proposta será criada sem um colaborador
+                                            específico</span>
+                                    </div>
+                                </label>
+                                <label class="radio-option large">
+                                    <input type="radio" v-model="form.colaboradorSelecao" value="SELECIONAR" />
+                                    <div class="option-content">
+                                        <span class="option-title">Selecionar um colaborador existente</span>
+                                        <span class="option-description">Escolha entre os colaboradores já
+                                            cadastrados</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Seleção de colaborador -->
+                        <div v-if="form.colaboradorSelecao === 'SELECIONAR'" class="colaborador-selection">
+                            <div class="form-group">
+                                <label>Selecione o Colaborador</label>
+                                <select v-model="form.colaboradorId" class="colaborador-select">
+                                    <option value="">Selecione um colaborador</option>
+                                    <option v-for="colaborador in colaboradores" :key="colaborador.id"
+                                        :value="colaborador.id">
+                                        {{ colaborador.nome }}
+                                        <span v-if="colaborador.funcao"> - {{ colaborador.funcao }}</span>
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div v-if="form.colaboradorId && colaboradorSelecionado" class="colaborador-info-card">
+                                <div class="colaborador-info-header">
+                                    <h5>Colaborador Selecionado</h5>
+                                </div>
+                                <div class="colaborador-info-content">
+                                    <div class="colaborador-info-row">
+                                        <span class="label">Nome:</span>
+                                        <span class="value">{{ colaboradorSelecionado.nome }}</span>
+                                    </div>
+                                    <div v-if="colaboradorSelecionado.funcao" class="colaborador-info-row">
+                                        <span class="label">Função:</span>
+                                        <span class="value">
+                                            <span class="funcao-badge">{{ colaboradorSelecionado.funcao }}</span>
+                                        </span>
+                                    </div>
+                                    <div v-if="colaboradorSelecionado.telefone" class="colaborador-info-row">
+                                        <span class="label">Telefone:</span>
+                                        <span class="value">{{ formatarTelefone(colaboradorSelecionado.telefone)
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botão para gerenciar colaboradores -->
+                            <div class="colaborador-management">
+                                <button type="button" class="btn-manage-colaboradores"
+                                    @click="abrirGerenciarColaboradores">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <line x1="19" y1="8" x2="19" y2="14"></line>
+                                        <line x1="22" y1="11" x2="16" y2="11"></line>
+                                    </svg>
+                                    Gerenciar Colaboradores
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="info-box">
+                            <p><strong>Nota:</strong> O colaborador é responsável pela execução ou acompanhamento da
+                                proposta. Se não for selecionado agora, a proposta poderá ser atribuída posteriormente.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- PÁGINA 5: Convênio (Origem do Cliente) -->
+                    <div v-else-if="currentPage === 5" class="page">
                         <h4>Origem do Cliente</h4>
                         <p class="page-subtitle">Selecione como o cliente chegou à empresa (opcional) - Apenas um
                             convênio pode ser selecionado</p>
@@ -189,14 +279,27 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 5: Confirmação -->
-                    <div v-else-if="currentPage === 5" class="page">
+                    <!-- PÁGINA 6: Confirmação -->
+                    <div v-else-if="currentPage === 6" class="page">
                         <h4>Confirmação da Proposta</h4>
 
                         <div class="resumo">
                             <div class="resumo-section">
                                 <h5>Cliente</h5>
                                 <p>{{ cliente.nome }} ({{ cliente.tipoPessoa }})</p>
+                            </div>
+
+                            <div v-if="colaboradorSelecionado" class="resumo-section">
+                                <h5>Colaborador Responsável</h5>
+                                <div class="colaborador-resumo">
+                                    <p><strong>Nome:</strong> {{ colaboradorSelecionado.nome }}</p>
+                                    <p v-if="colaboradorSelecionado.funcao"><strong>Função:</strong> {{
+                                        colaboradorSelecionado.funcao }}</p>
+                                </div>
+                            </div>
+                            <div v-else class="resumo-section">
+                                <h5>Colaborador Responsável</h5>
+                                <p><em>Nenhum colaborador atribuído</em></p>
                             </div>
 
                             <div class="resumo-section" v-if="form.convenioId && convenioSelecionado">
@@ -253,13 +356,15 @@
                         Voltar
                     </button>
 
-                    <button v-if="currentPage < 5" type="button" class="btn-primary" @click="nextPage"
+                    <button v-if="currentPage < 6" type="button" class="btn-primary" @click="nextPage"
                         :disabled="!validarPaginaAtual()">
                         Próximo
                     </button>
 
-                    <button v-if="currentPage === 5" type="button" class="btn-submit" @click="criarProposta">
-                        Criar Proposta
+                    <button v-if="currentPage === 6" type="button" class="btn-submit" @click="criarProposta"
+                        :disabled="loading">
+                        <span v-if="loading">Criando...</span>
+                        <span v-else>Criar Proposta</span>
                     </button>
                 </div>
             </div>
@@ -268,7 +373,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import servicoService from "../../services/servicoServices";
@@ -277,6 +382,7 @@ import convenioService from "../../services/convenioService";
 import propostaService from "../../services/propostaService";
 import custoService from "../../services/custoService";
 import itemPropostaService from "../../services/itemPropostaService";
+import colaboradorService from "../../services/colaboradorService";
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -291,10 +397,12 @@ const theme = computed(() => themeStore.theme);
 // Estado
 const currentPage = ref(1);
 const servicos = ref([]);
+const colaboradores = ref([]);
 const convenios = ref([]);
 const visible = ref(true);
 const modalElement = ref(null);
 const loading = ref(false);
+const mostrarModalColaboradores = ref(false);
 
 // Formulário principal
 const form = ref({
@@ -319,14 +427,23 @@ const form = ref({
     valorDesconto: 0,
     porcentagemDesconto: 0,
 
-    // Página 4
+    // Página 4 (nova)
+    colaboradorSelecao: "NENHUM", // "NENHUM" ou "SELECIONAR"
+    colaboradorId: null,
+
+    // Página 5 (antiga 4)
     convenioId: null
 });
 
-// Computed para convênio selecionado
+// Computed
 const convenioSelecionado = computed(() => {
     if (!form.value.convenioId) return null;
     return convenios.value.find(c => c.id === form.value.convenioId);
+});
+
+const colaboradorSelecionado = computed(() => {
+    if (!form.value.colaboradorId) return null;
+    return colaboradores.value.find(c => c.id === form.value.colaboradorId);
 });
 
 // Carregar dados iniciais
@@ -342,6 +459,10 @@ const carregarDados = async () => {
         const resServicos = await servicoService.listarTodos(empresaId);
         servicos.value = resServicos.data || [];
 
+        // Carregar colaboradores
+        const resColaboradores = await colaboradorService.listarPorEmpresa(empresaId);
+        colaboradores.value = resColaboradores.data || [];
+
         // Carregar convênios
         const resConvenios = await convenioService.listarPorEmpresa(empresaId);
         convenios.value = resConvenios.data || [];
@@ -351,7 +472,7 @@ const carregarDados = async () => {
     }
 };
 
-// Validação de página - CORRIGIDA
+// Validação de página - ATUALIZADA
 const validarPaginaAtual = () => {
     switch (currentPage.value) {
         case 1:
@@ -359,26 +480,26 @@ const validarPaginaAtual = () => {
             const todosItensValidos = form.value.itens.every(item =>
                 item.servicoId && item.microServicoIds.length > 0
             );
-            
+
             // Verificar se todos os itens têm valores de hora e quantidade válidos
             const todosValoresValidos = form.value.itens.every(item => {
                 const valorHora = parseFloat(item.valorHora) || 0;
                 const qtdHora = parseFloat(item.qtdHora) || 0;
                 return valorHora > 0 && qtdHora > 0;
             });
-            
+
             return todosItensValidos && todosValoresValidos && form.value.itens.length > 0;
-            
+
         case 2:
             // Verificar se todos os custos têm nome e valor válidos
             if (form.value.custos.length === 0) {
                 return true; // Custos são opcionais
             }
-            return form.value.custos.every(custo => 
-                custo.nome && custo.nome.trim() !== '' && 
+            return form.value.custos.every(custo =>
+                custo.nome && custo.nome.trim() !== '' &&
                 (parseFloat(custo.valor) || 0) >= 0
             );
-            
+
         case 3:
             // Se selecionou desconto em valor, precisa ter valor maior que 0
             if (form.value.tipoDesconto === 'VALOR') {
@@ -391,12 +512,19 @@ const validarPaginaAtual = () => {
             }
             // Se selecionou "Nenhum Desconto", é válido
             return true;
-            
+
         case 4:
-            // A página 4 sempre é válida (convênio é opcional)
-            // O usuário pode selecionar um convênio ou não
+            // Se selecionou "SELECIONAR", precisa escolher um colaborador
+            if (form.value.colaboradorSelecao === 'SELECIONAR') {
+                return form.value.colaboradorId !== null && form.value.colaboradorId !== '';
+            }
+            // Se selecionou "NENHUM", é válido
             return true;
-            
+
+        case 5:
+            // A página 5 sempre é válida (convênio é opcional)
+            return true;
+
         default:
             return true;
     }
@@ -462,7 +590,43 @@ const removerCusto = (index) => {
     }
 };
 
-// Funções para Página 5
+// Funções para Página 4 (Colaboradores)
+const abrirGerenciarColaboradores = () => {
+    mostrarModalColaboradores.value = true;
+};
+
+const fecharModalColaboradores = () => {
+    mostrarModalColaboradores.value = false;
+};
+
+const recarregarColaboradores = async () => {
+    try {
+        const empresaId = authStore.empresa?.empresaId;
+        if (!empresaId) return;
+
+        const resColaboradores = await colaboradorService.listarPorEmpresa(empresaId);
+        colaboradores.value = resColaboradores.data || [];
+    } catch (err) {
+        console.error("Erro ao recarregar colaboradores:", err);
+    }
+};
+
+// Formatar telefone para exibição
+const formatarTelefone = (telefone) => {
+    if (!telefone) return '';
+    // Remove caracteres não numéricos
+    const numeros = telefone.replace(/\D/g, '');
+
+    if (numeros.length === 10) {
+        return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 6)}-${numeros.substring(6)}`;
+    } else if (numeros.length === 11) {
+        return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`;
+    }
+
+    return telefone;
+};
+
+// Funções para Página 6
 const getNomeServico = (servicoId) => {
     if (!servicoId) return "Serviço não selecionado";
     const servico = servicos.value.find(s => s.id === servicoId);
@@ -500,7 +664,7 @@ const calcularValorTotalProposta = () => {
 
 // Navegação
 const nextPage = () => {
-    if (currentPage.value < 5 && validarPaginaAtual()) {
+    if (currentPage.value < 6 && validarPaginaAtual()) {
         currentPage.value++;
     } else {
         // Mostrar mensagem de erro se a página não for válida
@@ -514,10 +678,10 @@ const prevPage = () => {
     }
 };
 
-// Mostrar erro de validação
+// Mostrar erro de validação - ATUALIZADA
 const mostrarErroValidacao = () => {
     let mensagem = "";
-    
+
     switch (currentPage.value) {
         case 1:
             mensagem = "Por favor, preencha todos os itens da proposta:\n";
@@ -537,14 +701,19 @@ const mostrarErroValidacao = () => {
                 mensagem = "Por favor, informe uma porcentagem de desconto válida (entre 0.1% e 100%)";
             }
             break;
+        case 4:
+            if (form.value.colaboradorSelecao === 'SELECIONAR') {
+                mensagem = "Por favor, selecione um colaborador da lista ou altere a opção para 'Não atribuir colaborador'";
+            }
+            break;
     }
-    
+
     if (mensagem) {
         window.alert(mensagem);
     }
 };
 
-// Criar proposta
+// Criar proposta - ATUALIZADA
 const criarProposta = async () => {
     try {
         loading.value = true;
@@ -557,6 +726,8 @@ const criarProposta = async () => {
         console.log("=== INICIANDO CRIAÇÃO DE PROPOSTA ===");
         console.log("Empresa ID:", empresaId);
         console.log("Cliente ID:", props.cliente.id);
+        console.log("colaborador ID:", form.value.colaboradorId);
+        console.log("Convênio ID:", form.value.convenioId);
 
         // Validar dados obrigatórios
         const itensValidos = form.value.itens.filter(item =>
@@ -689,11 +860,14 @@ const criarProposta = async () => {
             return;
         }
 
-        // PASSO 3: Preparar dados da proposta
+        // PASSO 3: Preparar dados da proposta COM COLABORADOR
         const dadosProposta = {
             empresaId: Number(empresaId),
             clienteId: Number(props.cliente.id),
             convenioId: form.value.convenioId ? Number(form.value.convenioId) : null,
+            colaboradorId: form.value.colaboradorSelecao === 'SELECIONAR' && form.value.colaboradorId
+                ? Number(form.value.colaboradorId)
+                : null,
             custoList: custosIds,
             itemPropostaList: itemPropostaIds,
             tipoDesconto: form.value.tipoDesconto,
@@ -702,6 +876,7 @@ const criarProposta = async () => {
             porcentagemDesconto: form.value.tipoDesconto === 'PORCENTAGEM' ? parseFloat(form.value.porcentagemDesconto) || 0 : 0
         };
 
+        console.log(form.value.colaboradorId);
         console.log("📤 Dados da proposta para enviar:", dadosProposta);
 
         // PASSO 4: Criar a proposta
@@ -739,6 +914,13 @@ const handleEscape = (event) => {
         handleClose();
     }
 };
+
+// Watch para resetar colaboradorId quando mudar a seleção
+watch(() => form.value.colaboradorSelecao, (newVal) => {
+    if (newVal === 'NENHUM') {
+        form.value.colaboradorId = null;
+    }
+});
 
 // Adicionar listener para ESC
 onMounted(() => {
@@ -795,7 +977,7 @@ onBeforeUnmount(() => {
 }
 
 .modal {
-    width: 700px;
+    width: 750px;
     max-width: 90vw;
     max-height: 85vh;
     border-radius: 16px;
@@ -907,14 +1089,14 @@ onBeforeUnmount(() => {
 }
 
 .steps span {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
 }
@@ -1191,6 +1373,205 @@ small {
     font-size: 0.9rem;
 }
 
+/* Estilos adicionais para a nova página de colaborador */
+.radio-option.large {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.modal.dark .radio-option.large {
+    border-color: #4b5563;
+}
+
+.radio-option.large:hover {
+    border-color: #daa520;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.radio-option.large input[type="radio"]:checked~.option-content {
+    color: #daa520;
+}
+
+.option-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.option-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #111827;
+}
+
+.modal.dark .option-title {
+    color: #f0f0f0;
+}
+
+.option-description {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.modal.dark .option-description {
+    color: #9ca3af;
+}
+
+.page-subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: -8px 0 20px 0;
+}
+
+.modal.dark .page-subtitle {
+    color: #9ca3af;
+}
+
+/* Seleção de colaborador */
+.colaborador-selection {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.modal.dark .colaborador-selection {
+    background: #2d2d2d;
+    border-color: #374151;
+}
+
+.colaborador-select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.colaborador-select:focus {
+    border-color: #daa520;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+}
+
+/* Card de informações do colaborador */
+.colaborador-info-card {
+    margin-top: 20px;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #10b981;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.modal.dark .colaborador-info-card {
+    background: #1a1a1a;
+    border-color: #34d399;
+}
+
+.colaborador-info-header {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    padding: 16px;
+    color: white;
+}
+
+.colaborador-info-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.colaborador-info-content {
+    padding: 20px;
+}
+
+.colaborador-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal.dark .colaborador-info-row {
+    border-color: #374151;
+}
+
+.colaborador-info-row:last-child {
+    border-bottom: none;
+}
+
+.colaborador-info-row .label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.modal.dark .colaborador-info-row .label {
+    color: #9ca3af;
+}
+
+.colaborador-info-row .value {
+    font-size: 0.95rem;
+    color: #111827;
+    text-align: right;
+}
+
+.modal.dark .colaborador-info-row .value {
+    color: #f0f0f0;
+}
+
+/* Badge de função */
+.funcao-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Botão de gerenciar colaboradores */
+.colaborador-management {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.btn-manage-colaboradores {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-manage-colaboradores:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-manage-colaboradores svg {
+    width: 16px;
+    height: 16px;
+}
+
 /* Desconto preview */
 .desconto-preview {
     background: #f0f9ff;
@@ -1206,16 +1587,6 @@ small {
 }
 
 /* Convênio styles */
-.page-subtitle {
-    color: #6b7280;
-    font-size: 0.9rem;
-    margin: -8px 0 20px 0;
-}
-
-.modal.dark .page-subtitle {
-    color: #9ca3af;
-}
-
 .convenio-options {
     display: flex;
     flex-direction: column;
@@ -1384,6 +1755,12 @@ small {
     line-height: 1.4;
 }
 
+/* Resumo do colaborador */
+.colaborador-resumo p {
+    margin: 8px 0;
+    font-size: 0.9rem;
+}
+
 .convenio-descricao-resumo {
     margin-top: 8px;
     color: #6b7280;
@@ -1520,6 +1897,63 @@ small {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .modal {
+        width: 95vw;
+        max-height: 90vh;
+        margin: 20px;
+    }
+
+    .modal-header {
+        padding: 20px;
+    }
+
+    .modal-content {
+        padding: 0 20px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .radio-option.large {
+        padding: 12px;
+    }
+
+    .colaborador-selection {
+        padding: 16px;
+    }
+
+    .convenio-options {
+        gap: 8px;
+    }
+
+    .convenio-item {
+        padding: 12px;
+    }
+
+    .modal-actions {
+        padding: 20px;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn-secondary,
+    .btn-primary,
+    .btn-submit {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .steps span {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
     }
 }
 </style>
