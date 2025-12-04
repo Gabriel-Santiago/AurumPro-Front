@@ -36,7 +36,14 @@
 
               <div class="form-group">
                 <label>Data de Nascimento *</label>
-                <input v-model="pf.dataNascimento" type="date" required />
+                <input 
+                  v-model="pf.dataNascimento" 
+                  type="date" 
+                  :max="maxDate" 
+                  :min="minDate"
+                  required 
+                />
+                <small class="date-hint">Data permitida: até 10 anos atrás</small>
               </div>
             </div>
 
@@ -119,6 +126,22 @@ const tab = ref("pf");
 // Obter empresaId da store de autenticação
 const empresaId = authStore.empresa?.empresaId;
 
+// Calcular datas para validação
+const today = new Date();
+const tenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+// Formatar para YYYY-MM-DD (formato do input date)
+const formatDateForInput = (date) => {
+  return date.toISOString().split('T')[0];
+};
+
+const maxDate = computed(() => formatDateForInput(tenYearsAgo));
+const minDate = computed(() => {
+  // Data mínima: 120 anos atrás (pessoas muito idosas)
+  const hundredTwentyYearsAgo = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+  return formatDateForInput(hundredTwentyYearsAgo);
+});
+
 const pf = ref({
   nome: "",
   email: "",
@@ -138,6 +161,26 @@ const pj = ref({
 
 const submitPF = async () => {
   try {
+    // Validar data de nascimento
+    if (pf.value.dataNascimento) {
+      const birthDate = new Date(pf.value.dataNascimento);
+      const today = new Date();
+      const minValidDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
+      
+      // Verificar se a data é válida (não é no futuro e não é muito recente)
+      if (birthDate > minValidDate) {
+        window.alert("Data de nascimento inválida. O cliente deve ter pelo menos 10 anos de idade.");
+        return;
+      }
+      
+      // Verificar se não é muito antiga (mais de 120 anos)
+      const maxValidDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+      if (birthDate < maxValidDate) {
+        window.alert("Data de nascimento inválida. A data não pode ser anterior a 120 anos atrás.");
+        return;
+      }
+    }
+
     // Preparar dados para enviar - incluir empresaId como 'id'
     const dadosPF = {
       id: empresaId, // empresaId será enviado como 'id' no DTO
@@ -161,7 +204,7 @@ const submitPF = async () => {
     emit("created");
   } catch (err) {
     console.error("Erro ao criar Pessoa Física:", err);
-    window.alert("Erro ao criar Pessoa Física");
+    window.alert("Erro ao criar Pessoa Física: " + (err.response?.data?.message || err.message));
   }
 };
 
@@ -170,7 +213,7 @@ const submitPJ = async () => {
     // Preparar dados para enviar - incluir empresaId como 'id'
     const dadosPJ = {
       id: empresaId, // empresaId será enviado como 'id' no DTO
-      responsavel: pj.value.nome,
+      responsavel: pj.value.responsavel,
       email: pj.value.email,
       numero: pj.value.numero,
       cnpj: pj.value.cnpj
@@ -187,7 +230,7 @@ const submitPJ = async () => {
     emit("created");
   } catch (err) {
     console.error("Erro ao criar Pessoa Jurídica:", err);
-    window.alert("Erro ao criar Pessoa Jurídica");
+    window.alert("Erro ao criar Pessoa Jurídica: " + (err.response?.data?.message || err.message));
   }
 };
 
@@ -445,6 +488,18 @@ input {
   color: #666;
 }
 
+/* Estilo para o hint da data */
+.date-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.modal.dark .date-hint {
+  color: #9ca3af;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -522,6 +577,21 @@ input {
   box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
 }
 
+/* Estilo para input date em diferentes navegadores */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.modal.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
 /* Responsivo */
 @media (max-width: 640px) {
   .modal {
@@ -540,6 +610,11 @@ input {
   .btn-cancel, .btn-submit {
     min-width: auto;
     width: 100%;
+  }
+  
+  /* Ajustar o hint da data em mobile */
+  .date-hint {
+    font-size: 0.7rem;
   }
 }
 </style>
