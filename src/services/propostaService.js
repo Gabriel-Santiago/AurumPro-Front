@@ -8,5 +8,9 @@ const api = axios.create({
 export default {
   criar(dados) {
     return api.post('/propostas', dados);
+  },
+
+  listarPorCliente(empresaId, clienteId) {
+    return api.get(`/propostas/${empresaId}/${clienteId}`);
   }
 }

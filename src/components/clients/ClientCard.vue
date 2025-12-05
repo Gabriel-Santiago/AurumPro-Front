@@ -26,7 +26,8 @@
       </div>
 
       <div class="actions">
-        <button class="proposal" @click="abrirPropostaModal">Criar proposta</button>
+        <button class="btn-details" @click="abrirDetalhesModal">Detalhes</button>
+        <button class="btn-proposal" @click="abrirPropostaModal">Criar proposta</button>
       </div>
     </div>
   </div>
@@ -59,6 +60,12 @@
       @close="fecharPropostaModal"
       @created="handlePropostaCriada"
     />
+
+    <ClienteModal
+      v-if="showDetalhesModal"
+      :cliente="cliente"
+      @close="fecharDetalhesModal"
+    />
 </template>
 
 <script setup>
@@ -68,6 +75,7 @@ import UpdateEmailTelefoneModal from "./UpdateEmailTelefoneModal.vue";
 import UpdateEnderecoModal from "./UpdateEnderecoModal.vue";
 import DeleteClienteModal from "./DeleteClienteModal.vue";
 import CriarPropostaModal from "../componentes/PropostaModal.vue"
+import ClienteModal from "./ClienteModal.vue";
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -87,6 +95,7 @@ const showEmailTelefoneModal = ref(false);
 const showEnderecoModal = ref(false);
 const showDeleteModal = ref(false);
 const showPropostaModal = ref(false);
+const showDetalhesModal = ref(false);
 
 // Iniciais do nome para o avatar
 const initials = computed(() => {
@@ -142,6 +151,10 @@ const abrirPropostaModal = () => {
   showPropostaModal.value = true;
 };
 
+const abrirDetalhesModal = () => {
+  showDetalhesModal.value = true;
+};
+
 // Modal close functions
 const closeEmailTelefoneModal = () => {
   showEmailTelefoneModal.value = false;
@@ -157,6 +170,10 @@ const closeDeleteModal = () => {
 
 const fecharPropostaModal = () => {
   showPropostaModal.value = false;
+};
+
+const fecharDetalhesModal = () => {
+  showDetalhesModal.value = false;
 };
 
 // Handle modal events - AGORA EMITE 'refresh'
@@ -433,5 +450,76 @@ const handlePropostaCriada = () => {
 .card.dark:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border-color: #444;
+}
+
+/* Ajuste nas ações para incluir dois botões */
+.actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-details, .btn-proposal {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+/* Botão Detalhes */
+.card.light .btn-details {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.card.light .btn-details:hover {
+  background: #e5e7eb;
+}
+
+.card.dark .btn-details {
+  background: #374151;
+  color: #d1d5db;
+  border: 1px solid #4b5563;
+}
+
+.card.dark .btn-details:hover {
+  background: #4b5563;
+}
+
+/* Botão Criar Proposta */
+.card.light .btn-proposal {
+  background: #daa520;
+  color: #fff;
+}
+
+.card.light .btn-proposal:hover {
+  background: #e6b800;
+  transform: translateY(-1px);
+}
+
+.card.dark .btn-proposal {
+  background: #daa520;
+  color: #111;
+}
+
+.card.dark .btn-proposal:hover {
+  background: #e6b800;
+  box-shadow: 0 2px 8px rgba(218, 165, 32, 0.3);
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+  }
+  
+  .btn-details, .btn-proposal {
+    width: 100%;
+  }
 }
 </style>
