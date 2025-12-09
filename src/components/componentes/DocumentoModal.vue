@@ -12,140 +12,142 @@
                 <button class="close-btn" @click="$emit('close')" :disabled="loading">×</button>
             </div>
 
-            <div class="modal-content">
-                <!-- Informações Rápidas -->
-                <div class="info-rapida" v-if="documento && !loading">
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Cliente:</span>
-                            <span class="info-value">{{ documento.cliente?.nome || 'Não informado' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Empresa:</span>
-                            <span class="info-value">{{ documento.empresa?.nome || 'Não informado' }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Valor Total:</span>
-                            <span class="info-value valor-total">R$ {{ formatarValor(documento.valorTotal) }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Consultor:</span>
-                            <span class="info-value">{{ consultorNome }}</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Aviso se não tem colaborador -->
-                    <div v-if="!documento.colaborador" class="aviso-sem-colaborador">
-                        <span class="aviso-icon">ℹ️</span>
-                        <span>Usando responsável da empresa como consultor</span>
-                    </div>
-                </div>
-
-                <!-- Pré-visualização -->
-                <div class="preview-container">
-                    <div class="preview-header">
-                        <h4>Pré-visualização do Documento</h4>
-                        <div class="preview-actions">
-                            <button class="btn-refresh" @click="carregarDados" :disabled="loading">
-                                🔄 Atualizar
-                            </button>
-                            <div class="format-selector">
-                                <label class="format-option">
-                                    <input type="radio" v-model="visualizacao" value="texto" :disabled="loading">
-                                    <span>Texto</span>
-                                </label>
-                                <label class="format-option">
-                                    <input type="radio" v-model="visualizacao" value="visual" :disabled="loading">
-                                    <span>Visual</span>
-                                </label>
+            <div class="modal-content-wrapper">
+                <div class="modal-content-container">
+                    <!-- Informações Rápidas -->
+                    <div class="info-rapida" v-if="documento && !loading">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Cliente:</span>
+                                <span class="info-value">{{ documento.cliente?.nome || 'Não informado' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Empresa:</span>
+                                <span class="info-value">{{ documento.empresa?.nome || 'Não informado' }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor Total:</span>
+                                <span class="info-value valor-total">R$ {{ formatarValor(documento.valorTotal) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Consultor:</span>
+                                <span class="info-value">{{ consultorNome }}</span>
                             </div>
                         </div>
-                    </div>
-
-                    <div v-if="loading" class="loading-container">
-                        <div class="spinner"></div>
-                        <span>Carregando documento...</span>
-                    </div>
-
-                    <div v-else-if="erro" class="error-container">
-                        <div class="error-icon">❌</div>
-                        <span>{{ erro }}</span>
-                        <button class="btn-retry" @click="carregarDados">Tentar novamente</button>
-                    </div>
-
-                    <div v-else-if="!documento" class="dados-nao-encontrados">
-                        <div class="aviso-icon">⚠️</div>
-                        <span>Não foi possível carregar os dados da proposta</span>
-                        <p class="aviso-descricao">A proposta pode não existir ou estar corrompida.</p>
-                        <button class="btn-retry" @click="carregarDados">Tentar novamente</button>
-                    </div>
-
-                    <div v-else class="preview-content" :class="{ 'texto-view': visualizacao === 'texto' }">
-                        <div v-if="visualizacao === 'texto'" class="texto-preview">
-                            <pre class="documento-texto">{{ conteudo || 'Conteúdo não disponível' }}</pre>
-                        </div>
                         
-                        <div v-else class="visual-preview">
-                            <div class="documento-visual">
-                                <!-- Cabeçalho -->
-                                <h1>TERMO DE PRESTAÇÃO DE SERVIÇOS</h1>
-                                
-                                <!-- Dados do Cliente -->
-                                <h2>1. Dados do Cliente Contratante</h2>
-                                <div v-if="documento.cliente">
-                                    <div v-if="documento.cliente.tipoPessoa === 'PJ' && documento.cliente.responsavel">
-                                        <p><strong>• Nome do Responsável:</strong> {{ documento.cliente.responsavel }}</p>
+                        <!-- Aviso se não tem colaborador -->
+                        <div v-if="!documento.colaborador" class="aviso-sem-colaborador">
+                            <span class="aviso-icon">ℹ️</span>
+                            <span>Usando responsável da empresa como consultor</span>
+                        </div>
+                    </div>
+
+                    <!-- Pré-visualização -->
+                    <div class="preview-container">
+                        <div class="preview-header">
+                            <h4>Pré-visualização do Documento</h4>
+                            <div class="preview-actions">
+                                <button class="btn-refresh" @click="carregarDados" :disabled="loading">
+                                    🔄 Atualizar
+                                </button>
+                                <div class="format-selector">
+                                    <label class="format-option">
+                                        <input type="radio" v-model="visualizacao" value="texto" :disabled="loading">
+                                        <span>Texto</span>
+                                    </label>
+                                    <label class="format-option">
+                                        <input type="radio" v-model="visualizacao" value="visual" :disabled="loading">
+                                        <span>Visual</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="loading" class="loading-container">
+                            <div class="spinner"></div>
+                            <span>Carregando documento...</span>
+                        </div>
+
+                        <div v-else-if="erro" class="error-container">
+                            <div class="error-icon">❌</div>
+                            <span>{{ erro }}</span>
+                            <button class="btn-retry" @click="carregarDados">Tentar novamente</button>
+                        </div>
+
+                        <div v-else-if="!documento" class="dados-nao-encontrados">
+                            <div class="aviso-icon">⚠️</div>
+                            <span>Não foi possível carregar os dados da proposta</span>
+                            <p class="aviso-descricao">A proposta pode não existir ou estar corrompida.</p>
+                            <button class="btn-retry" @click="carregarDados">Tentar novamente</button>
+                        </div>
+
+                        <div v-else class="preview-content" :class="{ 'texto-view': visualizacao === 'texto' }">
+                            <div v-if="visualizacao === 'texto'" class="texto-preview">
+                                <pre class="documento-texto">{{ conteudo || 'Conteúdo não disponível' }}</pre>
+                            </div>
+                            
+                            <div v-else class="visual-preview">
+                                <div class="documento-visual">
+                                    <!-- Cabeçalho -->
+                                    <h1>TERMO DE PRESTAÇÃO DE SERVIÇOS</h1>
+                                    
+                                    <!-- Dados do Cliente -->
+                                    <h2>1. Dados do Cliente Contratante</h2>
+                                    <div v-if="documento.cliente">
+                                        <div v-if="documento.cliente.tipoPessoa === 'PJ' && documento.cliente.responsavel">
+                                            <p><strong>• Nome do Responsável:</strong> {{ documento.cliente.responsavel }}</p>
+                                        </div>
+                                        <p><strong>• Nome:</strong> {{ documento.cliente.nome }}</p>
+                                        <p><strong>• CNPJ/CPF:</strong> {{ documentoClienteFormatado }}</p>
+                                        <p><strong>• Telefone:</strong> {{ formatarTelefone(documento.cliente.telefone) }}</p>
+                                        <p><strong>• E-mail:</strong> {{ documento.cliente.email }}</p>
                                     </div>
-                                    <p><strong>• Nome:</strong> {{ documento.cliente.nome }}</p>
-                                    <p><strong>• CNPJ/CPF:</strong> {{ documentoClienteFormatado }}</p>
-                                    <p><strong>• Telefone:</strong> {{ formatarTelefone(documento.cliente.telefone) }}</p>
-                                    <p><strong>• E-mail:</strong> {{ documento.cliente.email }}</p>
-                                </div>
-                                
-                                <!-- Dados da Empresa -->
-                                <h2>2. Dados da Empresa Contratada</h2>
-                                <div v-if="documento.empresa">
-                                    <p><strong>Empresa:</strong> {{ documento.empresa.nome }}</p>
-                                    <p><strong>CNPJ:</strong> {{ formatarCNPJ(documento.empresa.cnpj) }}</p>
-                                    <p><strong>Responsável:</strong> {{ documento.empresa.responsavel }}</p>
-                                    <p><strong>Endereço:</strong> {{ enderecoEmpresa }}</p>
-                                    <p><strong>Telefone:</strong> {{ formatarTelefone(documento.empresa.telefone) }}</p>
-                                </div>
-                                
-                                <!-- Serviços -->
-                                <h2>3. Serviços e Subserviços Contratados</h2>
-                                <div class="servicos-placeholder" v-if="!documento.servicoList || documento.servicoList.length === 0">
-                                    <p>Nenhum serviço contratado</p>
-                                </div>
-                                <div v-else class="servicos-info">
-                                    <p>{{ documento.servicoList.length }} serviço(s) contratado(s)</p>
-                                    <p>{{ documento.microServicoList?.length || 0 }} microserviço(s)</p>
-                                </div>
-                                
-                                <!-- Custos -->
-                                <h2>4. Custos adicionais</h2>
-                                <div class="custos-placeholder" v-if="!documento.custoList || documento.custoList.length === 0">
-                                    <p>Nenhum custo adicional</p>
-                                </div>
-                                <div v-else class="custos-info">
-                                    <p>{{ documento.custoList.length }} custo(s) adicional(is)</p>
-                                </div>
-                                
-                                <!-- Investimento -->
-                                <h2>5. Investimento</h2>
-                                <p><strong>• Valor proposto:</strong> R$ {{ formatarValor(documento.valorTotal) }}</p>
-                                <p><strong>• Forma de pagamento:</strong> ___________________________</p>
-                                <p><strong>• PIX para pagamento:</strong></p>
-                                
-                                <!-- Condições -->
-                                <h2>6. Condições Gerais</h2>
-                                <p>O início do atendimento será a partir do dia: _________________________.</p>
-                                <p>{{ cidadeUfEmpresa }}, {{ dataAtualFormatada }}</p>
-                                
-                                <!-- Assinaturas -->
-                                <div class="assinaturas">
-                                    <p><strong>Cliente:</strong> ___________________________________________</p>
-                                    <p><strong>Consultor(a):</strong> {{ consultorNome }}</p>
+                                    
+                                    <!-- Dados da Empresa -->
+                                    <h2>2. Dados da Empresa Contratada</h2>
+                                    <div v-if="documento.empresa">
+                                        <p><strong>Empresa:</strong> {{ documento.empresa.nome }}</p>
+                                        <p><strong>CNPJ:</strong> {{ formatarCNPJ(documento.empresa.cnpj) }}</p>
+                                        <p><strong>Responsável:</strong> {{ documento.empresa.responsavel }}</p>
+                                        <p><strong>Endereço:</strong> {{ enderecoEmpresa }}</p>
+                                        <p><strong>Telefone:</strong> {{ formatarTelefone(documento.empresa.telefone) }}</p>
+                                    </div>
+                                    
+                                    <!-- Serviços -->
+                                    <h2>3. Serviços e Subserviços Contratados</h2>
+                                    <div class="servicos-placeholder" v-if="!documento.servicoList || documento.servicoList.length === 0">
+                                        <p>Nenhum serviço contratado</p>
+                                    </div>
+                                    <div v-else class="servicos-info">
+                                        <p>{{ documento.servicoList.length }} serviço(s) contratado(s)</p>
+                                        <p>{{ documento.microServicoList?.length || 0 }} microserviço(s)</p>
+                                    </div>
+                                    
+                                    <!-- Custos -->
+                                    <h2>4. Custos adicionais</h2>
+                                    <div class="custos-placeholder" v-if="!documento.custoList || documento.custoList.length === 0">
+                                        <p>Nenhum custo adicional</p>
+                                    </div>
+                                    <div v-else class="custos-info">
+                                        <p>{{ documento.custoList.length }} custo(s) adicional(is)</p>
+                                    </div>
+                                    
+                                    <!-- Investimento -->
+                                    <h2>5. Investimento</h2>
+                                    <p><strong>• Valor proposto:</strong> R$ {{ formatarValor(documento.valorTotal) }}</p>
+                                    <p><strong>• Forma de pagamento:</strong> ___________________________</p>
+                                    <p><strong>• PIX para pagamento:</strong></p>
+                                    
+                                    <!-- Condições -->
+                                    <h2>6. Condições Gerais</h2>
+                                    <p>O início do atendimento será a partir do dia: _________________________.</p>
+                                    <p>{{ cidadeUfEmpresa }}, {{ dataAtualFormatada }}</p>
+                                    
+                                    <!-- Assinaturas -->
+                                    <div class="assinaturas">
+                                        <p><strong>Cliente:</strong> ___________________________________________</p>
+                                        <p><strong>Consultor(a):</strong> {{ consultorNome }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -246,11 +248,17 @@ const dataAtualFormatada = computed(() => {
 // Carregar dados
 const carregarDados = async () => {
     try {
+        console.log("=== DEBUG DOCUMENTO ===");
+        console.log("1. props.proposta.id:", props.proposta.id);
+        console.log("2. Tipo:", typeof props.proposta.id);
+        console.log("3. props.proposta:", props.proposta);
         loading.value = true;
         erro.value = null;
+        console.log("4. Chamando documentoService.buscarDados com ID:", props.proposta.id);
         
         // Carrega dados estruturados
         const dados = await documentoService.buscarDados(props.proposta.id);
+        console.log("5. Dados retornados:", dados);
         documento.value = dados;
         
         // Se encontrou dados, carrega conteúdo
@@ -412,160 +420,279 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Modal principal */
-.documento-modal {
-    width: 900px;
-    max-width: 95vw;
-    max-height: 90vh;
+/* ========== LAYOUT PRINCIPAL ========== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 10px;
+}
+
+.modal.documento-modal {
+    width: 1300px;
+    max-width: 98vw;
+    height: 95vh;
+    max-height: 95vh;
     display: flex;
     flex-direction: column;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
     overflow: hidden;
 }
 
-/* Header */
+.modal.light {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --border-color: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-tertiary: #475569;
+}
+
+.modal.dark {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3d3d3d;
+    --border-color: #4a4a4a;
+    --text-primary: #f0f0f0;
+    --text-secondary: #b0b0b0;
+    --text-tertiary: #909090;
+}
+
+/* ========== HEADER (MENOR) ========== */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    min-height: 70px;
+}
+
 .header-content {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .proposta-info {
     display: flex;
     gap: 16px;
     font-size: 0.85rem;
-    color: #6b7280;
 }
 
-.modal.dark .proposta-info {
-    color: #9ca3af;
+.proposta-numero {
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
-/* Conteúdo do modal com scroll */
-.modal-content {
+.proposta-data {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.modal.dark .close-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.close-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== CONTEÚDO PRINCIPAL (MÁXIMO ESPAÇO) ========== */
+.modal-content-wrapper {
     flex: 1;
-    overflow-y: auto; /* SCROLL VERTICAL */
-    padding: 0 32px 24px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    overflow: hidden;
+}
+
+.modal-content-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 /* Estilização da scrollbar */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
+.modal-content-container::-webkit-scrollbar {
+    width: 12px;
 }
 
-.modal-content::-webkit-scrollbar-track {
-    background: transparent;
+.modal-content-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 6px;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modal-content-container::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 6px;
+    border: 3px solid var(--bg-secondary);
 }
 
-.modal.dark .modal-content::-webkit-scrollbar-thumb {
+.modal-content-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.modal.dark .modal-content-container::-webkit-scrollbar-thumb {
     background: #4b5563;
 }
 
-/* Informações Rápidas */
+.modal.dark .modal-content-container::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* ========== INFORMAÇÕES RÁPIDAS (COMPACTAS) ========== */
 .info-rapida {
     background: var(--bg-secondary);
-    padding: 16px;
+    padding: 16px 20px;
     border-radius: 8px;
-    margin-bottom: 16px;
     border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
-.modal.light .info-rapida {
-    --bg-secondary: #f9fafb;
-    --border-color: #e5e7eb;
-}
-
-.modal.dark .info-rapida {
-    --bg-secondary: #2d2d2d;
-    --border-color: #374151;
-}
-
-.info-rapida .info-grid {
+.info-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 16px;
+    margin-bottom: 12px;
 }
 
-@media (max-width: 768px) {
-    .info-rapida .info-grid {
+@media (max-width: 1024px) {
+    .info-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-.info-rapida .info-item {
+@media (max-width: 640px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.info-item {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.info-rapida .info-label {
+.info-label {
     font-size: 0.8rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.modal.dark .info-rapida .info-label {
-    color: #9ca3af;
-}
-
-.info-rapida .info-value {
-    font-size: 0.9rem;
-    font-weight: 500;
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
     color: var(--text-primary);
-}
-
-.modal.light .info-rapida .info-value {
-    --text-primary: #111827;
-}
-
-.modal.dark .info-rapida .info-value {
-    --text-primary: #f0f0f0;
+    line-height: 1.3;
 }
 
 .valor-total {
     color: #10b981;
-    font-weight: 700;
+    font-size: 1rem;
 }
 
-/* Preview Container */
+.aviso-sem-colaborador {
+    padding: 10px 14px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #92400e;
+}
+
+.modal.dark .aviso-sem-colaborador {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+.aviso-icon {
+    font-size: 1.1rem;
+}
+
+/* ========== CONTAINER DE PREVIEW (MUITO MAIOR) ========== */
 .preview-container {
     flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     background: var(--bg-secondary);
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
     overflow: hidden;
+    /* Altura máxima para o preview */
+    max-height: calc(95vh - 180px);
 }
 
 .preview-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    padding: 12px 20px;
     background: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-color);
-}
-
-.modal.light .preview-header {
-    --bg-tertiary: #f3f4f6;
-}
-
-.modal.dark .preview-header {
-    --bg-tertiary: #374151;
+    flex-shrink: 0;
+    min-height: 50px;
 }
 
 .preview-header h4 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .preview-actions {
@@ -581,8 +708,12 @@ onMounted(() => {
     background: transparent;
     color: #3b82f6;
     font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .btn-refresh:hover:not(:disabled) {
@@ -596,25 +727,21 @@ onMounted(() => {
 
 .format-selector {
     display: flex;
-    gap: 8px;
-    background: var(--bg-quaternary);
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.05);
     padding: 4px;
     border-radius: 6px;
 }
 
-.modal.light .format-selector {
-    --bg-quaternary: #e5e7eb;
-}
-
 .modal.dark .format-selector {
-    --bg-quaternary: #4b5563;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .format-option {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -622,40 +749,35 @@ onMounted(() => {
 
 .format-option input[type="radio"] {
     margin: 0;
+    accent-color: #3b82f6;
 }
 
 .format-option span {
     font-size: 0.85rem;
     color: var(--text-secondary);
-}
-
-.modal.light .format-option span {
-    --text-secondary: #6b7280;
-}
-
-.modal.dark .format-option span {
-    --text-secondary: #9ca3af;
+    font-weight: 500;
 }
 
 .format-option:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(59, 130, 246, 0.1);
 }
 
 .format-option input:checked + span {
     color: #3b82f6;
-    font-weight: 500;
 }
 
-/* Loading e Erro */
+/* ========== ESTADOS (LOADING, ERRO, VAZIO) ========== */
 .loading-container,
-.error-container {
+.error-container,
+.dados-nao-encontrados {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 40px 30px;
     text-align: center;
+    min-height: 300px;
 }
 
 .spinner {
@@ -673,18 +795,19 @@ onMounted(() => {
 }
 
 .error-icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
     margin-bottom: 16px;
     color: #ef4444;
 }
 
 .btn-retry {
     margin-top: 16px;
-    padding: 8px 16px;
+    padding: 8px 20px;
     background: #3b82f6;
     color: white;
     border: none;
     border-radius: 6px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -693,118 +816,162 @@ onMounted(() => {
     background: #2563eb;
 }
 
-/* Conteúdo do Preview */
+.aviso-descricao {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    max-width: 400px;
+    line-height: 1.4;
+}
+
+/* ========== CONTEÚDO DO PREVIEW (MUITO MAIOR) ========== */
 .preview-content {
     flex: 1;
-    overflow-y: auto;
-}
-
-.preview-content.texto-view {
-    background: white;
-}
-
-.modal.dark .preview-content.texto-view {
-    background: #1a1a1a;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    /* Altura máxima para conteúdo do preview */
+    max-height: calc(95vh - 280px);
 }
 
 .texto-preview {
-    padding: 24px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
 }
 
 .documento-texto {
+    flex: 1;
     margin: 0;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 16px;
+    line-height: 1.8;
     white-space: pre-wrap;
     word-wrap: break-word;
     color: var(--text-primary);
+    padding: 30px 40px;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    font-weight: 500;
 }
 
-.modal.light .documento-texto {
-    --text-primary: #374151;
-}
-
-.modal.dark .documento-texto {
-    --text-primary: #e5e7eb;
-}
-
+/* TEXTO MAIOR NO MODO VISUAL */
 .visual-preview {
-    padding: 24px; /* Reduzido para melhor scroll */
-    background: white;
-}
-
-.modal.dark .visual-preview {
-    background: #1a1a1a;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--bg-primary);
 }
 
 .documento-visual {
-    max-width: 800px;
+    max-width: 1100px;
     margin: 0 auto;
     font-family: 'Times New Roman', serif;
-    line-height: 1.6;
+    line-height: 1.9;
     color: var(--text-primary);
-}
-
-.modal.light .documento-visual {
-    --text-primary: #333;
+    padding: 30px 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-height: fit-content;
 }
 
 .modal.dark .documento-visual {
-    --text-primary: #e5e7eb;
+    background: #2d2d2d;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* TÍTULO PRINCIPAL MUITO MAIOR */
 .documento-visual h1 {
     text-align: center;
-    font-size: 1.6rem; /* Reduzido para caber melhor */
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #ccc;
+    font-size: 2.4rem !important;
+    margin: 0 0 50px 0 !important;
+    padding-bottom: 25px;
+    border-bottom: 4px solid #3b82f6;
+    color: #1e40af;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .modal.dark .documento-visual h1 {
-    border-color: #555;
+    border-color: #60a5fa;
+    color: #60a5fa;
 }
 
+/* TÍTULOS DE SEÇÃO MAIORES */
 .documento-visual h2 {
-    font-size: 1.1rem; /* Reduzido para caber melhor */
-    margin: 20px 0 10px;
-    color: #111827;
+    font-size: 1.6rem !important;
+    margin: 40px 0 20px 0 !important;
+    color: #1e293b;
+    padding-left: 15px;
+    border-left: 6px solid #3b82f6;
+    font-weight: 600;
 }
 
 .modal.dark .documento-visual h2 {
-    color: #daa520;
+    color: #cbd5e1;
+    border-left-color: #60a5fa;
 }
 
+/* PARÁGRAFOS MUITO MAIORES */
 .documento-visual p {
-    margin: 6px 0; /* Reduzido para caber melhor */
+    margin: 18px 0 !important;
+    padding: 0 25px;
+    font-size: 18px !important;
+    line-height: 1.9;
+    color: #333;
+}
+
+.modal.dark .documento-visual p {
+    color: #e5e7eb;
 }
 
 .documento-visual strong {
-    font-weight: 600;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 18px;
+}
+
+.modal.dark .documento-visual strong {
+    color: #f0f0f0;
 }
 
 .servicos-placeholder,
 .custos-placeholder {
-    padding-left: 20px;
+    padding: 20px 25px;
     font-style: italic;
-    color: #6b7280;
+    color: var(--text-tertiary);
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    margin: 15px 25px;
+    font-size: 17px;
 }
 
 .modal.dark .servicos-placeholder,
 .modal.dark .custos-placeholder {
-    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .servicos-info,
 .custos-info {
-    padding-left: 20px;
+    padding: 20px 25px;
+    background: rgba(59, 130, 246, 0.08);
+    border-radius: 8px;
+    margin: 15px 25px;
+    border-left: 6px solid #3b82f6;
+    font-size: 17px;
+}
+
+.modal.dark .servicos-info,
+.modal.dark .custos-info {
+    background: rgba(96, 165, 250, 0.12);
 }
 
 .assinaturas {
-    margin-top: 40px; /* Reduzido para caber melhor */
-    padding-top: 16px;
-    border-top: 1px solid #ccc;
+    margin-top: 80px !important;
+    padding-top: 40px;
+    border-top: 3px solid #ccc;
     text-align: center;
 }
 
@@ -812,11 +979,20 @@ onMounted(() => {
     border-color: #555;
 }
 
-/* Ações */
+.assinaturas p {
+    font-size: 19px !important;
+    margin: 25px 0 !important;
+    padding: 0;
+    font-weight: 600;
+}
+
+/* ========== AÇÕES ========== */
 .modal-actions {
-    padding: 20px;
+    padding: 16px 24px;
     border-top: 1px solid var(--border-color);
     background: var(--bg-tertiary);
+    flex-shrink: 0;
+    min-height: 70px;
 }
 
 .actions-container {
@@ -830,30 +1006,25 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .download-label {
     font-size: 0.9rem;
     color: var(--text-secondary);
-}
-
-.modal.light .download-label {
-    --text-secondary: #6b7280;
-}
-
-.modal.dark .download-label {
-    --text-secondary: #9ca3af;
+    font-weight: 500;
 }
 
 .btn-download {
-    padding: 10px 20px;
+    padding: 10px 24px;
     border-radius: 8px;
     border: none;
-    background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -861,41 +1032,53 @@ onMounted(() => {
 
 .btn-download:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
 }
 
 .btn-download:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .download-icon {
     font-size: 1.1rem;
 }
 
+.aviso-download {
+    margin-top: 6px;
+    width: 100%;
+}
+
+.aviso-text {
+    font-size: 0.85rem;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.modal.dark .aviso-text {
+    color: #f87171;
+}
+
 .btn-close {
-    padding: 10px 20px;
+    padding: 10px 24px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     background: transparent;
     color: var(--text-primary);
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.modal.light .btn-close {
-    --border-color: #d1d5db;
-    --text-primary: #374151;
-}
-
-.modal.dark .btn-close {
-    --border-color: #4b5563;
-    --text-primary: #daa520;
+    transition: all 0.3s ease;
 }
 
 .btn-close:hover:not(:disabled) {
     background: rgba(0, 0, 0, 0.05);
+    border-color: var(--text-secondary);
 }
 
 .modal.dark .btn-close:hover:not(:disabled) {
@@ -907,85 +1090,68 @@ onMounted(() => {
     cursor: not-allowed;
 }
 
-/* Avisos */
-.aviso-sem-colaborador {
-    margin-top: 12px;
-    padding: 8px 12px;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    color: #92400e;
-}
-
-.modal.dark .aviso-sem-colaborador {
-    background: rgba(245, 158, 11, 0.2);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #fbbf24;
-}
-
-.aviso-icon {
-    font-size: 1.1rem;
-}
-
-.dados-nao-encontrados {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    text-align: center;
-    color: #6b7280;
-}
-
-.modal.dark .dados-nao-encontrados {
-    color: #9ca3af;
-}
-
-.aviso-descricao {
-    margin-top: 8px;
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-.aviso-download {
-    margin-top: 8px;
-}
-
-.aviso-text {
-    font-size: 0.85rem;
-    color: #dc2626;
-}
-
-.modal.dark .aviso-text {
-    color: #f87171;
-}
-
-/* Responsivo */
-@media (max-width: 768px) {
-    .documento-modal {
+/* ========== RESPONSIVIDADE ========== */
+@media (max-width: 1400px) {
+    .modal.documento-modal {
         width: 95vw;
-        max-height: 95vh;
-        margin: 10px;
+        height: 90vh;
     }
     
-    .modal-content {
-        padding: 0 16px 16px;
-        gap: 16px;
+    .documento-visual {
+        max-width: 900px;
+        padding: 25px 30px;
+    }
+    
+    .documento-visual h1 {
+        font-size: 2.2rem !important;
+    }
+    
+    .documento-visual h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .documento-visual p {
+        font-size: 17px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal.documento-modal {
+        height: 95vh;
+        margin: 0;
+        border-radius: 0;
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+    
+    .modal-header {
+        padding: 12px 16px;
+        min-height: 60px;
+    }
+    
+    .modal-content-container {
+        padding: 12px 16px;
+        gap: 12px;
+    }
+    
+    .preview-container {
+        max-height: calc(95vh - 160px);
     }
     
     .preview-header {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
         align-items: stretch;
+        padding: 10px 14px;
+        min-height: 45px;
     }
     
     .preview-actions {
         justify-content: space-between;
+    }
+    
+    .preview-content {
+        max-height: calc(95vh - 220px);
     }
     
     .actions-container {
@@ -996,33 +1162,152 @@ onMounted(() => {
     .download-section {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: nowrap;
     }
     
     .btn-download,
     .btn-close {
         width: 100%;
+        justify-content: center;
     }
     
     .visual-preview {
-        padding: 16px;
+        padding: 15px;
     }
     
     .texto-preview {
-        padding: 16px;
+        padding: 15px;
+    }
+    
+    .documento-texto {
+        font-size: 15px;
+        padding: 20px;
+    }
+    
+    .documento-visual {
+        padding: 20px;
     }
     
     .documento-visual h1 {
-        font-size: 1.4rem;
-        margin-bottom: 20px;
+        font-size: 1.8rem !important;
+        margin-bottom: 30px !important;
     }
     
     .documento-visual h2 {
-        font-size: 1rem;
-        margin: 16px 0 8px;
+        font-size: 1.3rem !important;
+        margin: 25px 0 15px 0 !important;
+    }
+    
+    .documento-visual p {
+        font-size: 16px !important;
+        padding: 0 15px;
     }
     
     .assinaturas {
-        margin-top: 30px;
+        margin-top: 50px !important;
+        padding-top: 25px;
     }
+    
+    .assinaturas p {
+        font-size: 17px !important;
+    }
+    
+    .modal-actions {
+        padding: 12px 16px;
+        min-height: 65px;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .proposta-info {
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .format-selector {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .format-option {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .btn-download,
+    .btn-close {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .documento-visual {
+        padding: 15px;
+    }
+    
+    .documento-visual h1 {
+        font-size: 1.6rem !important;
+    }
+    
+    .documento-visual h2 {
+        font-size: 1.2rem !important;
+    }
+    
+    .documento-visual p {
+        font-size: 15px !important;
+        padding: 0 10px;
+    }
+}
+
+/* ========== ANIMAÇÕES ========== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.info-rapida,
+.preview-container,
+.modal-actions {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.loading-container {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Destaque para melhor visualização */
+.documento-visual {
+    transform: scale(1);
+    transition: transform 0.3s ease;
+}
+
+.documento-visual:hover {
+    transform: scale(1.005);
+}
+
+/* Linhas guia para melhor leitura */
+.documento-visual p {
+    position: relative;
+}
+
+.documento-visual p::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.documento-visual p:hover::before {
+    opacity: 1;
 }
 </style>

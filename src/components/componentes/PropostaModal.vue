@@ -247,26 +247,58 @@
                     <!-- PÁGINA 5: Convênio (Origem do Cliente) -->
                     <div v-else-if="currentPage === 5" class="page">
                         <h4>Origem do Cliente</h4>
-                        <p class="page-subtitle">Selecione como o cliente chegou à empresa (opcional) - Apenas um
-                            convênio pode ser selecionado</p>
+                        <p class="page-subtitle">
+                            Selecione como o cliente chegou à empresa (opcional)
+                        </p>
 
                         <div class="form-group">
-                            <label>Convênio / Origem</label>
+                            <div class="radio-group">
+                                <label class="radio-option large">
+                                    <input type="radio" v-model="form.convenioSelecao" value="NENHUM" />
+                                    <div class="option-content">
+                                        <span class="option-title">Não informar origem</span>
+                                        <span class="option-description">A proposta será criada sem especificar a origem
+                                            do cliente</span>
+                                    </div>
+                                </label>
+                                <label class="radio-option large">
+                                    <input type="radio" v-model="form.convenioSelecao" value="SELECIONAR" />
+                                    <div class="option-content">
+                                        <span class="option-title">Selecionar convênio/origem</span>
+                                        <span class="option-description">Escolha um convênio existente para registrar a
+                                            origem do
+                                            cliente</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
 
-                            <div class="convenio-options">
-                                <!-- Lista de convênios cadastrados -->
-                                <div v-for="convenio in convenios" :key="convenio.id" class="convenio-item"
-                                    :class="{ selected: form.convenioId === convenio.id }">
-                                    <label class="radio-option">
-                                        <input type="radio" v-model="form.convenioId" :value="convenio.id"
-                                            name="convenio" :checked="form.convenioId === convenio.id" />
-                                        <div class="convenio-info">
-                                            <span class="convenio-nome">{{ convenio.nome }}</span>
-                                            <span v-if="convenio.descricao" class="convenio-descricao">
-                                                {{ convenio.descricao }}
-                                            </span>
-                                        </div>
-                                    </label>
+                        <!-- Seleção de convênio -->
+                        <div v-if="form.convenioSelecao === 'SELECIONAR'" class="convenio-selection">
+                            <div class="form-group">
+                                <label>Selecione o Convênio/Origem</label>
+                                <select v-model="form.convenioId" class="convenio-select">
+                                    <option value="">Selecione um convênio</option>
+                                    <option v-for="convenio in convenios" :key="convenio.id" :value="convenio.id">
+                                        {{ convenio.nome }}
+                                        <span v-if="convenio.descricao"> - {{ convenio.descricao }}</span>
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div v-if="form.convenioId && convenioSelecionado" class="convenio-info-card">
+                                <div class="convenio-info-header">
+                                    <h5>Convênio Selecionado</h5>
+                                </div>
+                                <div class="convenio-info-content">
+                                    <div class="convenio-info-row">
+                                        <span class="label">Nome:</span>
+                                        <span class="value">{{ convenioSelecionado.nome }}</span>
+                                    </div>
+                                    <div v-if="convenioSelecionado.descricao" class="convenio-info-row">
+                                        <span class="label">Descrição:</span>
+                                        <span class="value">{{ convenioSelecionado.descricao }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -274,8 +306,7 @@
                         <div class="info-box">
                             <p><strong>Nota:</strong> O convênio/origem é apenas para registrar como o cliente chegou à
                                 empresa
-                                (ex: indicação, parceiro, etc.) e não afeta valores da proposta. Apenas um convênio pode
-                                ser selecionado por proposta.</p>
+                                (ex: indicação, parceiro, etc.) e não afeta valores da proposta.</p>
                         </div>
                     </div>
 
@@ -302,12 +333,17 @@
                                 <p><em>Nenhum colaborador atribuído</em></p>
                             </div>
 
-                            <div class="resumo-section" v-if="form.convenioId && convenioSelecionado">
+                            <div v-if="form.convenioSelecao === 'SELECIONAR' && convenioSelecionado"
+                                class="resumo-section">
                                 <h5>Origem do Cliente</h5>
                                 <p>{{ convenioSelecionado.nome }}</p>
                                 <p v-if="convenioSelecionado.descricao" class="convenio-descricao-resumo">
                                     <small>{{ convenioSelecionado.descricao }}</small>
                                 </p>
+                            </div>
+                            <div v-else class="resumo-section">
+                                <h5>Origem do Cliente</h5>
+                                <p><em>Não informada</em></p>
                             </div>
 
                             <div class="resumo-section">
@@ -428,10 +464,11 @@ const form = ref({
     porcentagemDesconto: 0,
 
     // Página 4 (nova)
-    colaboradorSelecao: "NENHUM", // "NENHUM" ou "SELECIONAR"
+    colaboradorSelecao: "NENHUM",
     colaboradorId: null,
 
     // Página 5 (antiga 4)
+    convenioSelecao: "NENHUM",
     convenioId: null
 });
 
@@ -523,6 +560,10 @@ const validarPaginaAtual = () => {
 
         case 5:
             // A página 5 sempre é válida (convênio é opcional)
+            if (form.value.convenioSelecao === 'SELECIONAR') {
+                return form.value.convenioId !== null && form.value.convenioId !== '';
+            }
+            // Se selecionou "NENHUM", é válido
             return true;
 
         default:
@@ -705,6 +746,10 @@ const mostrarErroValidacao = () => {
             if (form.value.colaboradorSelecao === 'SELECIONAR') {
                 mensagem = "Por favor, selecione um colaborador da lista ou altere a opção para 'Não atribuir colaborador'";
             }
+        case 5:
+            if (form.value.convenioSelecao === 'SELECIONAR') {
+                mensagem = "Por favor, selecione um convênio da lista ou altere a opção para 'Não informar origem'";
+            }
             break;
     }
 
@@ -793,8 +838,6 @@ const criarProposta = async () => {
 
         // PASSO 2: Criar todos os itens da proposta em PARALELO com Promise.all
         const itemPropostaIds = [];
-
-        // Preparar array de promessas para criar itens
         const itemPropostaPromises = [];
 
         for (const item of itensValidos) {
@@ -806,11 +849,13 @@ const criarProposta = async () => {
                             servicoId: Number(item.servicoId),
                             microServicoId: Number(microServicoId),
                             valorHora: parseFloat(item.valorHora) || 0,
-                            quantidadeHoras: parseFloat(item.qtdHora) || 0,
+                            qtdHora: parseFloat(item.qtdHora) || 0,
                             valorTotal: parseFloat(item.valorTotal) || 0
                         };
 
                         console.log("🔄 Criando item da proposta:", dadosItem);
+
+                        // Agora o backend espera CreateItemPropostaDTO com esses 5 campos
                         const response = await itemPropostaService.criar(dadosItem);
 
                         // Extrair ID da resposta
@@ -864,7 +909,9 @@ const criarProposta = async () => {
         const dadosProposta = {
             empresaId: Number(empresaId),
             clienteId: Number(props.cliente.id),
-            convenioId: form.value.convenioId ? Number(form.value.convenioId) : null,
+            convenioId: form.value.convenioSelecao === 'SELECIONAR' && form.value.convenioId
+                ? Number(form.value.convenioId)
+                : null,
             colaboradorId: form.value.colaboradorSelecao === 'SELECIONAR' && form.value.colaboradorId
                 ? Number(form.value.colaboradorId)
                 : null,
@@ -919,6 +966,12 @@ const handleEscape = (event) => {
 watch(() => form.value.colaboradorSelecao, (newVal) => {
     if (newVal === 'NENHUM') {
         form.value.colaboradorId = null;
+    }
+});
+
+watch(() => form.value.convenioSelecao, (newVal) => {
+    if (newVal === 'NENHUM') {
+        form.value.convenioId = null;
     }
 });
 
@@ -999,6 +1052,7 @@ onBeforeUnmount(() => {
     border: 1px solid #333;
 }
 
+/* Header */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1029,6 +1083,7 @@ onBeforeUnmount(() => {
     color: #daa520;
 }
 
+/* Botão fechar */
 .close-btn {
     background: none;
     border: none;
@@ -1143,6 +1198,7 @@ onBeforeUnmount(() => {
     background: #4b5563;
 }
 
+/* Páginas */
 .page {
     padding-bottom: 24px;
 }
@@ -1156,6 +1212,16 @@ onBeforeUnmount(() => {
 
 .modal.dark .page h4 {
     color: #f0f0f0;
+}
+
+.page-subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: -8px 0 20px 0;
+}
+
+.modal.dark .page-subtitle {
+    color: #9ca3af;
 }
 
 /* Page header */
@@ -1373,7 +1439,7 @@ small {
     font-size: 0.9rem;
 }
 
-/* Estilos adicionais para a nova página de colaborador */
+/* Radio option large */
 .radio-option.large {
     padding: 16px;
     border-radius: 12px;
@@ -1422,18 +1488,9 @@ small {
     color: #9ca3af;
 }
 
-.page-subtitle {
-    color: #6b7280;
-    font-size: 0.9rem;
-    margin: -8px 0 20px 0;
-}
-
-.modal.dark .page-subtitle {
-    color: #9ca3af;
-}
-
-/* Seleção de colaborador */
-.colaborador-selection {
+/* Seleção de colaborador/convênio */
+.colaborador-selection,
+.convenio-selection {
     margin-top: 20px;
     padding: 20px;
     background: #f9fafb;
@@ -1441,12 +1498,14 @@ small {
     border: 1px solid #e5e7eb;
 }
 
-.modal.dark .colaborador-selection {
+.modal.dark .colaborador-selection,
+.modal.dark .convenio-selection {
     background: #2d2d2d;
     border-color: #374151;
 }
 
-.colaborador-select {
+.colaborador-select,
+.convenio-select {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
@@ -1461,38 +1520,73 @@ small {
     box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
 }
 
-/* Card de informações do colaborador */
-.colaborador-info-card {
+.convenio-select:focus {
+    border-color: #10b981;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Card de informações */
+.colaborador-info-card,
+.convenio-info-card {
     margin-top: 20px;
     background: white;
     border-radius: 12px;
-    border: 2px solid #10b981;
     overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modal.dark .colaborador-info-card,
+.modal.dark .convenio-info-card {
+    background: #1a1a1a;
+}
+
+.colaborador-info-card {
+    border: 2px solid #10b981;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
 }
 
 .modal.dark .colaborador-info-card {
-    background: #1a1a1a;
     border-color: #34d399;
 }
 
-.colaborador-info-header {
-    background: linear-gradient(135deg, #10b981, #34d399);
+.convenio-info-card {
+    border: 2px solid #8b5cf6;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+}
+
+.modal.dark .convenio-info-card {
+    border-color: #a78bfa;
+}
+
+.colaborador-info-header,
+.convenio-info-header {
     padding: 16px;
     color: white;
 }
 
-.colaborador-info-header h5 {
+.colaborador-info-header {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.convenio-info-header {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.colaborador-info-header h5,
+.convenio-info-header h5 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
 }
 
-.colaborador-info-content {
+.colaborador-info-content,
+.convenio-info-content {
     padding: 20px;
 }
 
-.colaborador-info-row {
+.colaborador-info-row,
+.convenio-info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1500,31 +1594,37 @@ small {
     border-bottom: 1px solid #e5e7eb;
 }
 
-.modal.dark .colaborador-info-row {
+.modal.dark .colaborador-info-row,
+.modal.dark .convenio-info-row {
     border-color: #374151;
 }
 
-.colaborador-info-row:last-child {
+.colaborador-info-row:last-child,
+.convenio-info-row:last-child {
     border-bottom: none;
 }
 
-.colaborador-info-row .label {
+.colaborador-info-row .label,
+.convenio-info-row .label {
     font-weight: 600;
     color: #6b7280;
     font-size: 0.9rem;
 }
 
-.modal.dark .colaborador-info-row .label {
+.modal.dark .colaborador-info-row .label,
+.modal.dark .convenio-info-row .label {
     color: #9ca3af;
 }
 
-.colaborador-info-row .value {
+.colaborador-info-row .value,
+.convenio-info-row .value {
     font-size: 0.95rem;
     color: #111827;
     text-align: right;
 }
 
-.modal.dark .colaborador-info-row .value {
+.modal.dark .colaborador-info-row .value,
+.modal.dark .convenio-info-row .value {
     color: #f0f0f0;
 }
 
@@ -1586,101 +1686,7 @@ small {
     border-color: #3b82f6;
 }
 
-/* Convênio styles */
-.convenio-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.convenio-item {
-    padding: 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    background: #f9fafb;
-}
-
-.modal.dark .convenio-item {
-    border-color: #4b5563;
-    background: #2d2d2d;
-}
-
-.convenio-item:hover {
-    border-color: #daa520;
-    transform: translateY(-2px);
-}
-
-.modal.dark .convenio-item:hover {
-    border-color: #daa520;
-}
-
-.convenio-item.selected {
-    border-color: #10b981;
-    background: #f0fdf4;
-    border-width: 2px;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
-}
-
-.modal.dark .convenio-item.selected {
-    border-color: #34d399;
-    background: #064e3b;
-    box-shadow: 0 2px 8px rgba(52, 211, 153, 0.3);
-}
-
-.convenio-item .radio-option {
-    background: transparent !important;
-    padding: 0;
-}
-
-.convenio-item.selected .radio-option {
-    background: transparent !important;
-}
-
-.convenio-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-}
-
-.convenio-nome {
-    font-weight: 600;
-    color: #111827;
-    font-size: 1rem;
-}
-
-.modal.dark .convenio-nome {
-    color: #f0f0f0;
-}
-
-.convenio-descricao {
-    font-size: 0.85rem;
-    color: #6b7280;
-    line-height: 1.4;
-}
-
-.modal.dark .convenio-descricao {
-    color: #9ca3af;
-}
-
-.convenio-item.selected .convenio-nome {
-    color: #047857;
-}
-
-.modal.dark .convenio-item.selected .convenio-nome {
-    color: #a7f3d0;
-}
-
-.convenio-item.selected .convenio-descricao {
-    color: #059669;
-}
-
-.modal.dark .convenio-item.selected .convenio-descricao {
-    color: #6ee7b7;
-}
-
+/* Info box */
 .info-box {
     margin-top: 24px;
     padding: 16px;
@@ -1925,16 +1931,9 @@ small {
         padding: 12px;
     }
 
-    .colaborador-selection {
+    .colaborador-selection,
+    .convenio-selection {
         padding: 16px;
-    }
-
-    .convenio-options {
-        gap: 8px;
-    }
-
-    .convenio-item {
-        padding: 12px;
     }
 
     .modal-actions {
