@@ -10,7 +10,7 @@
                 <!-- Informações do Cliente -->
                 <div class="cliente-info-section">
                     <h4>Informações do Cliente</h4>
-                    
+
                     <div class="info-grid">
                         <!-- Nome -->
                         <div class="info-item">
@@ -50,7 +50,8 @@
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Idade:</span>
-                                <span class="info-value">{{ cliente.idade || calcularIdade(cliente.dataNascimento) || 'Não informada' }} anos</span>
+                                <span class="info-value">{{ cliente.idade || calcularIdade(cliente.dataNascimento) ||
+                                    'Não informada' }} anos</span>
                             </div>
                         </div>
 
@@ -100,6 +101,9 @@
                             <div class="proposta-simples">
                                 <span class="proposta-numero">Proposta {{ index + 1 }}</span>
                                 <span class="proposta-data">{{ formatarData(proposta.dataCriacao) }}</span>
+                                <button class="btn-documento" @click="abrirDocumentoModal(proposta)">
+                                    📄 Ver Documento
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -111,6 +115,12 @@
             </div>
         </div>
     </div>
+
+    <DocumentoModal 
+        v-if="showDocumentoModal && propostaSelecionada"
+        :proposta="propostaSelecionada"
+        @close="showDocumentoModal = false"
+    />
 </template>
 
 <script setup>
@@ -118,6 +128,7 @@ import { ref, onMounted, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import propostaService from "../../services/propostaService";
+import DocumentoModal from "../componentes/DocumentoModal.vue";
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -132,11 +143,19 @@ const theme = computed(() => themeStore.theme);
 const propostas = ref([]);
 const loadingPropostas = ref(false);
 
+const showDocumentoModal = ref(false);
+const propostaSelecionada = ref(null);
+
+const abrirDocumentoModal = (proposta) => {
+    propostaSelecionada.value = proposta;
+    showDocumentoModal.value = true;
+};
+
 // Carregar propostas do cliente
 const carregarPropostas = async () => {
     try {
         loadingPropostas.value = true;
-        
+
         const empresaId = authStore.empresa?.empresaId;
         const clienteId = props.cliente.id;
         if (!empresaId) {
@@ -163,63 +182,63 @@ const carregarPropostas = async () => {
 const formatarTelefone = (telefone) => {
     if (!telefone) return '';
     const numeros = telefone.replace(/\D/g, '');
-    
+
     if (numeros.length === 10) {
         return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 6)}-${numeros.substring(6)}`;
     } else if (numeros.length === 11) {
         return `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`;
     }
-    
+
     return telefone;
 };
 
 const formatarCPF = (cpf) => {
     if (!cpf) return '';
     const numeros = cpf.replace(/\D/g, '');
-    
+
     if (numeros.length === 11) {
         return `${numeros.substring(0, 3)}.${numeros.substring(3, 6)}.${numeros.substring(6, 9)}-${numeros.substring(9)}`;
     }
-    
+
     return cpf;
 };
 
 const formatarCNPJ = (cnpj) => {
     if (!cnpj) return '';
     const numeros = cnpj.replace(/\D/g, '');
-    
+
     if (numeros.length === 14) {
         return `${numeros.substring(0, 2)}.${numeros.substring(2, 5)}.${numeros.substring(5, 8)}/${numeros.substring(8, 12)}-${numeros.substring(12)}`;
     }
-    
+
     return cnpj;
 };
 
 const formatarCEP = (cep) => {
     if (!cep) return '';
     const numeros = cep.replace(/\D/g, '');
-    
+
     if (numeros.length === 8) {
         return `${numeros.substring(0, 5)}-${numeros.substring(5)}`;
     }
-    
+
     return cep;
 };
 
 const calcularIdade = (dataNascimento) => {
     if (!dataNascimento) return null;
-    
+
     try {
         const nascimento = new Date(dataNascimento);
         const hoje = new Date();
-        
+
         let idade = hoje.getFullYear() - nascimento.getFullYear();
         const mes = hoje.getMonth() - nascimento.getMonth();
-        
+
         if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
             idade--;
         }
-        
+
         return idade;
     } catch (err) {
         console.error("Erro ao calcular idade:", err);
@@ -229,7 +248,7 @@ const calcularIdade = (dataNascimento) => {
 
 const formatarData = (dataString) => {
     if (!dataString) return '';
-    
+
     try {
         const data = new Date(dataString);
         return data.toLocaleDateString('pt-BR', {
@@ -382,13 +401,15 @@ onMounted(() => {
 }
 
 /* Seções */
-.cliente-info-section, .propostas-section {
+.cliente-info-section,
+.propostas-section {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.cliente-info-section h4, .propostas-section h4 {
+.cliente-info-section h4,
+.propostas-section h4 {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
@@ -487,7 +508,8 @@ onMounted(() => {
 }
 
 /* Estados de loading e vazio */
-.loading-propostas, .empty-propostas {
+.loading-propostas,
+.empty-propostas {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -604,12 +626,52 @@ onMounted(() => {
     background: #374151;
 }
 
+.btn-documento {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal.light .btn-documento:hover {
+    background: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.modal.dark .btn-documento {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.1);
+    color: #60a5fa;
+}
+
+.modal.dark .btn-documento:hover {
+    background: rgba(96, 165, 250, 0.2);
+}
+
+/* Ajuste no layout da proposta simplificada */
+.proposta-simples {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+
 /* Animations */
 @keyframes slideUp {
     from {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -651,6 +713,10 @@ onMounted(() => {
 
     .modal-actions {
         padding: 20px;
+    }
+
+    .btn-documento {
+        align-self: flex-start;
     }
 }
 </style>

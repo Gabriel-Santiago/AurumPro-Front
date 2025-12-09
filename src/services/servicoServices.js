@@ -12,5 +12,10 @@ export default {
 
   criarServico(data) {
     return api.post("/servicos", data);
+  },
+
+  buscarPorId(id) {
+    const response = api.get(`/servicos/listar/${id}`);
+    return response;
   }
 };

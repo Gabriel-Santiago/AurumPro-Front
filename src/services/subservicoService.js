@@ -16,5 +16,10 @@ export default {
 
   atualizarValores(dados){
     return api.patch('/microServicos', dados);
+  },
+
+  buscarPorId(id) {
+    const response = api.get(`/microServicos/listar/${id}`);
+    return response;
   }
 };

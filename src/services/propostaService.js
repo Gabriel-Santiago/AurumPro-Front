@@ -12,5 +12,11 @@ export default {
 
   listarPorCliente(empresaId, clienteId) {
     return api.get(`/propostas/${empresaId}/${clienteId}`);
+  },
+
+  downloadTermo(propostaId) {
+    return api.get(`/propostas/doc/${propostaId}`, {
+      responseType: 'blob'
+    });
   }
 }
