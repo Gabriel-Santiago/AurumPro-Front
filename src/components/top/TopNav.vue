@@ -9,7 +9,7 @@
       <button class="nav-btn" @click="abrirServicoModal">Serviços</button>
       <button class="nav-btn" @click="abrirSubservicoModal">Sub Serviços</button>
       <button class="nav-btn" @click="abrirConvenioModal">Convênios</button>
-      <button class="nav-btn" @click="$emit('goPropostas')">Propostas</button>
+      <button class="nav-btn" @click="irParaFinancas">Resumo Financeiro</button>
 
       <!-- Botão para alternar tema -->
       <button class="icon-btn theme-toggle" :title="theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'" @click="$emit('toggleTheme')">
@@ -48,6 +48,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useThemeStore } from '../../store/themeStore';
 import CriarColaboradorModal from '../componentes/ColaboradorModal.vue';
 import CriarServicoModal from '../componentes/ServicoModal.vue';
@@ -67,6 +68,12 @@ const showColaboradorModal = ref(false);
 const showServicoModal = ref(false);
 const showSubservicoModal = ref(false);
 const showConvenioModal = ref(false);
+
+const router = useRouter();
+
+const irParaFinancas = () => {
+  router.push('/financas');
+};
 
 const abrirColaboradorModal = () => {
   showColaboradorModal.value = true;

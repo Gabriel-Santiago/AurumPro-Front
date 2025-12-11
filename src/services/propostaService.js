@@ -14,9 +14,18 @@ export default {
     return api.get(`/propostas/${empresaId}/${clienteId}`);
   },
 
+  listarPorEmpresa(empresaId) {
+    return api.get(`/propostas/${empresaId}`);
+  },
+
   downloadTermo(propostaId) {
     return api.get(`/propostas/doc/${propostaId}`, {
       responseType: 'blob'
     });
+  },
+
+  excluirProposta(propostaId) {
+    const response = api.delete(`/propostas/${propostaId}`);
+      return response.data;
   }
 }
