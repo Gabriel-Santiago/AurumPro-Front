@@ -7,7 +7,6 @@
       </div>
       
       <div class="modal-content">
-        <!-- Lado esquerdo: Adicionar subserviço -->
         <div class="add-section">
           <h4>Adicionar Novo Sub Serviço</h4>
           <form @submit.prevent="handleSubmit" class="add-form">
@@ -60,7 +59,6 @@
           </form>
         </div>
         
-        <!-- Lado direito: Listar subserviços -->
         <div class="list-section">
           <div class="list-header">
             <h4>Sub Serviços Cadastrados</h4>
@@ -134,6 +132,7 @@ import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import subservicoService from "../../services/subservicoService";
 import servicoService from "../../services/servicoServices";
+import { notify } from '../../services/notificationService';
 
 const emit = defineEmits(["close", "created"]);
 
@@ -159,14 +158,12 @@ const errorMessage = ref("");
 
 const empresaId = computed(() => authStore.empresa?.empresaId);
 
-// Carregar dados ao abrir o modal
 onMounted(() => {
   carregarDados();
 });
 
 const carregarDados = async () => {
   await carregarServicos();
-  // Depois de carregar serviços, carrega subserviços
   await carregarSubservicos();
 };
 
@@ -178,9 +175,7 @@ const carregarServicos = async () => {
     const res = await servicoService.listarTodos(empresaId.value);
     servicos.value = res.data || [];
   } catch (err) {
-    console.error("Erro ao carregar serviços:", err);
-    errorMessage.value = "Erro ao carregar serviços";
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Erro ao carregar serviços');
   } finally {
     loadingServicos.value = false;
   }
@@ -192,23 +187,15 @@ const carregarSubservicos = async () => {
   try {
     loadingList.value = true;
     
-    // Verificar qual endpoint está disponível no seu backend
-    // Vou tentar duas abordagens:
-    
-    // Opção 1: Se houver um endpoint para listar todos os subserviços da empresa
     try {
-      // Tente primeiro com um endpoint específico para empresa
       const response = await subservicoService.listarPorEmpresa(empresaId.value);
       if (response.data && Array.isArray(response.data)) {
         subservicos.value = response.data;
-        console.log("Subserviços carregados via empresa:", subservicos.value);
         return;
       }
     } catch (err1) {
-      console.log("Endpoint por empresa não disponível, tentando por serviços...");
     }
     
-    // Opção 2: Carregar de cada serviço individualmente (fallback)
     const todosSubservicos = [];
     for (const servico of servicos.value) {
       try {
@@ -217,27 +204,23 @@ const carregarSubservicos = async () => {
           response.data.forEach(sub => {
             todosSubservicos.push({
               ...sub,
-              servicoId: servico.id // Garante que temos o ID do serviço
+              servicoId: servico.id 
             });
           });
         }
       } catch (err) {
-        console.error(`Erro ao carregar subserviços do serviço ${servico.id}:`, err);
+        notify.error('Erro ao carregar subserviços do serviço');
       }
     }
     subservicos.value = todosSubservicos;
-    console.log("Subserviços carregados via serviços individuais:", subservicos.value);
     
   } catch (err) {
-    console.error("Erro geral ao carregar subserviços:", err);
-    errorMessage.value = "Erro ao carregar subserviços: " + (err.message || "Verifique o console");
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Erro ao carregar subserviços do serviço');
   } finally {
     loadingList.value = false;
   }
 };
 
-// Subserviços filtrados
 const subservicosFiltrados = computed(() => {
   if (!filtroServico.value) {
     return subservicos.value;
@@ -246,7 +229,6 @@ const subservicosFiltrados = computed(() => {
 });
 
 const filtrarSubservicos = () => {
-  // Apenas atualiza a lista filtrada (já é computed)
 };
 
 const getNomeServico = (servicoId) => {
@@ -278,57 +260,29 @@ const handleSubmit = async () => {
     successMessage.value = "";
     errorMessage.value = "";
     
-    // Formatar dados corretamente para o backend
     const dados = {
-      id: empresaId.value,  // Envia empresaId
-      servicoId: form.value.servicoId,  // Envia servicoId
+      id: empresaId.value, 
+      servicoId: form.value.servicoId,  
       nome: form.value.nome.trim(),
       descricao: form.value.descricao.trim()
     };
 
-    console.log("Enviando dados para criar subserviço:", dados);
-    const response = await subservicoService.criar(dados);
-    console.log("Resposta do servidor:", response);
+    await subservicoService.criar(dados);
     
-    // Exibir mensagem de sucesso
-    successMessage.value = "Subserviço criado com sucesso!";
-    
-    // Limpar formulário
     form.value.nome = "";
     form.value.descricao = "";
-    // Mantém o mesmo serviço selecionado para adicionar outro subserviço
-    
-    // Focar novamente no campo de entrada
     await nextTick();
     if (nomeInput.value) {
       nomeInput.value.focus();
     }
     
-    // Recarregar lista de subserviços
     await carregarSubservicos();
+
+    notify.success('Subserviço criado com sucesso!');
     
-    // Emitir evento para o componente pai (se necessário)
-    emit("created");
-    
-    // Limpar mensagem de sucesso após alguns segundos
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
-    
+    emit("created");   
   } catch (err) {
-    console.error("Erro detalhado ao criar subserviço:", err);
-    console.log("Status:", err.response?.status);
-    console.log("Dados do erro:", err.response?.data);
-    
-    let mensagemErro = "Erro ao criar subserviço";
-    if (err.response?.data?.message) {
-      mensagemErro += ": " + err.response.data.message;
-    } else if (err.message) {
-      mensagemErro += ": " + err.message;
-    }
-    
-    errorMessage.value = mensagemErro;
-    setTimeout(() => errorMessage.value = "", 5000);
+    notify.error('Erro ao criar subserviço');
   } finally {
     loading.value = false;
   }
@@ -340,7 +294,6 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-/* Mantenha o mesmo CSS da versão anterior */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -629,7 +582,6 @@ small.warning {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* List section styles */
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -886,7 +838,6 @@ small.warning {
   border-color: #555;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
   .modal {
     width: 95vw;

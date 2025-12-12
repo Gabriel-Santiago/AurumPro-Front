@@ -19,7 +19,6 @@ export const useAuthStore = defineStore("auth", {
 
     logout() {
       this.empresa = null;
-      console.log("Usuário deslogado");
     }
   }
 });

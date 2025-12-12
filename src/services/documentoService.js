@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notify } from '../services/notificationService';
 
 const api = axios.create({
   baseURL: "http://localhost:8080",
@@ -6,25 +7,21 @@ const api = axios.create({
 });
 
 export default {
-  // 1. Buscar dados da proposta
   async buscarDados(id) {
     try {
       const response = await api.get(`/documento/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      throw error;
+      notify.error('Erro ao buscar dados:', error);
     }
   },
 
-  // 2. Download do documento
   async downloadDados(id) {
     try {
       const response = await api.get(`/documento/download/${id}`, {
         responseType: 'blob'
       });
       
-      // Extrai nome do arquivo do header
       const contentDisposition = response.headers['content-disposition'];
       let filename = `Proposta_${id}_${new Date().toISOString().slice(0,10)}.docx`;
       
@@ -35,7 +32,6 @@ export default {
         }
       }
       
-      // Cria link para download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -44,22 +40,21 @@ export default {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+
+      notify.success('Documento será baixado!');
       
       return { success: true, filename };
     } catch (error) {
-      console.error('Erro ao baixar documento:', error);
-      throw error;
+      notify.error('Erro ao baixar documento:', error);
     }
   },
 
-  // 3. Visualizar conteúdo (texto)
   async visualizarDados(id) {
     try {
       const response = await api.get(`/documento/visual/${id}`);
-      return response.data.conteudo; // ✅ AGORA funciona
+      return response.data.conteudo;
     } catch (error) {
-      console.error('Erro ao visualizar dados:', error);
-      throw error;
+      notify.error('Erro ao visualizar dados:', error);
     }
   }
 };

@@ -7,7 +7,6 @@
       </div>
 
       <div class="modal-content">
-        <!-- Lado esquerdo: Adicionar convênio -->
         <div class="add-section">
           <h4>Adicionar Novo Convênio</h4>
           <form @submit.prevent="handleSubmit" class="add-form">
@@ -32,7 +31,6 @@
           </form>
         </div>
 
-        <!-- Lado direito: Listar convênios -->
         <div class="list-section">
           <div class="list-header">
             <h4>Convênios Cadastrados</h4>
@@ -74,6 +72,7 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import convenioService from "../../services/convenioService";
+import { notify } from '../../services/notificationService';
 
 const emit = defineEmits(["close", "created"]);
 
@@ -89,12 +88,9 @@ const form = ref({
 const loading = ref(false);
 const loadingList = ref(false);
 const nomeInput = ref(null);
-const successMessage = ref("");
-const errorMessage = ref("");
 
 const empresaId = computed(() => authStore.empresa?.empresaId);
 
-// Carregar convênios ao abrir o modal
 onMounted(() => {
   carregarConvenios();
 });
@@ -107,9 +103,7 @@ const carregarConvenios = async () => {
     const response = await convenioService.listarPorEmpresa(empresaId.value);
     convenios.value = response.data || [];
   } catch (err) {
-    console.error("Erro ao carregar convênios:", err);
-    errorMessage.value = "Erro ao carregar convênios: " + (err.response?.data?.message || err.message);
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Erro ao carregar convênios');
   } finally {
     loadingList.value = false;
   }
@@ -117,21 +111,17 @@ const carregarConvenios = async () => {
 
 const handleSubmit = async () => {
   if (!form.value.nome.trim()) {
-    errorMessage.value = "Por favor, informe um nome para o convênio";
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Por favor, informe um nome para o convênio');
     return;
   }
 
   if (!empresaId.value) {
-    errorMessage.value = "Empresa não identificada";
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Empresa não identificada');
     return;
   }
 
   try {
     loading.value = true;
-    successMessage.value = "";
-    errorMessage.value = "";
 
     const dados = {
       id: empresaId.value,
@@ -140,33 +130,20 @@ const handleSubmit = async () => {
 
     await convenioService.criar(dados);
 
-    // Exibir mensagem de sucesso
-    successMessage.value = "Convênio criado com sucesso!";
+    notify.success('Convênio criado com sucesso!');
 
-    // Limpar formulário
     form.value.nome = "";
 
-    // Focar novamente no campo de entrada
     await nextTick();
     if (nomeInput.value) {
       nomeInput.value.focus();
     }
 
-    // Recarregar lista de convênios
     await carregarConvenios();
 
-    // Emitir evento para o componente pai (se necessário)
     emit("created");
-
-    // Limpar mensagem de sucesso após alguns segundos
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
-
   } catch (err) {
-    console.error("Erro ao criar convênio:", err);
-    errorMessage.value = "Erro ao criar convênio: " + (err.response?.data?.message || err.message);
-    setTimeout(() => errorMessage.value = "", 3000);
+    notify.error('Erro ao criar convênio');
   } finally {
     loading.value = false;
   }
@@ -421,28 +398,6 @@ textarea {
   cursor: not-allowed;
 }
 
-.success-message {
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: #10b981;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  animation: fadeIn 0.3s ease;
-  margin-top: 8px;
-}
-
-.error-message {
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: #e53e3e;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 500;
-  animation: fadeIn 0.3s ease;
-  margin-top: 8px;
-}
-
 .modal.dark .success-message {
   background: #059669;
 }
@@ -463,7 +418,6 @@ textarea {
   }
 }
 
-/* List section styles */
 .list-header {
   display: flex;
   justify-content: space-between;

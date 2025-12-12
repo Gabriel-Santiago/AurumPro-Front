@@ -20,6 +20,7 @@
 import { ref } from "vue";
 import { useAuthStore } from "../../store/authStore";
 import router from "../../router";
+import { notify } from '../../services/notificationService';
 
 const email = ref("");
 const senha = ref("");
@@ -27,9 +28,14 @@ const senha = ref("");
 const auth = useAuthStore();
 
 async function submitLogin() {
-  const empresa = await auth.login(email.value, senha.value);
-  router.push("/clientes");
-  alert("Login realizado!");
+  try {
+    const empresa = await auth.login(email.value, senha.value);
+    notify.success('Login realizado com sucesso!');
+    router.push("/clientes");
+  } catch (error) {
+    senha.value = '';
+    notify.error('Usuário ou senha incorreto!');
+  }
 }
 </script>
 

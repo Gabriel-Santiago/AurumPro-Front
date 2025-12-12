@@ -32,7 +32,6 @@
     </div>
   </div>
 
-  <!-- Modais -->
     <UpdateEmailTelefoneModal
       v-if="showEmailTelefoneModal"
       :cliente="cliente"
@@ -76,28 +75,25 @@ import UpdateEnderecoModal from "./UpdateEnderecoModal.vue";
 import DeleteClienteModal from "./DeleteClienteModal.vue";
 import CriarPropostaModal from "../componentes/PropostaModal.vue"
 import ClienteModal from "./ClienteModal.vue";
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
   cliente: { type: Object, required: true }
 });
 
-// Adicione o evento 'refresh' para forçar recarregamento
 const emit = defineEmits(["criarProposta", "clienteAtualizado", "clienteExcluido", "refresh"]);
 
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
 
-// Menu
 const showMenu = ref(false);
 
-// Modais
 const showEmailTelefoneModal = ref(false);
 const showEnderecoModal = ref(false);
 const showDeleteModal = ref(false);
 const showPropostaModal = ref(false);
 const showDetalhesModal = ref(false);
 
-// Iniciais do nome para o avatar
 const initials = computed(() => {
   const name = props.cliente.tipoPessoa === 'PJ' ? props.cliente.responsavel : props.cliente.nome;
   if (!name) return "#";
@@ -109,7 +105,6 @@ const initials = computed(() => {
     .toUpperCase();
 });
 
-// Nome para exibição - PF usa nome, PJ usa responsável
 const displayName = computed(() => {
   if (props.cliente.tipoPessoa === 'PJ') {
     return props.cliente.responsavel || "Responsável não informado";
@@ -118,12 +113,10 @@ const displayName = computed(() => {
   }
 });
 
-// Texto para mostrar "PF - Estado" ou "PJ - Estado"
 const tipoPessoaText = computed(() => {
   return props.cliente.tipoPessoa || "#";
 });
 
-// Menu functions
 const toggleMenu = () => {
   showMenu.value = !showMenu.value;
 };
@@ -155,7 +148,6 @@ const abrirDetalhesModal = () => {
   showDetalhesModal.value = true;
 };
 
-// Modal close functions
 const closeEmailTelefoneModal = () => {
   showEmailTelefoneModal.value = false;
 };
@@ -176,18 +168,16 @@ const fecharDetalhesModal = () => {
   showDetalhesModal.value = false;
 };
 
-// Handle modal events - AGORA EMITE 'refresh'
 const handleClienteUpdated = () => {
   emit("clienteAtualizado");
-  emit("refresh"); // Força recarregamento
+  emit("refresh"); 
 };
 
 const handleClienteDeleted = () => {
   emit("clienteExcluido");
-  emit("refresh"); // Força recarregamento
+  emit("refresh"); 
 };
 
-// Close menu when clicking outside
 const handleClickOutside = (event) => {
   if (!event.target.closest('.menu-wrapper')) {
     closeMenu();
@@ -203,10 +193,10 @@ onUnmounted(() => {
 });
 
 const handlePropostaCriada = () => {
-  console.log("Proposta criada com sucesso!");
+  notify.success('Proposta criada com sucesso!');
   fecharPropostaModal();
   emit("propostaCriada");
-  emit("refresh"); // Adicione se precisar atualizar a lista
+  emit("refresh"); 
 }
 
 </script>
@@ -223,13 +213,11 @@ const handlePropostaCriada = () => {
   position: relative;
 }
 
-/* Modo Claro */
 .card.light {
   background: #fff;
   border-color: #f0f0f0;
 }
 
-/* Modo Escuro */
 .card.dark {
   background: #1a1a1a;
   border-color: #333;
@@ -347,7 +335,6 @@ const handlePropostaCriada = () => {
   box-shadow: 0 2px 8px rgba(218, 165, 32, 0.3);
 }
 
-/* Menu Styles */
 .menu-wrapper {
   position: relative;
 }
@@ -452,7 +439,6 @@ const handlePropostaCriada = () => {
   border-color: #444;
 }
 
-/* Ajuste nas ações para incluir dois botões */
 .actions {
   margin-top: 10px;
   display: flex;
@@ -470,7 +456,6 @@ const handlePropostaCriada = () => {
   flex: 1;
 }
 
-/* Botão Detalhes */
 .card.light .btn-details {
   background: #f3f4f6;
   color: #374151;
@@ -491,7 +476,6 @@ const handlePropostaCriada = () => {
   background: #4b5563;
 }
 
-/* Botão Criar Proposta */
 .card.light .btn-proposal {
   background: #daa520;
   color: #fff;
@@ -512,7 +496,6 @@ const handlePropostaCriada = () => {
   box-shadow: 0 2px 8px rgba(218, 165, 32, 0.3);
 }
 
-/* Responsivo */
 @media (max-width: 640px) {
   .actions {
     flex-direction: column;

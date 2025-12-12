@@ -91,7 +91,6 @@ const abrirConvenioModal = () => {
   showConvenioModal.value = true;
 };
 
-// Funções para fechar modais
 const fecharColaboradorModal = () => {
   showColaboradorModal.value = false;
 };
@@ -109,12 +108,6 @@ const fecharConvenioModal = () => {
 };
 
 const handleCreated = () => {
-  console.log("Item criado com sucesso!");
-  // Fecha todos os modais após criação
-  fecharColaboradorModal();
-  fecharServicoModal();
-  fecharSubservicoModal();
-  fecharConvenioModal();
 };
 
 </script>

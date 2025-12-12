@@ -12,26 +12,28 @@
       </div>
 
       <div class="form-area">
-        <!-- FORMULÁRIO PESSOA FÍSICA -->
         <form v-if="tab === 'pf'" @submit.prevent="submitPF" class="client-form">
           <div class="form-grid-pf">
-            <!-- Linha 1: Nome -->
             <div class="form-group full-width">
               <label>Nome Completo *</label>
               <input v-model="pf.nome" placeholder="Digite o nome completo" required />
             </div>
 
-            <!-- Linha 2: Email -->
             <div class="form-group full-width">
               <label>Email *</label>
               <input v-model="pf.email" type="email" placeholder="email@exemplo.com" required />
             </div>
 
-            <!-- Linha 3: CPF e Data Nascimento -->
             <div class="form-row">
               <div class="form-group">
                 <label>CPF *</label>
-                <input v-model="pf.cpf" placeholder="000.000.000-00" required />
+                <input 
+                  v-model="pf.cpf" 
+                  @input="formatCPF"
+                  placeholder="000.000.000-00" 
+                  maxlength="14"
+                  required 
+                />
               </div>
 
               <div class="form-group">
@@ -43,25 +45,45 @@
                   :min="minDate"
                   required 
                 />
-                <small class="date-hint">Data permitida: até 10 anos atrás</small>
+                <small class="date-hint">Data permitida: a partir 18 anos atrás</small>
               </div>
             </div>
 
-            <!-- Linha 4: Telefone, CEP e Número -->
             <div class="form-row">
               <div class="form-group">
                 <label>Telefone *</label>
-                <input v-model="pf.telefone" placeholder="(00) 00000-0000" required />
+                <input 
+                  v-model="pf.telefone" 
+                  @input="formatTelefone"
+                  placeholder="(00) 00000-0000" 
+                  maxlength="15"
+                  required 
+                />
               </div>
 
               <div class="form-group">
                 <label>CEP *</label>
-                <input v-model="pf.cep" placeholder="00000-000" required />
+                <input 
+                  v-model="pf.cep" 
+                  @input="formatCEP"
+                  placeholder="00000-000" 
+                  maxlength="9"
+                  required 
+                />
               </div>
 
               <div class="form-group small">
                 <label>Número *</label>
-                <input v-model="pf.numero" placeholder="Nº" required/>
+                <input 
+                  v-model="pf.numero" 
+                  @input="filterNumbers"
+                  placeholder="Nº" 
+                  required
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                />
+                <small class="number-hint">Apenas números</small>
               </div>
             </div>
           </div>
@@ -72,31 +94,42 @@
           </div>
         </form>
 
-        <!-- FORMULÁRIO PESSOA JURÍDICA -->
         <form v-else @submit.prevent="submitPJ" class="client-form">
           <div class="form-grid-pj">
-            <!-- Linha 1: Razão Social -->
             <div class="form-group full-width">
               <label>Responsável *</label>
               <input v-model="pj.responsavel" placeholder="Digite o responsável" required />
             </div>
 
-            <!-- Linha 2: Email -->
             <div class="form-group full-width">
               <label>Email *</label>
               <input v-model="pj.email" type="email" placeholder="empresa@exemplo.com" required />
             </div>
 
-            <!-- Linha 3: CNPJ e Número -->
             <div class="form-row">
               <div class="form-group">
                 <label>CNPJ *</label>
-                <input v-model="pj.cnpj" placeholder="00.000.000/0000-00" required />
+                <input 
+                  v-model="pj.cnpj" 
+                  @input="formatCNPJ"
+                  placeholder="00.000.000/0000-00" 
+                  maxlength="18"
+                  required 
+                />
               </div>
 
               <div class="form-group small">
                 <label>Número *</label>
-                <input v-model="pj.numero" placeholder="Nº" required/>
+                <input 
+                  v-model="pj.numero" 
+                  @input="filterNumbers"
+                  placeholder="Nº" 
+                  required
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                />
+                <small class="number-hint">Apenas números</small>
               </div>
             </div>
           </div>
@@ -116,6 +149,7 @@ import { ref, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
+import { notify } from '../../services/notificationService';
 
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
@@ -123,24 +157,107 @@ const theme = computed(() => themeStore.theme);
 
 const tab = ref("pf");
 
-// Obter empresaId da store de autenticação
 const empresaId = authStore.empresa?.empresaId;
 
-// Calcular datas para validação
 const today = new Date();
 const tenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 
-// Formatar para YYYY-MM-DD (formato do input date)
 const formatDateForInput = (date) => {
   return date.toISOString().split('T')[0];
 };
 
 const maxDate = computed(() => formatDateForInput(tenYearsAgo));
 const minDate = computed(() => {
-  // Data mínima: 120 anos atrás (pessoas muito idosas)
   const hundredTwentyYearsAgo = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
   return formatDateForInput(hundredTwentyYearsAgo);
 });
+
+const cleanNumber = (value) => {
+  return value.replace(/\D/g, '');
+};
+
+const filterNumbers = (event) => {
+  const value = event.target.value;
+  const numbersOnly = value.replace(/\D/g, '');
+  
+  if (tab.value === 'pf') {
+    pf.value.numero = numbersOnly;
+  } else {
+    pj.value.numero = numbersOnly;
+  }
+};
+
+const formatCPF = (event) => {
+  let value = cleanNumber(event.target.value);
+  
+  value = value.substring(0, 11);
+  
+  if (value.length <= 3) {
+    value = value;
+  } else if (value.length <= 6) {
+    value = `${value.substring(0, 3)}.${value.substring(3)}`;
+  } else if (value.length <= 9) {
+    value = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6)}`;
+  } else {
+    value = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6, 9)}-${value.substring(9)}`;
+  }
+  
+  pf.value.cpf = value;
+};
+
+const formatCNPJ = (event) => {
+  let value = cleanNumber(event.target.value);
+  
+  value = value.substring(0, 14);
+  
+  if (value.length <= 2) {
+    value = value;
+  } else if (value.length <= 5) {
+    value = `${value.substring(0, 2)}.${value.substring(2)}`;
+  } else if (value.length <= 8) {
+    value = `${value.substring(0, 2)}.${value.substring(2, 5)}.${value.substring(5)}`;
+  } else if (value.length <= 12) {
+    value = `${value.substring(0, 2)}.${value.substring(2, 5)}.${value.substring(5, 8)}/${value.substring(8)}`;
+  } else {
+    value = `${value.substring(0, 2)}.${value.substring(2, 5)}.${value.substring(5, 8)}/${value.substring(8, 12)}-${value.substring(12)}`;
+  }
+  
+  pj.value.cnpj = value;
+};
+
+const formatTelefone = (event) => {
+  let value = cleanNumber(event.target.value);
+  
+  value = value.substring(0, 11);
+  
+  if (value.length <= 2) {
+    value = value;
+  } else if (value.length <= 7) {
+    value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+  } else {
+    value = `(${value.substring(0, 2)}) ${value.substring(2, 7)}-${value.substring(7)}`;
+  }
+  
+  pf.value.telefone = value;
+};
+
+const formatCEP = (event) => {
+  let value = cleanNumber(event.target.value);
+  
+  value = value.substring(0, 8);
+  
+  if (value.length <= 5) {
+    value = value;
+  } else {
+    value = `${value.substring(0, 5)}-${value.substring(5)}`;
+  }
+  
+  pf.value.cep = value;
+};
+
+const extractNumbers = (value) => {
+  return cleanNumber(value);
+};
 
 const pf = ref({
   nome: "",
@@ -161,76 +278,89 @@ const pj = ref({
 
 const submitPF = async () => {
   try {
-    // Validar data de nascimento
     if (pf.value.dataNascimento) {
       const birthDate = new Date(pf.value.dataNascimento);
       const today = new Date();
       const minValidDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
       
-      // Verificar se a data é válida (não é no futuro e não é muito recente)
       if (birthDate > minValidDate) {
-        window.alert("Data de nascimento inválida. O cliente deve ter pelo menos 10 anos de idade.");
+        notify.error('Data de nascimento inválida. O cliente deve ter pelo menos 10 anos de idade.');
         return;
       }
       
-      // Verificar se não é muito antiga (mais de 120 anos)
       const maxValidDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
       if (birthDate < maxValidDate) {
-        window.alert("Data de nascimento inválida. A data não pode ser anterior a 120 anos atrás.");
+        notify.error('Data de nascimento inválida. A data não pode ser anterior a 120 anos atrás.');
         return;
       }
     }
 
-    // Preparar dados para enviar - incluir empresaId como 'id'
+    const cpfNumeros = extractNumbers(pf.value.cpf);
+    if (cpfNumeros.length !== 11) {
+      notify.error('CPF inválido. Digite os 11 números do CPF.');
+      return;
+    }
+
+    if (!pf.value.numero || pf.value.numero.trim() === '') {
+      notify.error('Por favor, informe o número.');
+      return;
+    }
+
     const dadosPF = {
-      id: empresaId, // empresaId será enviado como 'id' no DTO
+      id: empresaId, 
       nome: pf.value.nome,
       email: pf.value.email,
-      telefone: pf.value.telefone,
-      cep: pf.value.cep,
+      telefone: extractNumbers(pf.value.telefone), 
+      cep: extractNumbers(pf.value.cep), 
       numero: pf.value.numero,
       dataNascimento: pf.value.dataNascimento,
-      cpf: pf.value.cpf
+      cpf: cpfNumeros
     };
 
     await clientService.criarPessoaFisica(dadosPF);
-    window.alert("Pessoa Física criada com sucesso");
+    notify.success('Pessoa Física criada com sucesso');
     
-    // Limpar formulário
     Object.keys(pf.value).forEach(key => {
       pf.value[key] = "";
     });
     
     emit("created");
   } catch (err) {
-    console.error("Erro ao criar Pessoa Física:", err);
-    window.alert("Erro ao criar Pessoa Física: " + (err.response?.data?.message || err.message));
+    notify.error('Erro ao criar Pessoa Física: ', err);
   }
 };
 
 const submitPJ = async () => {
   try {
-    // Preparar dados para enviar - incluir empresaId como 'id'
+    const cnpjNumeros = extractNumbers(pj.value.cnpj);
+    if (cnpjNumeros.length !== 14) {
+      notify.error('CNPJ inválido. Digite os 14 números do CNPJ.');
+      return;
+    }
+
+    if (!pj.value.numero || pj.value.numero.trim() === '') {
+      notify.error('Por favor, informe o número.');
+      return;
+    }
+
     const dadosPJ = {
-      id: empresaId, // empresaId será enviado como 'id' no DTO
+      id: empresaId,
       responsavel: pj.value.responsavel,
       email: pj.value.email,
       numero: pj.value.numero,
-      cnpj: pj.value.cnpj
+      cnpj: cnpjNumeros
     };
 
     await clientService.criarPessoaJuridica(dadosPJ);
-    window.alert("Pessoa Jurídica criada com sucesso");
+    notify.success('Pessoa Jurídica criada com sucesso');
     
-    // Limpar formulário
     Object.keys(pj.value).forEach(key => {
       pj.value[key] = "";
     });
     
     emit("created");
   } catch (err) {
-    console.error("Erro ao criar Pessoa Jurídica:", err);
-    window.alert("Erro ao criar Pessoa Jurídica: " + (err.response?.data?.message || err.message));
+    notify.error('Erro ao criar Pessoa Jurídica: ', err);
   }
 };
 
@@ -248,12 +378,10 @@ const emit = defineEmits(["close", "created"]);
   transition: all 0.3s ease;
 }
 
-/* Modo Claro */
 .modal-backdrop.light {
   background: rgba(0, 0, 0, 0.35);
 }
 
-/* Modo Escuro */
 .modal-backdrop.dark {
   background: rgba(0, 0, 0, 0.6);
 }
@@ -271,12 +399,10 @@ const emit = defineEmits(["close", "created"]);
   overflow: hidden;
 }
 
-/* Modo Claro */
 .modal.light {
   background: #fff;
 }
 
-/* Modo Escuro */
 .modal.dark {
   background: #1a1a1a;
   border: 1px solid #333;
@@ -397,7 +523,6 @@ const emit = defineEmits(["close", "created"]);
   gap: 16px;
 }
 
-/* Layout para ambos os formulários */
 .form-grid-pf,
 .form-grid-pj {
   display: flex;
@@ -410,17 +535,14 @@ const emit = defineEmits(["close", "created"]);
   gap: 12px;
 }
 
-/* PF: Linha 3 - CPF e Data Nascimento (2 colunas) */
 .form-grid-pf .form-row:nth-of-type(1) {
   grid-template-columns: 1fr 1fr;
 }
 
-/* PF: Linha 4 - Telefone, CEP e Número (3 colunas) */
 .form-grid-pf .form-row:nth-of-type(2) {
   grid-template-columns: 1fr 1fr 0.8fr;
 }
 
-/* PJ: Linha 3 - CNPJ e Número (2 colunas) */
 .form-grid-pj .form-row {
   grid-template-columns: 1fr 0.8fr;
 }
@@ -488,7 +610,6 @@ input {
   color: #666;
 }
 
-/* Estilo para o hint da data */
 .date-hint {
   font-size: 0.75rem;
   color: #6b7280;
@@ -577,7 +698,6 @@ input {
   box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
 }
 
-/* Estilo para input date em diferentes navegadores */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.7;
@@ -592,7 +712,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   filter: invert(0.8);
 }
 
-/* Responsivo */
 @media (max-width: 640px) {
   .modal {
     width: 95vw;
@@ -612,7 +731,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     width: 100%;
   }
   
-  /* Ajustar o hint da data em mobile */
   .date-hint {
     font-size: 0.7rem;
   }

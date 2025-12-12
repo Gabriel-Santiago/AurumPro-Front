@@ -14,7 +14,6 @@
 
             <div class="modal-content-wrapper">
                 <div class="modal-content-container">
-                    <!-- Informações Rápidas -->
                     <div class="info-rapida" v-if="documento && !loading">
                         <div class="info-grid">
                             <div class="info-item">
@@ -35,14 +34,12 @@
                             </div>
                         </div>
                         
-                        <!-- Aviso se não tem colaborador -->
                         <div v-if="!documento.colaborador" class="aviso-sem-colaborador">
                             <span class="aviso-icon">ℹ️</span>
                             <span>Usando responsável da empresa como consultor</span>
                         </div>
                     </div>
 
-                    <!-- Pré-visualização -->
                     <div class="preview-container">
                         <div class="preview-header">
                             <h4>Pré-visualização do Documento</h4>
@@ -88,10 +85,8 @@
                             
                             <div v-else class="visual-preview">
                                 <div class="documento-visual">
-                                    <!-- Cabeçalho -->
                                     <h1>TERMO DE PRESTAÇÃO DE SERVIÇOS</h1>
                                     
-                                    <!-- Dados do Cliente -->
                                     <h2>1. Dados do Cliente Contratante</h2>
                                     <div v-if="documento.cliente">
                                         <div v-if="documento.cliente.tipoPessoa === 'PJ' && documento.cliente.responsavel">
@@ -103,7 +98,6 @@
                                         <p><strong>• E-mail:</strong> {{ documento.cliente.email }}</p>
                                     </div>
                                     
-                                    <!-- Dados da Empresa -->
                                     <h2>2. Dados da Empresa Contratada</h2>
                                     <div v-if="documento.empresa">
                                         <p><strong>Empresa:</strong> {{ documento.empresa.nome }}</p>
@@ -113,7 +107,6 @@
                                         <p><strong>Telefone:</strong> {{ formatarTelefone(documento.empresa.telefone) }}</p>
                                     </div>
                                     
-                                    <!-- Serviços -->
                                     <h2>3. Serviços e Subserviços Contratados</h2>
                                     <div class="servicos-placeholder" v-if="!documento.servicoList || documento.servicoList.length === 0">
                                         <p>Nenhum serviço contratado</p>
@@ -123,7 +116,6 @@
                                         <p>{{ documento.microServicoList?.length || 0 }} microserviço(s)</p>
                                     </div>
                                     
-                                    <!-- Custos -->
                                     <h2>4. Custos adicionais</h2>
                                     <div class="custos-placeholder" v-if="!documento.custoList || documento.custoList.length === 0">
                                         <p>Nenhum custo adicional</p>
@@ -132,18 +124,15 @@
                                         <p>{{ documento.custoList.length }} custo(s) adicional(is)</p>
                                     </div>
                                     
-                                    <!-- Investimento -->
                                     <h2>5. Investimento</h2>
                                     <p><strong>• Valor proposto:</strong> R$ {{ formatarValor(documento.valorTotal) }}</p>
                                     <p><strong>• Forma de pagamento:</strong> ___________________________</p>
                                     <p><strong>• PIX para pagamento:</strong></p>
                                     
-                                    <!-- Condições -->
                                     <h2>6. Condições Gerais</h2>
                                     <p>O início do atendimento será a partir do dia: _________________________.</p>
                                     <p>{{ cidadeUfEmpresa }}, {{ dataAtualFormatada }}</p>
                                     
-                                    <!-- Assinaturas -->
                                     <div class="assinaturas">
                                         <p><strong>Cliente:</strong> ___________________________________________</p>
                                         <p><strong>Consultor(a):</strong> {{ consultorNome }}</p>
@@ -155,7 +144,6 @@
                 </div>
             </div>
 
-            <!-- Ações -->
             <div class="modal-actions">
                 <div class="actions-container">
                     <div class="download-section">
@@ -181,6 +169,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useThemeStore } from '../../store/themeStore';
 import documentoService from '../../services/documentoService';
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
     proposta: { type: Object, required: true }
@@ -191,14 +180,12 @@ const emit = defineEmits(['close']);
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
 
-// Estados
 const documento = ref(null);
 const conteudo = ref('');
 const loading = ref(false);
 const erro = ref(null);
 const visualizacao = ref('visual');
 
-// Computed properties
 const consultorNome = computed(() => {
     if (!documento.value) return 'Não informado';
     if (documento.value.colaborador?.nome) {
@@ -245,57 +232,40 @@ const dataAtualFormatada = computed(() => {
     });
 });
 
-// Carregar dados
 const carregarDados = async () => {
-    try {
-        console.log("=== DEBUG DOCUMENTO ===");
-        console.log("1. props.proposta.id:", props.proposta.id);
-        console.log("2. Tipo:", typeof props.proposta.id);
-        console.log("3. props.proposta:", props.proposta);
-        loading.value = true;
-        erro.value = null;
-        console.log("4. Chamando documentoService.buscarDados com ID:", props.proposta.id);
-        
-        // Carrega dados estruturados
+    try {        
         const dados = await documentoService.buscarDados(props.proposta.id);
-        console.log("5. Dados retornados:", dados);
         documento.value = dados;
         
-        // Se encontrou dados, carrega conteúdo
         if (dados) {
             await carregarConteudo();
         } else {
-            erro.value = 'Proposta não encontrada';
+            notify.error('Proposta não encontrada');
         }
         
     } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        erro.value = 'Erro ao carregar dados da proposta';
+        notify.error('Erro ao carregar dados da proposta');
         documento.value = null;
     } finally {
         loading.value = false;
     }
 };
 
-// Carregar conteúdo texto
 const carregarConteudo = async () => {
     try {
         const conteudoText = await documentoService.visualizarDados(props.proposta.id);
         conteudo.value = conteudoText;
     } catch (error) {
-        console.error('Erro ao carregar conteúdo:', error);
-        // Gera conteúdo básico se não conseguir do backend
+        notify.error('Erro ao carregar conteúdo');
         conteudo.value = gerarConteudoBasico();
     }
 };
 
-// Gerar conteúdo básico localmente
 const gerarConteudoBasico = () => {
     if (!documento.value) return 'Dados não disponíveis';
     
     let conteudo = 'TERMO DE PRESTAÇÃO DE SERVIÇOS\n\n';
     
-    // 1. Dados do Cliente
     conteudo += '1. Dados do Cliente Contratante\n';
     if (documento.value.cliente) {
         conteudo += `• Nome: ${documento.value.cliente.nome}\n`;
@@ -304,7 +274,6 @@ const gerarConteudoBasico = () => {
     }
     conteudo += '\n';
     
-    // 2. Dados da Empresa
     conteudo += '2. Dados da Empresa Contratada\n';
     if (documento.value.empresa) {
         conteudo += `Empresa: ${documento.value.empresa.nome}\n`;
@@ -312,7 +281,6 @@ const gerarConteudoBasico = () => {
     }
     conteudo += '\n';
     
-    // 3. Serviços
     conteudo += '3. Serviços e Subserviços Contratados\n';
     if (documento.value.servicoList?.length > 0) {
         conteudo += `${documento.value.servicoList.length} serviço(s)\n`;
@@ -321,24 +289,20 @@ const gerarConteudoBasico = () => {
     }
     conteudo += '\n';
     
-    // 5. Investimento
     conteudo += '5. Investimento\n';
     conteudo += `• Valor proposto: R$ ${formatarValor(documento.value.valorTotal)}\n`;
     conteudo += '• Forma de pagamento: ___________________________\n\n';
     
-    // 6. Condições
     conteudo += '6. Condições Gerais\n';
     conteudo += 'O início do atendimento será a partir do dia: _________________________.\n';
     conteudo += `${cidadeUfEmpresa.value}, ${dataAtualFormatada.value}\n\n`;
     
-    // Assinaturas
     conteudo += 'Cliente: ___________________________________________\n';
     conteudo += `Consultor(a): ${consultorNome.value}\n`;
     
     return conteudo;
 };
 
-// Baixar documento
 const baixarDocumento = async () => {
     if (!documento.value) {
         erro.value = 'Não há dados suficientes para gerar o documento';
@@ -349,9 +313,8 @@ const baixarDocumento = async () => {
         loading.value = true;
         await documentoService.downloadDados(props.proposta.id);
     } catch (error) {
-        console.error('Erro ao baixar documento:', error);
+        notify.error('Erro ao baixar documento');
         
-        // Verifica se é erro de colaborador null
         if (error.message.includes('colaborador') || error.response?.status === 500) {
             erro.value = 'Erro ao gerar documento. Verifique se o colaborador está atribuído à proposta.';
         } else {
@@ -362,7 +325,6 @@ const baixarDocumento = async () => {
     }
 };
 
-// Funções de formatação
 const formatarValor = (valor) => {
     if (!valor) return '0,00';
     return new Intl.NumberFormat('pt-BR', {
@@ -413,14 +375,12 @@ const formatarCPF = (cpf) => {
     return cpf;
 };
 
-// Inicialização
 onMounted(() => {
     carregarDados();
 });
 </script>
 
 <style scoped>
-/* ========== LAYOUT PRINCIPAL ========== */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -468,7 +428,6 @@ onMounted(() => {
     --text-tertiary: #909090;
 }
 
-/* ========== HEADER (MENOR) ========== */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -541,7 +500,6 @@ onMounted(() => {
     cursor: not-allowed;
 }
 
-/* ========== CONTEÚDO PRINCIPAL (MÁXIMO ESPAÇO) ========== */
 .modal-content-wrapper {
     flex: 1;
     min-height: 0;
@@ -559,7 +517,6 @@ onMounted(() => {
     gap: 16px;
 }
 
-/* Estilização da scrollbar */
 .modal-content-container::-webkit-scrollbar {
     width: 12px;
 }
@@ -587,7 +544,6 @@ onMounted(() => {
     background: #6b7280;
 }
 
-/* ========== INFORMAÇÕES RÁPIDAS (COMPACTAS) ========== */
 .info-rapida {
     background: var(--bg-secondary);
     padding: 16px 20px;
@@ -663,7 +619,6 @@ onMounted(() => {
     font-size: 1.1rem;
 }
 
-/* ========== CONTAINER DE PREVIEW (MUITO MAIOR) ========== */
 .preview-container {
     flex: 1;
     min-height: 0;
@@ -673,7 +628,6 @@ onMounted(() => {
     border-radius: 10px;
     border: 1px solid var(--border-color);
     overflow: hidden;
-    /* Altura máxima para o preview */
     max-height: calc(95vh - 180px);
 }
 
@@ -766,7 +720,6 @@ onMounted(() => {
     color: #3b82f6;
 }
 
-/* ========== ESTADOS (LOADING, ERRO, VAZIO) ========== */
 .loading-container,
 .error-container,
 .dados-nao-encontrados {
@@ -824,13 +777,11 @@ onMounted(() => {
     line-height: 1.4;
 }
 
-/* ========== CONTEÚDO DO PREVIEW (MUITO MAIOR) ========== */
 .preview-content {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    /* Altura máxima para conteúdo do preview */
     max-height: calc(95vh - 280px);
 }
 
@@ -855,7 +806,6 @@ onMounted(() => {
     font-weight: 500;
 }
 
-/* TEXTO MAIOR NO MODO VISUAL */
 .visual-preview {
     flex: 1;
     min-height: 0;
@@ -882,7 +832,6 @@ onMounted(() => {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* TÍTULO PRINCIPAL MUITO MAIOR */
 .documento-visual h1 {
     text-align: center;
     font-size: 2.4rem !important;
@@ -899,7 +848,6 @@ onMounted(() => {
     color: #60a5fa;
 }
 
-/* TÍTULOS DE SEÇÃO MAIORES */
 .documento-visual h2 {
     font-size: 1.6rem !important;
     margin: 40px 0 20px 0 !important;
@@ -914,7 +862,6 @@ onMounted(() => {
     border-left-color: #60a5fa;
 }
 
-/* PARÁGRAFOS MUITO MAIORES */
 .documento-visual p {
     margin: 18px 0 !important;
     padding: 0 25px;
@@ -986,7 +933,6 @@ onMounted(() => {
     font-weight: 600;
 }
 
-/* ========== AÇÕES ========== */
 .modal-actions {
     padding: 16px 24px;
     border-top: 1px solid var(--border-color);
@@ -1090,7 +1036,6 @@ onMounted(() => {
     cursor: not-allowed;
 }
 
-/* ========== RESPONSIVIDADE ========== */
 @media (max-width: 1400px) {
     .modal.documento-modal {
         width: 95vw;
@@ -1263,7 +1208,6 @@ onMounted(() => {
     }
 }
 
-/* ========== ANIMAÇÕES ========== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1279,7 +1223,6 @@ onMounted(() => {
     animation: fadeIn 0.2s ease-out;
 }
 
-/* Destaque para melhor visualização */
 .documento-visual {
     transform: scale(1);
     transition: transform 0.3s ease;
@@ -1289,7 +1232,6 @@ onMounted(() => {
     transform: scale(1.005);
 }
 
-/* Linhas guia para melhor leitura */
 .documento-visual p {
     position: relative;
 }

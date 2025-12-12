@@ -47,13 +47,11 @@ const theme = computed(() => themeStore.theme);
   transition: all 0.3s ease;
 }
 
-/* Modo Claro */
 .filters.light {
   background: #fff;
   border: 1px solid #f0f0f0;
 }
 
-/* Modo Escuro */
 .filters.dark {
   background: #1a1a1a;
   border: 1px solid #333;
@@ -71,12 +69,10 @@ label {
   transition: color 0.3s ease;
 }
 
-/* Modo Claro */
 .filters.light label {
   color: #333;
 }
 
-/* Modo Escuro */
 .filters.dark label {
   color: #daa520;
 }
@@ -88,7 +84,6 @@ select {
   font-size: 0.9rem;
 }
 
-/* Modo Claro */
 .filters.light select {
   border: 1px solid #e6e6e6;
   background: #fff;
@@ -100,7 +95,6 @@ select {
   outline: none;
 }
 
-/* Modo Escuro */
 .filters.dark select {
   border: 1px solid #444;
   background: #2a2a2a;
@@ -133,7 +127,6 @@ select {
   transition: all 0.3s ease;
 }
 
-/* Botão Limpar */
 .filters.light .clear {
   background: transparent;
   border: 1px solid #ddd;
@@ -156,7 +149,6 @@ select {
   border-color: #555;
 }
 
-/* Botão Primary */
 .filters.light .primary {
   background: #111;
   color: #fff;

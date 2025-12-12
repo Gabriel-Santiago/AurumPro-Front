@@ -52,6 +52,7 @@ import ClientCard from "../components/clients/ClientCard.vue";
 import CreateClientModal from "../components/clients/CreateClienteModal.vue";
 import clientService from "../services/clientServices.js";
 import router from "../router/index.js";
+import { notify } from '../services/notificationService';
 
 const auth = useAuthStore();
 const themeStore = useThemeStore();
@@ -84,7 +85,7 @@ const fetchClients = async () => {
     const res = await clientService.listarTodos(empresaId);
     clients.value = Array.isArray(res.data) ? res.data : [];
   } catch (err) {
-    console.error("Erro ao buscar clientes", err);
+    notify.error('Erro ao buscar clientes');
     clients.value = [];
   } finally {
     loading.value = false;
@@ -96,12 +97,10 @@ onMounted(fetchClients);
 const filteredClients = computed(() => {
   return clients.value.filter(c => {
 
-    // filtro tipo
     if (filters.value.tipo !== "ALL") {
       if (c.tipoPessoa !== filters.value.tipo) return false;
     }
 
-    // filtro UF
     if (filters.value.estado) {
       if (!c.uf || c.uf.toUpperCase() !== filters.value.estado.toUpperCase()) {
         return false;
@@ -140,19 +139,15 @@ async function onCreated() {
 }
 
 function criarProposta(cliente) {
-  console.log("Criar proposta para", cliente);
 }
 
 function handleLogout() {
-  // Limpa os dados de autenticação
   auth.logout();
   
-  // Redireciona para a página de login
   router.push("/");
 }
 
 function goPropostas() {
-  console.log("Ir para propostas");
 }
 
 function toggleTheme() {
@@ -169,13 +164,11 @@ function toggleTheme() {
   transition: all 0.3s ease;
 }
 
-/* Modo Claro (padrão) */
 .page-container.light {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   color: #111;
 }
 
-/* Modo Escuro */
 .page-container.dark {
   background: linear-gradient(180deg, #111 0%, #1a1a1a 100%);
   color: #daa520;
@@ -204,12 +197,10 @@ function toggleTheme() {
   transition: color 0.3s ease;
 }
 
-/* Modo Claro */
 .page-container.light .empty {
   color: #666;
 }
 
-/* Modo Escuro */
 .page-container.dark .empty {
   color: #daa520;
 }

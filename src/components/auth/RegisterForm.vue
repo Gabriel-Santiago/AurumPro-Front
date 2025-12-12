@@ -29,6 +29,7 @@
 <script setup>
 import { ref } from "vue";
 import { useAuthStore } from "../../store/authStore";
+import { notify } from '../../services/notificationService';
 
 const cnpj = ref("");
 const senha = ref("");
@@ -38,14 +39,18 @@ const inscricaoMunicipal = ref("");
 const auth = useAuthStore();
 
 async function submitRegister() {
-  await auth.register({
-    cnpj: cnpj.value,
-    senha: senha.value,
-    responsavel: responsavel.value,
-    inscricaoMunicipal: inscricaoMunicipal.value
-  });
+  try {
+    await auth.register({
+      cnpj: cnpj.value,
+      senha: senha.value,
+      responsavel: responsavel.value,
+      inscricaoMunicipal: inscricaoMunicipal.value
+    });
+    notify.success('Usuário cadastrado com sucesso!');
+  } catch (error) {
+    notify.error('Erro ao cadastrar usuário');
+  }
 
-  alert("Cadastro realizado!");
 }
 </script>
 

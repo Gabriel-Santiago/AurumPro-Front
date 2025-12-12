@@ -7,7 +7,6 @@
       </div>
       
       <div class="modal-content">
-        <!-- Lado esquerdo: Adicionar serviço -->
         <div class="add-section">
           <h4>Adicionar Novo Serviço</h4>
           <form @submit.prevent="handleSubmit" class="add-form">
@@ -33,7 +32,6 @@
           </form>
         </div>
         
-        <!-- Lado direito: Listar serviços -->
         <div class="list-section">
           <div class="list-header">
             <h4>Serviços Cadastrados</h4>
@@ -84,6 +82,7 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import servicoService from "../../services/servicoServices";
+import { notify } from '../../services/notificationService';
 
 const emit = defineEmits(["close", "created"]);
 
@@ -103,7 +102,6 @@ const successMessage = ref("");
 
 const empresaId = computed(() => authStore.empresa?.empresaId);
 
-// Carregar serviços ao abrir o modal
 onMounted(() => {
   carregarServicos();
 });
@@ -116,10 +114,7 @@ const carregarServicos = async () => {
     const response = await servicoService.listarTodos(empresaId.value);
     servicos.value = response.data || [];
   } catch (err) {
-    console.error("Erro ao carregar serviços:", err);
-    // Mostrar erro na interface em vez de alert
-    successMessage.value = "Erro ao carregar serviços";
-    setTimeout(() => successMessage.value = "", 3000);
+    notify.error('Erro ao carregar serviços');
   } finally {
     loadingList.value = false;
   }
@@ -149,33 +144,20 @@ const handleSubmit = async () => {
 
     await servicoService.criarServico(dados);
     
-    // Exibir mensagem de sucesso
-    successMessage.value = "Serviço criado com sucesso!";
-    
-    // Limpar formulário
     form.value.nome = "";
     
-    // Focar novamente no campo de entrada
     await nextTick();
     if (nomeInput.value) {
       nomeInput.value.focus();
     }
     
-    // Recarregar lista de serviços
     await carregarServicos();
+
+    notify.success('Serviço criado com sucesso!');
     
-    // Emitir evento para o componente pai (se necessário)
-    emit("created");
-    
-    // Limpar mensagem de sucesso após alguns segundos
-    setTimeout(() => {
-      successMessage.value = "";
-    }, 3000);
-    
+    emit("created");    
   } catch (err) {
-    console.error("Erro ao criar serviço:", err);
-    successMessage.value = "Erro ao criar serviço: " + (err.response?.data?.message || err.message);
-    setTimeout(() => successMessage.value = "", 3000);
+    notify.error('Erro ao criar serviço');
   } finally {
     loading.value = false;
   }
@@ -437,7 +419,6 @@ input {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* List section styles */
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -640,7 +621,6 @@ input {
   border-color: #555;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
   .modal {
     width: 95vw;

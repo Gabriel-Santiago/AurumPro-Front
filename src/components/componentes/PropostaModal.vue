@@ -20,7 +20,6 @@
                 </div>
 
                 <div class="modal-content">
-                    <!-- PÁGINA 1: Itens da Proposta -->
                     <div v-if="currentPage === 1" class="page">
                         <div class="page-header">
                             <h4>Itens da Proposta</h4>
@@ -79,7 +78,6 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 2: Custos -->
                     <div v-else-if="currentPage === 2" class="page">
                         <div class="page-header">
                             <h4>Custos Adicionais</h4>
@@ -112,7 +110,6 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 3: Desconto -->
                     <div v-else-if="currentPage === 3" class="page">
                         <h4>Aplicar Desconto</h4>
 
@@ -155,7 +152,6 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 4: Selecionar Colaborador/colaborador -->
                     <div v-else-if="currentPage === 4" class="page">
                         <h4>Atribuir Colaborador</h4>
                         <p class="page-subtitle">
@@ -183,7 +179,6 @@
                             </div>
                         </div>
 
-                        <!-- Seleção de colaborador -->
                         <div v-if="form.colaboradorSelecao === 'SELECIONAR'" class="colaborador-selection">
                             <div class="form-group">
                                 <label>Selecione o Colaborador</label>
@@ -220,7 +215,6 @@
                                 </div>
                             </div>
 
-                            <!-- Botão para gerenciar colaboradores -->
                             <div class="colaborador-management">
                                 <button type="button" class="btn-manage-colaboradores"
                                     @click="abrirGerenciarColaboradores">
@@ -244,7 +238,6 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 5: Convênio (Origem do Cliente) -->
                     <div v-else-if="currentPage === 5" class="page">
                         <h4>Origem do Cliente</h4>
                         <p class="page-subtitle">
@@ -273,7 +266,6 @@
                             </div>
                         </div>
 
-                        <!-- Seleção de convênio -->
                         <div v-if="form.convenioSelecao === 'SELECIONAR'" class="convenio-selection">
                             <div class="form-group">
                                 <label>Selecione o Convênio/Origem</label>
@@ -310,7 +302,6 @@
                         </div>
                     </div>
 
-                    <!-- PÁGINA 6: Confirmação -->
                     <div v-else-if="currentPage === 6" class="page">
                         <h4>Confirmação da Proposta</h4>
 
@@ -419,6 +410,7 @@ import propostaService from "../../services/propostaService";
 import custoService from "../../services/custoService";
 import itemPropostaService from "../../services/itemPropostaService";
 import colaboradorService from "../../services/colaboradorService";
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -430,7 +422,6 @@ const themeStore = useThemeStore();
 const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
-// Estado
 const currentPage = ref(1);
 const servicos = ref([]);
 const colaboradores = ref([]);
@@ -440,9 +431,7 @@ const modalElement = ref(null);
 const loading = ref(false);
 const mostrarModalColaboradores = ref(false);
 
-// Formulário principal
 const form = ref({
-    // Página 1
     itens: [{
         servicoId: "",
         microServicoIds: [],
@@ -452,27 +441,22 @@ const form = ref({
         valorTotal: 0
     }],
 
-    // Página 2
     custos: [{
         nome: "",
         valor: 0
     }],
 
-    // Página 3
     tipoDesconto: "NENHUM",
     valorDesconto: 0,
     porcentagemDesconto: 0,
 
-    // Página 4 (nova)
     colaboradorSelecao: "NENHUM",
     colaboradorId: null,
 
-    // Página 5 (antiga 4)
     convenioSelecao: "NENHUM",
     convenioId: null
 });
 
-// Computed
 const convenioSelecionado = computed(() => {
     if (!form.value.convenioId) return null;
     return convenios.value.find(c => c.id === form.value.convenioId);
@@ -483,42 +467,34 @@ const colaboradorSelecionado = computed(() => {
     return colaboradores.value.find(c => c.id === form.value.colaboradorId);
 });
 
-// Carregar dados iniciais
 const carregarDados = async () => {
     try {
         const empresaId = authStore.empresa?.empresaId;
         if (!empresaId) {
-            console.error("EmpresaId não encontrado");
+            notify.error('Id da empresa não foi encontrado');
             return;
         }
 
-        // Carregar serviços
         const resServicos = await servicoService.listarTodos(empresaId);
         servicos.value = resServicos.data || [];
 
-        // Carregar colaboradores
         const resColaboradores = await colaboradorService.listarPorEmpresa(empresaId);
         colaboradores.value = resColaboradores.data || [];
 
-        // Carregar convênios
         const resConvenios = await convenioService.listarPorEmpresa(empresaId);
         convenios.value = resConvenios.data || [];
     } catch (err) {
-        console.error("Erro ao carregar dados:", err);
-        window.alert("Erro ao carregar dados: " + (err.response?.data?.message || err.message));
+        notify.error('Erro ao carregar dados');
     }
 };
 
-// Validação de página - ATUALIZADA
 const validarPaginaAtual = () => {
     switch (currentPage.value) {
         case 1:
-            // Verificar se todos os itens têm serviço e micro serviços selecionados
             const todosItensValidos = form.value.itens.every(item =>
                 item.servicoId && item.microServicoIds.length > 0
             );
 
-            // Verificar se todos os itens têm valores de hora e quantidade válidos
             const todosValoresValidos = form.value.itens.every(item => {
                 const valorHora = parseFloat(item.valorHora) || 0;
                 const qtdHora = parseFloat(item.qtdHora) || 0;
@@ -528,9 +504,7 @@ const validarPaginaAtual = () => {
             return todosItensValidos && todosValoresValidos && form.value.itens.length > 0;
 
         case 2:
-            // Verificar se todos os custos têm nome e valor válidos
             if (form.value.custos.length === 0) {
-                return true; // Custos são opcionais
             }
             return form.value.custos.every(custo =>
                 custo.nome && custo.nome.trim() !== '' &&
@@ -538,32 +512,25 @@ const validarPaginaAtual = () => {
             );
 
         case 3:
-            // Se selecionou desconto em valor, precisa ter valor maior que 0
             if (form.value.tipoDesconto === 'VALOR') {
                 return (parseFloat(form.value.valorDesconto) || 0) > 0;
             }
-            // Se selecionou desconto em porcentagem, precisa ter porcentagem entre 0-100
             if (form.value.tipoDesconto === 'PORCENTAGEM') {
                 const porcentagem = parseFloat(form.value.porcentagemDesconto) || 0;
                 return porcentagem > 0 && porcentagem <= 100;
             }
-            // Se selecionou "Nenhum Desconto", é válido
             return true;
 
         case 4:
-            // Se selecionou "SELECIONAR", precisa escolher um colaborador
             if (form.value.colaboradorSelecao === 'SELECIONAR') {
                 return form.value.colaboradorId !== null && form.value.colaboradorId !== '';
             }
-            // Se selecionou "NENHUM", é válido
             return true;
 
         case 5:
-            // A página 5 sempre é válida (convênio é opcional)
             if (form.value.convenioSelecao === 'SELECIONAR') {
                 return form.value.convenioId !== null && form.value.convenioId !== '';
             }
-            // Se selecionou "NENHUM", é válido
             return true;
 
         default:
@@ -571,7 +538,6 @@ const validarPaginaAtual = () => {
     }
 };
 
-// Funções para Página 1
 const adicionarItem = () => {
     form.value.itens.push({
         servicoId: "",
@@ -602,7 +568,7 @@ const carregarMicroServicos = async (item) => {
         item.microServicoIds = [];
         item.valorTotal = 0;
     } catch (err) {
-        console.error("Erro ao carregar micro serviços:", err);
+        notify.error('Erro ao carregar micro serviços');
         item.microServicosDisponiveis = [];
     }
 };
@@ -617,7 +583,6 @@ const calcularValorTotal = (item) => {
     item.valorTotal = valorHora * qtdHora;
 };
 
-// Funções para Página 2
 const adicionarCusto = () => {
     form.value.custos.push({
         nome: "",
@@ -631,31 +596,12 @@ const removerCusto = (index) => {
     }
 };
 
-// Funções para Página 4 (Colaboradores)
 const abrirGerenciarColaboradores = () => {
     mostrarModalColaboradores.value = true;
 };
 
-const fecharModalColaboradores = () => {
-    mostrarModalColaboradores.value = false;
-};
-
-const recarregarColaboradores = async () => {
-    try {
-        const empresaId = authStore.empresa?.empresaId;
-        if (!empresaId) return;
-
-        const resColaboradores = await colaboradorService.listarPorEmpresa(empresaId);
-        colaboradores.value = resColaboradores.data || [];
-    } catch (err) {
-        console.error("Erro ao recarregar colaboradores:", err);
-    }
-};
-
-// Formatar telefone para exibição
 const formatarTelefone = (telefone) => {
     if (!telefone) return '';
-    // Remove caracteres não numéricos
     const numeros = telefone.replace(/\D/g, '');
 
     if (numeros.length === 10) {
@@ -667,7 +613,6 @@ const formatarTelefone = (telefone) => {
     return telefone;
 };
 
-// Funções para Página 6
 const getNomeServico = (servicoId) => {
     if (!servicoId) return "Serviço não selecionado";
     const servico = servicos.value.find(s => s.id === servicoId);
@@ -677,20 +622,17 @@ const getNomeServico = (servicoId) => {
 const calcularValorTotalProposta = () => {
     let totalItens = 0;
 
-    // Soma dos itens
     form.value.itens.forEach(item => {
         totalItens += item.valorTotal || 0;
     });
 
     let totalCustos = 0;
-    // Soma dos custos
     form.value.custos.forEach(custo => {
         totalCustos += parseFloat(custo.valor) || 0;
     });
 
     let totalComDesconto = totalItens + totalCustos;
 
-    // Aplica desconto se houver
     if (form.value.tipoDesconto === 'VALOR') {
         const desconto = parseFloat(form.value.valorDesconto) || 0;
         totalComDesconto -= desconto;
@@ -703,12 +645,10 @@ const calcularValorTotalProposta = () => {
     return Math.max(0, totalComDesconto);
 };
 
-// Navegação
 const nextPage = () => {
     if (currentPage.value < 6 && validarPaginaAtual()) {
         currentPage.value++;
     } else {
-        // Mostrar mensagem de erro se a página não for válida
         mostrarErroValidacao();
     }
 };
@@ -719,7 +659,6 @@ const prevPage = () => {
     }
 };
 
-// Mostrar erro de validação - ATUALIZADA
 const mostrarErroValidacao = () => {
     let mensagem = "";
 
@@ -752,13 +691,8 @@ const mostrarErroValidacao = () => {
             }
             break;
     }
-
-    if (mensagem) {
-        window.alert(mensagem);
-    }
 };
 
-// Criar proposta - ATUALIZADA
 const criarProposta = async () => {
     try {
         loading.value = true;
@@ -768,25 +702,17 @@ const criarProposta = async () => {
             throw new Error("Empresa não encontrada");
         }
 
-        console.log("=== INICIANDO CRIAÇÃO DE PROPOSTA ===");
-        console.log("Empresa ID:", empresaId);
-        console.log("Cliente ID:", props.cliente.id);
-        console.log("colaborador ID:", form.value.colaboradorId);
-        console.log("Convênio ID:", form.value.convenioId);
-
-        // Validar dados obrigatórios
         const itensValidos = form.value.itens.filter(item =>
             item.servicoId && item.microServicoIds.length > 0
         );
 
         if (itensValidos.length === 0) {
-            window.alert("Adicione pelo menos um item válido à proposta!");
+            notify.alert('Adicione pelo menos um item válido à proposta!');
             currentPage.value = 1;
             loading.value = false;
             return;
         }
 
-        // PASSO 1: Criar custos em PARALELO com Promise.all
         const custosIds = [];
 
         const custosPromises = form.value.custos
@@ -799,10 +725,8 @@ const criarProposta = async () => {
                         valor: parseFloat(custo.valor)
                     };
 
-                    console.log(`🔄 Criando custo: ${custo.nome}`, dadosCusto);
                     const response = await custoService.criar(dadosCusto);
 
-                    // Extrair ID da resposta
                     let custoId = null;
                     if (response && response.data && response.data.id) {
                         custoId = Number(response.data.id);
@@ -811,38 +735,31 @@ const criarProposta = async () => {
                     }
 
                     if (custoId) {
-                        console.log(`✅ Custo "${custo.nome}" criado com ID: ${custoId}`);
                         return custoId;
                     } else {
-                        console.warn(`⚠️ Custo criado mas ID não encontrado`);
                         return null;
                     }
                 } catch (err) {
-                    console.error(`❌ Erro ao criar custo "${custo.nome}":`, err);
-                    throw new Error(`Falha ao criar custo "${custo.nome}": ${err.message}`);
+                    notify.error('Falha ao criar custo');
                 }
             });
 
-        // Executar todas as promessas de custo em paralelo
         if (custosPromises.length > 0) {
             try {
                 const custosResults = await Promise.all(custosPromises);
                 custosIds.push(...custosResults.filter(id => id !== null));
-                console.log("📋 IDs dos custos criados:", custosIds);
             } catch (err) {
-                window.alert(`Erro ao criar custos: ${err.message}`);
+                notify.error('Erro ao criar custos');
                 loading.value = false;
                 return;
             }
         }
 
-        // PASSO 2: Criar todos os itens da proposta em PARALELO com Promise.all
         const itemPropostaIds = [];
         const itemPropostaPromises = [];
 
         for (const item of itensValidos) {
             for (const microServicoId of item.microServicoIds) {
-                // Criar função assíncrona para cada item
                 const criarItemPromise = (async () => {
                     try {
                         const dadosItem = {
@@ -853,12 +770,8 @@ const criarProposta = async () => {
                             valorTotal: parseFloat(item.valorTotal) || 0
                         };
 
-                        console.log("🔄 Criando item da proposta:", dadosItem);
-
-                        // Agora o backend espera CreateItemPropostaDTO com esses 5 campos
                         const response = await itemPropostaService.criar(dadosItem);
 
-                        // Extrair ID da resposta
                         let itemId = null;
                         if (response && response.data && response.data.id) {
                             itemId = Number(response.data.id);
@@ -869,15 +782,12 @@ const criarProposta = async () => {
                         }
 
                         if (itemId) {
-                            console.log(`✅ Item criado com ID: ${itemId}`);
                             return itemId;
                         } else {
-                            console.warn("⚠️ Item criado mas ID não encontrado");
                             return null;
                         }
                     } catch (err) {
-                        console.error("❌ Erro ao criar item da proposta:", err);
-                        throw new Error(`Falha ao criar item: ${err.message}`);
+                        notify.error(`Falha ao criar item: ${err.message}`);
                     }
                 })();
 
@@ -885,27 +795,23 @@ const criarProposta = async () => {
             }
         }
 
-        // Executar todas as promessas de item em paralelo
         if (itemPropostaPromises.length > 0) {
             try {
                 const itemResults = await Promise.all(itemPropostaPromises);
                 itemPropostaIds.push(...itemResults.filter(id => id !== null));
-                console.log("📋 IDs dos itens criados:", itemPropostaIds);
             } catch (err) {
-                window.alert(`Erro ao criar itens da proposta: ${err.message}`);
+                notify.error(`Erro ao criar itens da proposta: ${err.message}`);
                 loading.value = false;
                 return;
             }
         }
 
-        // Verificar se temos pelo menos um item
         if (itemPropostaIds.length === 0) {
-            window.alert("Nenhum item da proposta foi criado!");
+            notify.alert('Nenhum item da proposta foi criado!');
             loading.value = false;
             return;
         }
 
-        // PASSO 3: Preparar dados da proposta COM COLABORADOR
         const dadosProposta = {
             empresaId: Number(empresaId),
             clienteId: Number(props.cliente.id),
@@ -923,46 +829,34 @@ const criarProposta = async () => {
             porcentagemDesconto: form.value.tipoDesconto === 'PORCENTAGEM' ? parseFloat(form.value.porcentagemDesconto) || 0 : 0
         };
 
-        console.log(form.value.colaboradorId);
-        console.log("📤 Dados da proposta para enviar:", dadosProposta);
-
-        // PASSO 4: Criar a proposta
         try {
-            console.log("🚀 Enviando proposta para o backend...");
             const responseProposta = await propostaService.criar(dadosProposta);
-            console.log("✅ Proposta criada com sucesso!", responseProposta);
-
-            window.alert("Proposta criada com sucesso!");
+            notify.success('Proposta criada com sucesso!');
             emit("created");
             handleClose();
         } catch (err) {
-            console.error("❌ Erro ao criar proposta:", err);
-            window.alert(`Erro ao criar proposta: ${err.message || 'Erro desconhecido'}`);
+            notify.error(`Erro ao criar proposta: ${err.message || 'Erro desconhecido'}`);
         }
     } catch (err) {
-        console.error("💥 Erro geral no processo:", err);
+        notify.error("💥 Erro geral no processo:", err);
     } finally {
         loading.value = false;
     }
 };
 
-// Função para fechar o modal
 const handleClose = () => {
     visible.value = false;
-    // Pequeno delay para permitir a animação
     setTimeout(() => {
         emit("close");
     }, 300);
 };
 
-// Fechar com ESC
 const handleEscape = (event) => {
     if (event.key === 'Escape') {
         handleClose();
     }
 };
 
-// Watch para resetar colaboradorId quando mudar a seleção
 watch(() => form.value.colaboradorSelecao, (newVal) => {
     if (newVal === 'NENHUM') {
         form.value.colaboradorId = null;
@@ -975,11 +869,9 @@ watch(() => form.value.convenioSelecao, (newVal) => {
     }
 });
 
-// Adicionar listener para ESC
 onMounted(() => {
     document.addEventListener('keydown', handleEscape);
 
-    // Focar no modal para melhor acessibilidade
     nextTick(() => {
         if (modalElement.value) {
             modalElement.value.focus();
@@ -989,14 +881,12 @@ onMounted(() => {
     carregarDados();
 });
 
-// Remover listener
 onBeforeUnmount(() => {
     document.removeEventListener('keydown', handleEscape);
 });
 </script>
 
 <style scoped>
-/* Estilos básicos do modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -1052,7 +942,6 @@ onBeforeUnmount(() => {
     border: 1px solid #333;
 }
 
-/* Header */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1083,7 +972,6 @@ onBeforeUnmount(() => {
     color: #daa520;
 }
 
-/* Botão fechar */
 .close-btn {
     background: none;
     border: none;
@@ -1116,7 +1004,6 @@ onBeforeUnmount(() => {
     color: #f0f0f0;
 }
 
-/* Progress bar */
 .progress-bar {
     margin: 0 32px 24px;
     position: relative;
@@ -1173,7 +1060,6 @@ onBeforeUnmount(() => {
     color: #1e1e1e;
 }
 
-/* Conteúdo do modal */
 .modal-content {
     flex: 1;
     overflow-y: auto;
@@ -1198,7 +1084,6 @@ onBeforeUnmount(() => {
     background: #4b5563;
 }
 
-/* Páginas */
 .page {
     padding-bottom: 24px;
 }
@@ -1273,7 +1158,6 @@ onBeforeUnmount(() => {
     background: rgba(239, 68, 68, 0.1);
 }
 
-/* Item containers */
 .item-container {
     background: #f9fafb;
     padding: 20px;
@@ -1311,7 +1195,6 @@ onBeforeUnmount(() => {
     color: #f0f0f0;
 }
 
-/* Form styles */
 .form-group {
     margin-bottom: 20px;
 }
@@ -1404,7 +1287,6 @@ small {
     border-color: #374151;
 }
 
-/* Radio groups */
 .radio-group {
     display: flex;
     flex-direction: column;
@@ -1439,7 +1321,6 @@ small {
     font-size: 0.9rem;
 }
 
-/* Radio option large */
 .radio-option.large {
     padding: 16px;
     border-radius: 12px;
@@ -1488,7 +1369,6 @@ small {
     color: #9ca3af;
 }
 
-/* Seleção de colaborador/convênio */
 .colaborador-selection,
 .convenio-selection {
     margin-top: 20px;
@@ -1526,7 +1406,6 @@ small {
     box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
-/* Card de informações */
 .colaborador-info-card,
 .convenio-info-card {
     margin-top: 20px;
@@ -1628,7 +1507,6 @@ small {
     color: #f0f0f0;
 }
 
-/* Badge de função */
 .funcao-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -1641,7 +1519,6 @@ small {
     letter-spacing: 0.5px;
 }
 
-/* Botão de gerenciar colaboradores */
 .colaborador-management {
     margin-top: 20px;
     text-align: center;
@@ -1672,7 +1549,6 @@ small {
     height: 16px;
 }
 
-/* Desconto preview */
 .desconto-preview {
     background: #f0f9ff;
     padding: 16px;
@@ -1686,7 +1562,6 @@ small {
     border-color: #3b82f6;
 }
 
-/* Info box */
 .info-box {
     margin-top: 24px;
     padding: 16px;
@@ -1711,7 +1586,6 @@ small {
     color: #d1d5db;
 }
 
-/* Resumo styles */
 .resumo {
     max-height: 400px;
     overflow-y: auto;
@@ -1761,7 +1635,6 @@ small {
     line-height: 1.4;
 }
 
-/* Resumo do colaborador */
 .colaborador-resumo p {
     margin: 8px 0;
     font-size: 0.9rem;
@@ -1790,7 +1663,6 @@ small {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Modal actions */
 .modal-actions {
     display: flex;
     justify-content: space-between;
@@ -1883,7 +1755,6 @@ small {
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -1906,7 +1777,6 @@ small {
     }
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
     .modal {
         width: 95vw;

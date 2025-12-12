@@ -1,6 +1,5 @@
 <template>
     <div class="financas-container" :class="theme">
-        <!-- Cabeçalho -->
         <div class="financas-header">
             <div class="header-left">
                 <button class="btn-voltar" @click="voltar" title="Voltar">
@@ -28,13 +27,11 @@
             </div>
         </div>
 
-        <!-- Loading -->
         <div v-if="loading" class="loading-state">
             <div class="spinner"></div>
             <p>Carregando dashboard...</p>
         </div>
 
-        <!-- Erro -->
         <div v-else-if="erro" class="error-state">
             <div class="error-icon">❌</div>
             <h3>Erro ao carregar dados</h3>
@@ -44,11 +41,8 @@
             </button>
         </div>
 
-        <!-- Conteúdo Principal -->
         <div v-else class="main-content">
-            <!-- Cards de Resumo -->
             <div class="cards-container">
-                <!-- Card 1: Total de Propostas -->
                 <div class="resumo-card total">
                     <div class="card-icon">
                         <span>📋</span>
@@ -63,7 +57,6 @@
                     </div>
                 </div>
 
-                <!-- Card 2: A Receber -->
                 <div class="resumo-card em-aberto">
                     <div class="card-icon">
                         <span>⏳</span>
@@ -78,7 +71,6 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Recebido -->
                 <div class="resumo-card recebido">
                     <div class="card-icon">
                         <span>✅</span>
@@ -93,7 +85,6 @@
                     </div>
                 </div>
 
-                <!-- Card 4: Taxa de Aceitação -->
                 <div class="resumo-card taxa">
                     <div class="card-icon">
                         <span>📊</span>
@@ -110,7 +101,6 @@
                 </div>
             </div>
 
-            <!-- Tabs para diferentes status -->
             <div class="tabs-container">
                 <div class="tabs-header">
                     <button v-for="tab in tabs" :key="tab.id" class="tab-button"
@@ -122,7 +112,6 @@
                 </div>
 
                 <div class="tabs-content">
-                    <!-- Tab: Em Avaliação -->
                     <div v-if="tabAtiva === 'avaliacao'" class="tab-pane">
                         <div class="tab-header">
                             <h3>⏳ Propostas em Avaliação</h3>
@@ -190,7 +179,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab: Aceitas -->
                     <div v-if="tabAtiva === 'aceitas'" class="tab-pane">
                         <div class="tab-header">
                             <h3>✅ Propostas Aceitas</h3>
@@ -242,7 +230,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab: Recusadas -->
                     <div v-if="tabAtiva === 'recusadas'" class="tab-pane">
                         <div class="tab-header">
                             <h3>❌ Propostas Recusadas</h3>
@@ -295,7 +282,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab: Expiradas -->
                     <div v-if="tabAtiva === 'expiradas'" class="tab-pane">
                         <div class="tab-header">
                             <h3>⌛ Propostas Expiradas</h3>
@@ -353,7 +339,6 @@
             </div>
         </div>
 
-        <!-- Modal de Detalhes -->
         <div v-if="modalDetalhes.visible" class="modal-overlay" @click.self="fecharModalDetalhes">
             <div class="modal-container">
                 <div class="modal-header">
@@ -371,28 +356,24 @@
                         </div>
 
                         <div class="detalhes-grid">
-                            <!-- Valor Total (sempre mostra) -->
                             <div class="detalhes-item">
                                 <span class="label">Valor Total:</span>
                                 <span class="value valor">R$ {{ formatarValor(modalDetalhes.proposta.valorTotal)
                                 }}</span>
                             </div>
 
-                            <!-- Para EM_AVALIACAO: Mostra Data de Criação -->
                             <div v-if="modalDetalhes.proposta.statusProposta === 'EM_AVALIACAO'" class="detalhes-item">
                                 <span class="label">Data de Criação:</span>
                                 <span class="value">{{ formatarDataCompleta(modalDetalhes.proposta.dataCriacao)
                                 }}</span>
                             </div>
 
-                            <!-- Para EXPIRADA: Mostra Data de Criação -->
                             <div v-if="modalDetalhes.proposta.statusProposta === 'EXPIRADA'" class="detalhes-item">
                                 <span class="label">Data de Criação:</span>
                                 <span class="value">{{ formatarDataCompleta(modalDetalhes.proposta.dataCriacao)
                                 }}</span>
                             </div>
 
-                            <!-- Para ACEITA: Mostra Data de Criação e Data de Deferimento -->
                             <div v-if="modalDetalhes.proposta.statusProposta === 'ACEITA'">
                                 <div class="detalhes-item">
                                     <span class="label">Data de criação:</span>
@@ -406,7 +387,6 @@
                                 </div>
                             </div>
 
-                            <!-- Para RECUSADA: Mostra Data de Criação e Data de Indeferimento -->
                             <div v-if="modalDetalhes.proposta.statusProposta === 'RECUSADA'">
                                 <div class="detalhes-item">
                                     <span class="label">Data de criação:</span>
@@ -420,7 +400,6 @@
                                 </div>
                             </div>
 
-                            <!-- Campos de validade e dias restantes apenas para EM_AVALIACAO e EXPIRADA -->
                             <template
                                 v-if="modalDetalhes.proposta.statusProposta === 'EM_AVALIACAO' || modalDetalhes.proposta.statusProposta === 'EXPIRADA'">
                                 <div class="detalhes-item">
@@ -451,7 +430,6 @@
 
                     <div class="modal-actions" v-if="modalDetalhes.proposta.statusProposta !== 'EXPIRADA'">
                         <div class="actions-modal-group">
-                            <!-- Ações para EM_AVALIACAO -->
                             <button v-if="modalDetalhes.proposta.statusProposta === 'EM_AVALIACAO'"
                                 class="btn-action-large btn-success"
                                 @click="abrirModalMudancaStatus(modalDetalhes.proposta, 'ACEITA')">
@@ -463,7 +441,6 @@
                                 ❌ Recusar Proposta
                             </button>
 
-                            <!-- Botão de exclusão (sempre mostra exceto para EXPIRADA) -->
                             <button class="btn-action-large btn-delete"
                                 @click="confirmarExclusao(modalDetalhes.proposta)">
                                 🗑️ Excluir Proposta
@@ -474,7 +451,6 @@
             </div>
         </div>
 
-        <!-- Modal de Confirmação de Exclusão -->
         <div v-if="modalExclusao.visible" class="modal-overlay" @click.self="cancelarExclusao">
             <div class="modal-confirmacao">
                 <div class="modal-icon">⚠️</div>
@@ -495,7 +471,6 @@
             </div>
         </div>
 
-        <!-- Modal de Confirmação de Mudança de Status -->
         <div v-if="modalMudancaStatus.visible" class="modal-overlay" @click.self="fecharModalMudancaStatus">
             <div class="modal-confirmacao">
                 <div class="modal-icon" :class="getClasseIconeModal(modalMudancaStatus.novoStatus)">
@@ -528,13 +503,13 @@ import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import financasService from '../services/financasService';
 import propostaService from '../services/propostaService';
+import { notify } from '../services/notificationService';
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
 const router = useRouter();
 
-// Estados
 const dashboard = ref({});
 const loading = ref(false);
 const erro = ref(null);
@@ -561,7 +536,6 @@ const voltar = () => {
     router.push('/clientes');
 };
 
-// Tabs
 const tabs = [
     { id: 'avaliacao', icon: '⏳', text: 'Em Avaliação' },
     { id: 'aceitas', icon: '✅', text: 'Aceitas' },
@@ -569,7 +543,6 @@ const tabs = [
     { id: 'expiradas', icon: '⌛', text: 'Expiradas' }
 ];
 
-// Carregar dashboard
 const carregarDashboard = async () => {
     try {
         loading.value = true;
@@ -585,11 +558,10 @@ const carregarDashboard = async () => {
         const data = await financasService.getDashboard(empresaId);
         dashboard.value = data || {};
 
-        // Atualizar horário da última atualização
         ultimaAtualizacao.value = new Date().toLocaleTimeString('pt-BR');
 
     } catch (error) {
-        console.error('Erro ao carregar dashboard:', error);
+        notify.error('Erro ao carregar dashboard');
         erro.value = 'Erro ao carregar dados. Tente novamente.';
         dashboard.value = {};
     } finally {
@@ -597,7 +569,6 @@ const carregarDashboard = async () => {
     }
 };
 
-// Funções auxiliares
 const getContadorTab = (tabId) => {
     switch (tabId) {
         case 'avaliacao': return dashboard.value?.emAvaliacao?.length || 0;
@@ -615,7 +586,6 @@ const formatarTaxaAceitacao = (taxa) => {
     return '0.00';
 };
 
-// Abrir detalhes da proposta
 const abrirDetalhesProposta = (proposta) => {
     modalDetalhes.value = {
         visible: true,
@@ -623,7 +593,6 @@ const abrirDetalhesProposta = (proposta) => {
     };
 };
 
-// Fechar modal de detalhes
 const fecharModalDetalhes = () => {
     modalDetalhes.value = {
         visible: false,
@@ -631,7 +600,6 @@ const fecharModalDetalhes = () => {
     };
 };
 
-// Exclusão de proposta
 const confirmarExclusao = (proposta) => {
     modalExclusao.value = {
         visible: true,
@@ -651,31 +619,25 @@ const excluirProposta = async () => {
         loading.value = true;
         await propostaService.excluirProposta(modalExclusao.value.proposta.id);
 
-        // Recarregar dashboard
         await carregarDashboard();
 
-        // Fechar modais
         cancelarExclusao();
         fecharModalDetalhes();
 
-        alert('Proposta excluída com sucesso!');
-
+        notify.success('Proposta excluída com sucesso!');
     } catch (error) {
-        console.error('Erro ao excluir proposta:', error);
-        alert('Erro ao excluir proposta: ' + error.message);
+        notify.error('Erro ao excluir proposta');
     } finally {
         loading.value = false;
     }
 };
 
-// Mudança de status
 const abrirModalMudancaStatus = (proposta, novoStatus) => {
     modalMudancaStatus.value = {
         visible: true,
         proposta: proposta,
         novoStatus: novoStatus
     };
-    // Fechar modal de detalhes se estiver aberto
     fecharModalDetalhes();
 };
 
@@ -696,26 +658,21 @@ const atualizarStatusProposta = async () => {
             propostaId: modalMudancaStatus.value.proposta.id,
             statusProposta: modalMudancaStatus.value.novoStatus
         };
-        console.log(dados);
         await financasService.atualizarStatusProposta(dados);
 
-        // Recarregar dashboard
         await carregarDashboard();
 
-        // Fechar modal
         fecharModalMudancaStatus();
 
-        alert('Status da proposta atualizado com sucesso!');
+        notify.success('Status da proposta atualizado com sucesso!');
 
     } catch (error) {
-        console.error('Erro ao atualizar status:', error);
-        alert('Erro ao atualizar status da proposta: ' + error.message);
+        notify.error('Erro ao atualizar status:', error);
     } finally {
         loading.value = false;
     }
 };
 
-// Funções auxiliares para modais
 const getIconeModal = (status) => {
     switch (status) {
         case 'ACEITA': return '✅';
@@ -752,7 +709,6 @@ const getClasseBotaoModal = (status) => {
     }
 };
 
-// Funções de formatação
 const formatarValor = (valor) => {
     if (!valor && valor !== 0) return '0,00';
     const valorNumerico = typeof valor === 'string' ? parseFloat(valor) : valor;
@@ -824,7 +780,6 @@ const getClasseValidade = (dataValidade) => {
     return 'normal';
 };
 
-// Inicialização
 onMounted(() => {
     carregarDashboard();
 });
@@ -839,21 +794,15 @@ onMounted(() => {
   transition: all 0.3s ease;
 }
 
-/* MODO CLARO */
 .financas-container.light {
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
   color: #111;
 }
 
-/* MODO ESCURO */
 .financas-container.dark {
   background: linear-gradient(180deg, #111 0%, #1a1a1a 100%);
   color: #daa520;
 }
-
-/* ========================= */
-/* HEADER */
-/* ========================= */
 
 .financas-header {
   display: flex;
@@ -883,7 +832,6 @@ onMounted(() => {
   opacity: 0.7;
 }
 
-/* Botão voltar */
 .btn-voltar {
   padding: 8px 14px;
   border-radius: 8px;
@@ -903,7 +851,6 @@ onMounted(() => {
   opacity: 0.8;
 }
 
-/* Header Actions */
 .header-actions {
   display: flex;
   align-items: center;
@@ -932,17 +879,12 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* Última atualização */
 .data-info {
   font-size: 0.85rem;
   opacity: 0.7;
   display: flex;
   gap: 6px;
 }
-
-/* ========================= */
-/* LOADING */
-/* ========================= */
 
 .loading-state {
   text-align: center;
@@ -969,10 +911,6 @@ onMounted(() => {
   }
 }
 
-/* ========================= */
-/* ERRO */
-/* ========================= */
-
 .error-state {
   text-align: center;
   padding: 40px 0;
@@ -993,20 +931,12 @@ onMounted(() => {
   transition: all .3s ease;
 }
 
-/* ========================= */
-/* MAIN CONTENT */
-/* ========================= */
-
 .main-content {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   padding: 10px 20px 40px;
 }
-
-/* ========================= */
-/* CARDS DE RESUMO */
-/* ========================= */
 
 .cards-container {
   display: grid;
@@ -1056,7 +986,6 @@ onMounted(() => {
   gap: 2px;
 }
 
-/* BADGES */
 .status-badge {
   padding: 2px 8px;
   border-radius: 6px;
@@ -1079,10 +1008,6 @@ onMounted(() => {
   background: #3b82f6;
   color: white;
 }
-
-/* ========================= */
-/* TABS */
-/* ========================= */
 
 .tabs-container {
   margin-top: 24px;
@@ -1130,10 +1055,6 @@ onMounted(() => {
   background: #daa520;
   color: #111;
 }
-
-/* ========================= */
-/* PROPOSTAS GRID */
-/* ========================= */
 
 .propostas-grid {
   margin-top: 20px;
@@ -1192,10 +1113,6 @@ onMounted(() => {
   font-size: 1.1rem;
 }
 
-/* ========================= */
-/* STATUS COR DE VALIDADE */
-/* ========================= */
-
 .expirada {
   color: #ef4444;
 }
@@ -1211,10 +1128,6 @@ onMounted(() => {
 .normal {
   color: #22c55e;
 }
-
-/* ========================= */
-/* AÇÕES */
-/* ========================= */
 
 .proposta-actions {
   margin-top: 14px;
@@ -1252,10 +1165,6 @@ onMounted(() => {
   opacity: 0.8;
 }
 
-/* ========================= */
-/* EMPTY STATES */
-/* ========================= */
-
 .empty-state {
   text-align: center;
   padding: 40px 0;
@@ -1265,10 +1174,6 @@ onMounted(() => {
 .empty-state .empty-icon {
   font-size: 2rem;
 }
-
-/* ========================= */
-/* MODAIS */
-/* ========================= */
 
 .modal-overlay {
   position: fixed;
@@ -1335,7 +1240,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-/* Botões do modal */
 .actions-modal-group,
 .modal-actions {
   margin-top: 20px;

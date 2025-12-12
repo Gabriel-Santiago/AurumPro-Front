@@ -7,42 +7,35 @@
             </div>
 
             <div class="modal-content">
-                <!-- Informações do Cliente -->
                 <div class="cliente-info-section">
                     <h4>Informações do Cliente</h4>
 
                     <div class="info-grid">
-                        <!-- Nome -->
                         <div class="info-item">
                             <span class="info-label">Nome:</span>
                             <span class="info-value">{{ cliente.nome || cliente.responsavel || 'Não informado' }}</span>
                         </div>
 
-                        <!-- Responsável (somente PJ) -->
                         <div v-if="cliente.tipoPessoa === 'PJ'" class="info-item">
                             <span class="info-label">Responsável:</span>
                             <span class="info-value">{{ cliente.responsavel || 'Não informado' }}</span>
                         </div>
 
-                        <!-- Email -->
                         <div class="info-item">
                             <span class="info-label">Email:</span>
                             <span class="info-value">{{ cliente.email || 'Não informado' }}</span>
                         </div>
 
-                        <!-- Telefone -->
                         <div class="info-item">
                             <span class="info-label">Telefone:</span>
                             <span class="info-value">{{ formatarTelefone(cliente.telefone) || 'Não informado' }}</span>
                         </div>
 
-                        <!-- CNPJ (somente PJ) -->
                         <div v-if="cliente.tipoPessoa === 'PJ'" class="info-item">
                             <span class="info-label">CNPJ:</span>
                             <span class="info-value">{{ formatarCNPJ(cliente.cnpj) || 'Não informado' }}</span>
                         </div>
 
-                        <!-- CPF e Idade (somente PF) -->
                         <div v-if="cliente.tipoPessoa === 'PF'" class="info-row">
                             <div class="info-item">
                                 <span class="info-label">CPF:</span>
@@ -55,7 +48,6 @@
                             </div>
                         </div>
 
-                        <!-- Endereço -->
                         <div class="info-item full-width">
                             <span class="info-label">Endereço:</span>
                             <span class="info-value">
@@ -65,13 +57,11 @@
                             </span>
                         </div>
 
-                        <!-- CEP -->
                         <div class="info-item">
                             <span class="info-label">CEP:</span>
                             <span class="info-value">{{ formatarCEP(cliente.cep) || 'Não informado' }}</span>
                         </div>
 
-                        <!-- Tipo de Pessoa -->
                         <div class="info-item">
                             <span class="info-label">Tipo:</span>
                             <span class="info-value tipo-badge" :class="cliente.tipoPessoa">
@@ -81,7 +71,6 @@
                     </div>
                 </div>
 
-                <!-- Lista de Propostas -->
                 <div class="propostas-section">
                     <div class="section-header">
                         <h4>Propostas do Cliente</h4>
@@ -129,6 +118,7 @@ import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import propostaService from "../../services/propostaService";
 import DocumentoModal from "../componentes/DocumentoModal.vue";
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -151,7 +141,6 @@ const abrirDocumentoModal = (proposta) => {
     showDocumentoModal.value = true;
 };
 
-// Carregar propostas do cliente
 const carregarPropostas = async () => {
     try {
         loadingPropostas.value = true;
@@ -159,26 +148,20 @@ const carregarPropostas = async () => {
         const empresaId = authStore.empresa?.empresaId;
         const clienteId = props.cliente.id;
         if (!empresaId) {
-            console.error("EmpresaId não encontrado");
+            notify.error('Id da empresa não foi encontrado!');
             return;
         }
 
-        console.log(`Buscando propostas: /propostas/${empresaId}/${clienteId}`);
         const response = await propostaService.listarPorCliente(empresaId, props.cliente.id);
         propostas.value = response.data || [];
-        console.log("Propostas carregadas:", propostas.value);
     } catch (err) {
-        console.error("Erro ao carregar propostas:", err);
-        console.log("Status:", err.response?.status);
-        console.log("URL:", err.config?.url);
-        console.log("Dados do erro:", err.response?.data);
+        notify.error('Erro ao carregar propostas');
         propostas.value = [];
     } finally {
         loadingPropostas.value = false;
     }
 };
 
-// Funções de formatação
 const formatarTelefone = (telefone) => {
     if (!telefone) return '';
     const numeros = telefone.replace(/\D/g, '');
@@ -241,7 +224,7 @@ const calcularIdade = (dataNascimento) => {
 
         return idade;
     } catch (err) {
-        console.error("Erro ao calcular idade:", err);
+        notify.error('Erro ao calcular idade');
         return null;
     }
 };
@@ -257,12 +240,11 @@ const formatarData = (dataString) => {
             year: 'numeric'
         });
     } catch (err) {
-        console.error("Erro ao formatar data:", err);
+        notify.error('Erro ao formatar data');
         return dataString;
     }
 };
 
-// Carregar propostas quando o modal for aberto
 onMounted(() => {
     carregarPropostas();
 });
@@ -400,7 +382,6 @@ onMounted(() => {
     background: #4b5563;
 }
 
-/* Seções */
 .cliente-info-section,
 .propostas-section {
     display: flex;
@@ -421,7 +402,6 @@ onMounted(() => {
     color: #daa520;
 }
 
-/* Informações do Cliente */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -466,7 +446,6 @@ onMounted(() => {
     color: #f0f0f0;
 }
 
-/* Badge de tipo */
 .tipo-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -486,7 +465,6 @@ onMounted(() => {
     color: white;
 }
 
-/* Seção de Propostas */
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -507,7 +485,6 @@ onMounted(() => {
     background: #374151;
 }
 
-/* Estados de loading e vazio */
 .loading-propostas,
 .empty-propostas {
     display: flex;
@@ -529,7 +506,6 @@ onMounted(() => {
     background: #2d2d2d;
 }
 
-/* Lista de propostas simplificada */
 .propostas-list {
     display: flex;
     flex-direction: column;
@@ -583,7 +559,6 @@ onMounted(() => {
     color: #9ca3af;
 }
 
-/* Modal Actions */
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -656,7 +631,6 @@ onMounted(() => {
     background: rgba(96, 165, 250, 0.2);
 }
 
-/* Ajuste no layout da proposta simplificada */
 .proposta-simples {
     display: flex;
     justify-content: space-between;
@@ -664,8 +638,6 @@ onMounted(() => {
     gap: 12px;
 }
 
-
-/* Animations */
 @keyframes slideUp {
     from {
         opacity: 0;
@@ -678,7 +650,6 @@ onMounted(() => {
     }
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
     .modal {
         width: 95vw;

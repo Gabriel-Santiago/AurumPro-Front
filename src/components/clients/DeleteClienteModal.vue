@@ -30,6 +30,7 @@ import { ref, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -55,12 +56,11 @@ const handleSubmit = async () => {
     };
 
     await clientService.deletarCliente(dados);
-    window.alert("Cliente excluído com sucesso!");
+    notify.success('Cliente excluído com sucesso!');
     emit("deleted");
     emit("close");
   } catch (err) {
-    console.error("Erro ao excluir cliente:", err);
-    window.alert("Erro ao excluir cliente");
+    notify.error('Erro ao excluir cliente');
   }
 };
 </script>

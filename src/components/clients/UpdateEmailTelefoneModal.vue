@@ -30,6 +30,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import clientService from "../../services/clientServices";
+import { notify } from '../../services/notificationService';
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -55,17 +56,15 @@ const handleSubmit = async () => {
     };
 
     await clientService.atualizarContato(dados);
-    window.alert("Email e telefone atualizados com sucesso!");
+    notify.success('Email e telefone atualizados com sucesso!');
     emit("updated");
     emit("close");
   } catch (err) {
-    console.error("Erro ao atualizar email e telefone:", err);
-    window.alert("Erro ao atualizar email e telefone");
+    notify.error('Erro ao atualizar email e telefone');
   }
 };
 
 onMounted(() => {
-  // Preencher form com dados atuais
   form.value.email = props.cliente.email || "";
   form.value.telefone = props.cliente.telefone || "";
 });

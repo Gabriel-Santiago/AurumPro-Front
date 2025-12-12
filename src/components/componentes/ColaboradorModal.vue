@@ -7,7 +7,6 @@
             </div>
 
             <div class="modal-content">
-                <!-- Lado esquerdo: Adicionar colaborador -->
                 <div class="add-section">
                     <h4>Adicionar Novo Colaborador</h4>
                     <form @submit.prevent="handleSubmit" class="add-form">
@@ -43,18 +42,9 @@
                             <span v-if="loading">Criando...</span>
                             <span v-else>Criar Colaborador</span>
                         </button>
-
-                        <div v-if="successMessage" class="success-message">
-                            ✓ {{ successMessage }}
-                        </div>
-
-                        <div v-if="errorMessage" class="error-message">
-                            ✗ {{ errorMessage }}
-                        </div>
                     </form>
                 </div>
 
-                <!-- Lado direito: Listar colaboradores -->
                 <div class="list-section">
                     <div class="list-header">
                         <h4>Colaboradores Cadastrados</h4>
@@ -121,6 +111,7 @@ import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import colaboradorService from "../../services/colaboradorService";
+import { notify } from '../../services/notificationService';
 
 const emit = defineEmits(["close", "created"]);
 
@@ -141,12 +132,9 @@ const loading = ref(false);
 const loadingList = ref(false);
 const loadingFuncoes = ref(false);
 const nomeInput = ref(null);
-const successMessage = ref("");
-const errorMessage = ref("");
 
 const empresaId = computed(() => authStore.empresa?.empresaId);
 
-// Carregar dados ao abrir o modal
 onMounted(() => {
     carregarDados();
 });
@@ -161,14 +149,12 @@ const carregarFuncoes = async () => {
         const response = await colaboradorService.listarFuncoes();
 
         if (response.data && Array.isArray(response.data)) {
-            // Se o backend retornar um array de strings simples
             if (typeof response.data[0] === 'string') {
                 funcoes.value = response.data.map(funcao => ({
                     nome: funcao,
                     key: funcao.toUpperCase().replace(/\s+/g, '_')
                 }));
             }
-            // Se o backend retornar um array de objetos {chave: valor}
             else if (typeof response.data[0] === 'object') {
                 funcoes.value = response.data.map(item => {
                     const keys = Object.keys(item);
@@ -182,22 +168,17 @@ const carregarFuncoes = async () => {
                     return null;
                 }).filter(item => item !== null);
             }
-            // Se o backend retornar um array de objetos com propriedades específicas
             else if (response.data[0] && response.data[0].nome) {
                 funcoes.value = response.data;
             }
-
-            console.log("Funções carregadas:", funcoes.value);
         } else {
-            console.error("Formato inesperado de resposta:", response.data);
-            funcoes.value = []; // Lista vazia ao invés de padrão
+            notify.error('Formato inesperado de resposta');
+            funcoes.value = []; 
         }
 
     } catch (err) {
-        console.error("Erro ao carregar funções:", err);
-        funcoes.value = []; // Lista vazia ao invés de padrão
-        errorMessage.value = "Erro ao carregar funções. Digite uma nova função.";
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Erro ao carregar funções');
+        funcoes.value = [];
     } finally {
         loadingFuncoes.value = false;
     }
@@ -211,22 +192,17 @@ const carregarColaboradores = async () => {
         const response = await colaboradorService.listarPorEmpresa(empresaId.value);
         colaboradores.value = response.data || [];
 
-        // Atualizar lista de funções únicas a partir dos colaboradores existentes
         atualizarFuncoesUnicas();
     } catch (err) {
-        console.error("Erro ao carregar colaboradores:", err);
-        errorMessage.value = "Erro ao carregar colaboradores: " + (err.response?.data?.message || err.message);
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Erro ao carregar colaboradores');
     } finally {
         loadingList.value = false;
     }
 };
 
-// Extrair funções únicas dos colaboradores existentes
 const atualizarFuncoesUnicas = () => {
     const funcoesExistentes = [...new Set(colaboradores.value.map(c => c.funcao).filter(Boolean))];
 
-    // Adicionar funções que ainda não estão na lista
     funcoesExistentes.forEach(funcao => {
         if (!funcoes.value.some(f => f.nome === funcao || f.value === funcao)) {
             funcoes.value.push({
@@ -238,13 +214,11 @@ const atualizarFuncoesUnicas = () => {
     });
 };
 
-// Funções únicas para o filtro (remover duplicatas)
 const funcoesUnicas = computed(() => {
     const todasFuncoes = funcoes.value.map(f => f.nome || f.value).filter(Boolean);
     return [...new Set(todasFuncoes)];
 });
 
-// Colaboradores filtrados
 const colaboradoresFiltrados = computed(() => {
     if (!filtroFuncao.value) {
         return colaboradores.value;
@@ -253,53 +227,43 @@ const colaboradoresFiltrados = computed(() => {
 });
 
 const filtrarColaboradores = () => {
-    // Apenas atualiza a lista filtrada (já é computed)
 };
 
 const handleSubmit = async () => {
     if (!form.value.nome.trim()) {
-        errorMessage.value = "Por favor, informe o nome do colaborador";
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Por favor, informe o nome do colaborador');
         return;
     }
 
     if (!form.value.telefone.trim()) {
-        errorMessage.value = "Por favor, informe o telefone";
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Por favor, informe o telefone');
         return;
     }
 
     if (!form.value.funcao) {
-        errorMessage.value = "Por favor, selecione ou digite uma função";
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Por favor, selecione ou digite uma função');
         return;
     }
 
     if (!empresaId.value) {
-        errorMessage.value = "Empresa não identificada";
-        setTimeout(() => errorMessage.value = "", 3000);
+        notify.error('Empresa não identificada');
         return;
     }
 
     try {
         loading.value = true;
-        successMessage.value = "";
-        errorMessage.value = "";
 
         const dados = {
             empresaId: empresaId.value,
             nome: form.value.nome.trim(),
             telefone: form.value.telefone.trim(),
-            funcao: form.value.funcao.trim() // Enviar o texto digitado/selecionado
+            funcao: form.value.funcao.trim()
         };
 
-        console.log("Enviando dados:", dados);
         await colaboradorService.criar(dados);
 
-        // Exibir mensagem de sucesso
-        successMessage.value = "Colaborador criado com sucesso!";
+        notify.success('Colaborador criado com sucesso!');
 
-        // Adicionar nova função à lista se não existir
         const novaFuncao = dados.funcao;
         const funcaoExiste = funcoes.value.some(f =>
             (f.nome && f.nome.toLowerCase() === novaFuncao.toLowerCase()) ||
@@ -314,42 +278,20 @@ const handleSubmit = async () => {
             });
         }
 
-        // Limpar formulário
         form.value.nome = "";
         form.value.telefone = "";
         form.value.funcao = "";
 
-        // Focar novamente no campo de entrada
         await nextTick();
         if (nomeInput.value) {
             nomeInput.value.focus();
         }
 
-        // Recarregar lista de colaboradores
         await carregarColaboradores();
 
-        // Emitir evento para o componente pai
         emit("created");
-
-        // Limpar mensagem de sucesso após alguns segundos
-        setTimeout(() => {
-            successMessage.value = "";
-        }, 3000);
-
     } catch (err) {
-        console.error("Erro ao criar colaborador:", err);
-        console.log("Status:", err.response?.status);
-        console.log("Dados do erro:", err.response?.data);
-
-        let mensagemErro = "Erro ao criar colaborador";
-        if (err.response?.data?.message) {
-            mensagemErro += ": " + err.response.data.message;
-        } else if (err.message) {
-            mensagemErro += ": " + err.message;
-        }
-
-        errorMessage.value = mensagemErro;
-        setTimeout(() => errorMessage.value = "", 5000);
+        notify.error('Erro ao criar colaborador');
     } finally {
         loading.value = false;
     }
@@ -361,7 +303,6 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-/* Estilos para badges de função dinâmicos */
 .funcao-badge {
     padding: 3px 8px;
     border-radius: 12px;
@@ -370,11 +311,9 @@ const closeModal = () => {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     background: #3b82f6;
-    /* Cor padrão */
     color: white;
 }
 
-/* Cores dinâmicas baseadas no hash da função */
 .funcao-badge {
     background: var(--funcao-color, #3b82f6);
 }
@@ -383,7 +322,6 @@ const closeModal = () => {
     opacity: 0.9;
 }
 
-/* Classe adicional para informações */
 small.info {
     display: block;
     margin-top: 4px;
@@ -396,7 +334,6 @@ small.info {
     color: #9ca3af;
 }
 
-/* O restante do CSS permanece igual... */
 .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -644,28 +581,6 @@ small.loading {
     cursor: not-allowed;
 }
 
-.success-message {
-    padding: 10px 12px;
-    border-radius: 6px;
-    background: #10b981;
-    color: white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    animation: fadeIn 0.3s ease;
-    margin-top: 8px;
-}
-
-.error-message {
-    padding: 10px 12px;
-    border-radius: 6px;
-    background: #e53e3e;
-    color: white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    animation: fadeIn 0.3s ease;
-    margin-top: 8px;
-}
-
 .modal.dark .success-message {
     background: #059669;
 }
@@ -686,7 +601,6 @@ small.loading {
     }
 }
 
-/* List section styles */
 .list-header {
     display: flex;
     justify-content: space-between;
@@ -705,7 +619,7 @@ small.loading {
     border-radius: 6px;
     border: 1px solid;
     font-size: 0.85rem;
-    min-width: 150px;
+    min-width: 160px;
 }
 
 .modal.light .filter-select {
@@ -942,7 +856,6 @@ small.loading {
     border-color: #555;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
     .modal {
         width: 95vw;
