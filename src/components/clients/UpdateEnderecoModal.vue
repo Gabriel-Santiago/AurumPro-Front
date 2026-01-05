@@ -31,6 +31,7 @@ import { ref, computed, onMounted } from "vue";
 import { useThemeStore } from "../../store/themeStore";
 import clientService from "../../services/clientServices";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -60,7 +61,7 @@ const handleSubmit = async () => {
     emit("updated");
     emit("close");
   } catch (err) {
-    notify.error('Erro ao atualizar endereço');
+    notify.error(getApiErrorMessage(err));
   }
 };
 

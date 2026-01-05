@@ -21,6 +21,7 @@ import { ref } from "vue";
 import { useAuthStore } from "../../store/authStore";
 import router from "../../router";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const email = ref("");
 const senha = ref("");
@@ -34,7 +35,7 @@ async function submitLogin() {
     router.push("/clientes");
   } catch (error) {
     senha.value = '';
-    notify.error('Usuário ou senha incorreto!');
+    notify.error(getApiErrorMessage(error));
   }
 }
 </script>

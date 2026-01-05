@@ -411,6 +411,7 @@ import custoService from "../../services/custoService";
 import itemPropostaService from "../../services/itemPropostaService";
 import colaboradorService from "../../services/colaboradorService";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -484,7 +485,7 @@ const carregarDados = async () => {
         const resConvenios = await convenioService.listarPorEmpresa(empresaId);
         convenios.value = resConvenios.data || [];
     } catch (err) {
-        notify.error('Erro ao carregar dados');
+        notify.error(getApiErrorMessage(err));
     }
 };
 
@@ -568,7 +569,7 @@ const carregarMicroServicos = async (item) => {
         item.microServicoIds = [];
         item.valorTotal = 0;
     } catch (err) {
-        notify.error('Erro ao carregar micro serviços');
+        notify.error(getApiErrorMessage(err));
         item.microServicosDisponiveis = [];
     }
 };
@@ -699,7 +700,7 @@ const criarProposta = async () => {
 
         const empresaId = authStore.empresa?.empresaId;
         if (!empresaId) {
-            throw new Error("Empresa não encontrada");
+            notify.error("Empresa não encontrada");
         }
 
         const itensValidos = form.value.itens.filter(item =>

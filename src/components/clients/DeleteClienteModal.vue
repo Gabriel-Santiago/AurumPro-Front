@@ -31,6 +31,7 @@ import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const props = defineProps({
   cliente: { type: Object, required: true }
@@ -60,7 +61,7 @@ const handleSubmit = async () => {
     emit("deleted");
     emit("close");
   } catch (err) {
-    notify.error('Erro ao excluir cliente');
+    notify.error(getApiErrorMessage(err));
   }
 };
 </script>

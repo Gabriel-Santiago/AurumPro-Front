@@ -150,6 +150,7 @@ import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const themeStore = useThemeStore();
 const authStore = useAuthStore();
@@ -284,7 +285,7 @@ const submitPF = async () => {
       const minValidDate = new Date(today.getFullYear() - 10, today.getMonth(), today.getDate());
       
       if (birthDate > minValidDate) {
-        notify.error('Data de nascimento inválida. O cliente deve ter pelo menos 10 anos de idade.');
+        notify.error('Data de nascimento inválida. O cliente deve ter pelo menos 18 anos de idade.');
         return;
       }
       
@@ -326,7 +327,7 @@ const submitPF = async () => {
     
     emit("created");
   } catch (err) {
-    notify.error('Erro ao criar Pessoa Física: ', err);
+    notify.error(getApiErrorMessage(err));
   }
 };
 
@@ -360,7 +361,7 @@ const submitPJ = async () => {
     
     emit("created");
   } catch (err) {
-    notify.error('Erro ao criar Pessoa Jurídica: ', err);
+    notify.error(getApiErrorMessage(err));
   }
 };
 

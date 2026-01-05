@@ -170,6 +170,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useThemeStore } from '../../store/themeStore';
 import documentoService from '../../services/documentoService';
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from '../../utils/errorUtils';
 
 const props = defineProps({
     proposta: { type: Object, required: true }
@@ -244,7 +245,7 @@ const carregarDados = async () => {
         }
         
     } catch (error) {
-        notify.error('Erro ao carregar dados da proposta');
+        notify.error(getApiErrorMessage(error));
         documento.value = null;
     } finally {
         loading.value = false;
@@ -256,7 +257,7 @@ const carregarConteudo = async () => {
         const conteudoText = await documentoService.visualizarDados(props.proposta.id);
         conteudo.value = conteudoText;
     } catch (error) {
-        notify.error('Erro ao carregar conteúdo');
+        notify.error(getApiErrorMessage(error));
         conteudo.value = gerarConteudoBasico();
     }
 };
@@ -313,7 +314,7 @@ const baixarDocumento = async () => {
         loading.value = true;
         await documentoService.downloadDados(props.proposta.id);
     } catch (error) {
-        notify.error('Erro ao baixar documento');
+        notify.error(getApiErrorMessage(error));
         
         if (error.message.includes('colaborador') || error.response?.status === 500) {
             erro.value = 'Erro ao gerar documento. Verifique se o colaborador está atribuído à proposta.';

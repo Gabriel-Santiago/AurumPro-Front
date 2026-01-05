@@ -504,6 +504,7 @@ import { useThemeStore } from '../store/themeStore';
 import financasService from '../services/financasService';
 import propostaService from '../services/propostaService';
 import { notify } from '../services/notificationService';
+import { getApiErrorMessage } from '../utils/errorUtils';
 
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
@@ -626,7 +627,7 @@ const excluirProposta = async () => {
 
         notify.success('Proposta excluída com sucesso!');
     } catch (error) {
-        notify.error('Erro ao excluir proposta');
+        notify.error(getApiErrorMessage(error));
     } finally {
         loading.value = false;
     }

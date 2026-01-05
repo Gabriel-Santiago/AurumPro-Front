@@ -119,6 +119,7 @@ import { useAuthStore } from "../../store/authStore";
 import propostaService from "../../services/propostaService";
 import DocumentoModal from "../componentes/DocumentoModal.vue";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -148,7 +149,7 @@ const carregarPropostas = async () => {
         const empresaId = authStore.empresa?.empresaId;
         const clienteId = props.cliente.id;
         if (!empresaId) {
-            notify.error('Id da empresa não foi encontrado!');
+            notify.error(getApiErrorMessage(error));
             return;
         }
 

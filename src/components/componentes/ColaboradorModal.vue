@@ -112,6 +112,7 @@ import { useThemeStore } from "../../store/themeStore";
 import { useAuthStore } from "../../store/authStore";
 import colaboradorService from "../../services/colaboradorService";
 import { notify } from '../../services/notificationService';
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const emit = defineEmits(["close", "created"]);
 
@@ -291,7 +292,7 @@ const handleSubmit = async () => {
 
         emit("created");
     } catch (err) {
-        notify.error('Erro ao criar colaborador');
+        notify.error(getApiErrorMessage(err));
     } finally {
         loading.value = false;
     }
