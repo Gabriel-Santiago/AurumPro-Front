@@ -28,7 +28,6 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
 import { notify } from '../../services/notificationService';
 import { getApiErrorMessage } from "../../utils/errorUtils";
@@ -40,7 +39,6 @@ const props = defineProps({
 const emit = defineEmits(["close", "deleted"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const form = ref({
@@ -50,7 +48,6 @@ const form = ref({
 const handleSubmit = async () => {
   try {
     const dados = {
-      empresaId: authStore.empresa?.empresaId,
       id: props.cliente.id,
       senha: form.value.senha,
       tipoPessoa: props.cliente.tipoPessoa

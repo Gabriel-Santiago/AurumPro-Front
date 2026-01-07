@@ -30,7 +30,7 @@ const auth = useAuthStore();
 
 async function submitLogin() {
   try {
-    const empresa = await auth.login(email.value, senha.value);
+    await auth.login(email.value, senha.value);
     notify.success('Login realizado com sucesso!');
     router.push("/clientes");
   } catch (error) {

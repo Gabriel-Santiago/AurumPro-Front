@@ -147,18 +147,14 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import clientService from "../../services/clientServices";
 import { notify } from '../../services/notificationService';
 import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const tab = ref("pf");
-
-const empresaId = authStore.empresa?.empresaId;
 
 const today = new Date();
 const tenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -308,7 +304,6 @@ const submitPF = async () => {
     }
 
     const dadosPF = {
-      id: empresaId, 
       nome: pf.value.nome,
       email: pf.value.email,
       telefone: extractNumbers(pf.value.telefone), 
@@ -345,7 +340,6 @@ const submitPJ = async () => {
     }
 
     const dadosPJ = {
-      id: empresaId,
       responsavel: pj.value.responsavel,
       email: pj.value.email,
       numero: pj.value.numero,

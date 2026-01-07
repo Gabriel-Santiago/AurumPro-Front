@@ -402,7 +402,6 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import servicoService from "../../services/servicoServices";
 import subservicoService from "../../services/subservicoService";
 import convenioService from "../../services/convenioService";
@@ -420,7 +419,6 @@ const props = defineProps({
 const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const currentPage = ref(1);
@@ -470,19 +468,13 @@ const colaboradorSelecionado = computed(() => {
 
 const carregarDados = async () => {
     try {
-        const empresaId = authStore.empresa?.empresaId;
-        if (!empresaId) {
-            notify.error('Id da empresa não foi encontrado');
-            return;
-        }
-
-        const resServicos = await servicoService.listarTodos(empresaId);
+        const resServicos = await servicoService.listarTodos();
         servicos.value = resServicos.data || [];
 
-        const resColaboradores = await colaboradorService.listarPorEmpresa(empresaId);
+        const resColaboradores = await colaboradorService.listarPorEmpresa();
         colaboradores.value = resColaboradores.data || [];
 
-        const resConvenios = await convenioService.listarPorEmpresa(empresaId);
+        const resConvenios = await convenioService.listarPorEmpresa();
         convenios.value = resConvenios.data || [];
     } catch (err) {
         notify.error(getApiErrorMessage(err));
@@ -698,11 +690,6 @@ const criarProposta = async () => {
     try {
         loading.value = true;
 
-        const empresaId = authStore.empresa?.empresaId;
-        if (!empresaId) {
-            notify.error("Empresa não encontrada");
-        }
-
         const itensValidos = form.value.itens.filter(item =>
             item.servicoId && item.microServicoIds.length > 0
         );
@@ -721,7 +708,6 @@ const criarProposta = async () => {
             .map(async (custo) => {
                 try {
                     const dadosCusto = {
-                        empresaId: Number(empresaId),
                         nome: custo.nome.trim(),
                         valor: parseFloat(custo.valor)
                     };
@@ -814,7 +800,6 @@ const criarProposta = async () => {
         }
 
         const dadosProposta = {
-            empresaId: Number(empresaId),
             clienteId: Number(props.cliente.id),
             convenioId: form.value.convenioSelecao === 'SELECIONAR' && form.value.convenioId
                 ? Number(form.value.convenioId)

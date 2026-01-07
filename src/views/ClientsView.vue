@@ -57,12 +57,10 @@ import { notify } from '../services/notificationService';
 const auth = useAuthStore();
 const themeStore = useThemeStore();
 
-if (!auth.empresa){
-    router.push("/")
-}
+const empresaNome = computed(() => 
+  auth.empresa?.nome ?? 'Empresa'
+);
 
-const empresaId = auth.empresa.empresaId;
-const empresaNome = auth.empresa.nome;
 const clients = ref([]);
 const loading = ref(false);
 const showModal = ref(false);
@@ -73,8 +71,8 @@ const filters = ref({
 });
 
 const ufs = [
-  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
-  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+  "AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT",
+  "PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"
 ];
 
 const theme = computed(() => themeStore.theme);
@@ -82,7 +80,7 @@ const theme = computed(() => themeStore.theme);
 const fetchClients = async () => {
   loading.value = true;
   try {
-    const res = await clientService.listarTodos(empresaId);
+    const res = await clientService.listarTodos();
     clients.value = Array.isArray(res.data) ? res.data : [];
   } catch (err) {
     notify.error('Erro ao buscar clientes');

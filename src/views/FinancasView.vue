@@ -499,14 +499,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import financasService from '../services/financasService';
 import propostaService from '../services/propostaService';
 import { notify } from '../services/notificationService';
 import { getApiErrorMessage } from '../utils/errorUtils';
 
-const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
 const router = useRouter();
@@ -548,15 +546,8 @@ const carregarDashboard = async () => {
     try {
         loading.value = true;
         erro.value = null;
-        const empresaId = authStore.empresa?.empresaId;
 
-        if (!empresaId) {
-            erro.value = 'Empresa ID não encontrado';
-            loading.value = false;
-            return;
-        }
-
-        const data = await financasService.getDashboard(empresaId);
+        const data = await financasService.getDashboard();
         dashboard.value = data || {};
 
         ultimaAtualizacao.value = new Date().toLocaleTimeString('pt-BR');
@@ -655,7 +646,6 @@ const atualizarStatusProposta = async () => {
         loading.value = true;
 
         const dados = {
-            empresaId: authStore.empresa?.empresaId,
             propostaId: modalMudancaStatus.value.proposta.id,
             statusProposta: modalMudancaStatus.value.novoStatus
         };

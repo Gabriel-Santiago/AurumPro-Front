@@ -115,7 +115,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import propostaService from "../../services/propostaService";
 import DocumentoModal from "../componentes/DocumentoModal.vue";
 import { notify } from '../../services/notificationService';
@@ -128,7 +127,6 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const propostas = ref([]);
@@ -145,15 +143,9 @@ const abrirDocumentoModal = (proposta) => {
 const carregarPropostas = async () => {
     try {
         loadingPropostas.value = true;
-
-        const empresaId = authStore.empresa?.empresaId;
         const clienteId = props.cliente.id;
-        if (!empresaId) {
-            notify.error(getApiErrorMessage(error));
-            return;
-        }
 
-        const response = await propostaService.listarPorCliente(empresaId, props.cliente.id);
+        const response = await propostaService.listarPorCliente(clienteId);
         propostas.value = response.data || [];
     } catch (err) {
         notify.error('Erro ao carregar propostas');

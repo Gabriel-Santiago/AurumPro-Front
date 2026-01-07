@@ -1,16 +1,19 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/empresas";
+import api from "./api";
 
 export default {
-  login(email, senha) {
-    return axios.post(`${API_URL}/login`, {
-      email,
-      senha
-    });
+  login(email, senha){
+  return api.post("/empresas/login", { email, senha });
   },
 
-  register(data) {
-    return axios.post(API_URL, data);
+  logout(){
+  return api.post("/empresas/logout");
+  },
+
+  refresh(){
+  return api.post("/empresas/refresh");
+  },
+
+  register(data){
+  return api.post("/empresas/cadastro", data);
   }
 };

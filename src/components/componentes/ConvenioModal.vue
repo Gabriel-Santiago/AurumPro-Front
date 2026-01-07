@@ -70,7 +70,6 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import convenioService from "../../services/convenioService";
 import { notify } from '../../services/notificationService';
 import { getApiErrorMessage } from "../../utils/errorUtils";
@@ -78,7 +77,6 @@ import { getApiErrorMessage } from "../../utils/errorUtils";
 const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const convenios = ref([]);
@@ -90,18 +88,14 @@ const loading = ref(false);
 const loadingList = ref(false);
 const nomeInput = ref(null);
 
-const empresaId = computed(() => authStore.empresa?.empresaId);
-
 onMounted(() => {
   carregarConvenios();
 });
 
 const carregarConvenios = async () => {
-  if (!empresaId.value) return;
-
   try {
     loadingList.value = true;
-    const response = await convenioService.listarPorEmpresa(empresaId.value);
+    const response = await convenioService.listarPorEmpresa();
     convenios.value = response.data || [];
   } catch (err) {
     notify.error('Erro ao carregar convênios');
@@ -116,16 +110,10 @@ const handleSubmit = async () => {
     return;
   }
 
-  if (!empresaId.value) {
-    notify.error('Empresa não identificada');
-    return;
-  }
-
   try {
     loading.value = true;
 
     const dados = {
-      id: empresaId.value,
       nome: form.value.nome.trim()
     };
 

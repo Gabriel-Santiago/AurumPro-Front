@@ -109,7 +109,6 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import colaboradorService from "../../services/colaboradorService";
 import { notify } from '../../services/notificationService';
 import { getApiErrorMessage } from "../../utils/errorUtils";
@@ -117,7 +116,6 @@ import { getApiErrorMessage } from "../../utils/errorUtils";
 const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const funcoes = ref([]);
@@ -133,8 +131,6 @@ const loading = ref(false);
 const loadingList = ref(false);
 const loadingFuncoes = ref(false);
 const nomeInput = ref(null);
-
-const empresaId = computed(() => authStore.empresa?.empresaId);
 
 onMounted(() => {
     carregarDados();
@@ -186,11 +182,9 @@ const carregarFuncoes = async () => {
 };
 
 const carregarColaboradores = async () => {
-    if (!empresaId.value) return;
-
     try {
         loadingList.value = true;
-        const response = await colaboradorService.listarPorEmpresa(empresaId.value);
+        const response = await colaboradorService.listarPorEmpresa();
         colaboradores.value = response.data || [];
 
         atualizarFuncoesUnicas();
@@ -246,16 +240,10 @@ const handleSubmit = async () => {
         return;
     }
 
-    if (!empresaId.value) {
-        notify.error('Empresa não identificada');
-        return;
-    }
-
     try {
         loading.value = true;
 
         const dados = {
-            empresaId: empresaId.value,
             nome: form.value.nome.trim(),
             telefone: form.value.telefone.trim(),
             funcao: form.value.funcao.trim()

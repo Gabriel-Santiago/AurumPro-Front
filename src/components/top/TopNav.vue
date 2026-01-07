@@ -101,7 +101,7 @@ import CriarColaboradorModal from '../componentes/ColaboradorModal.vue';
 import CriarServicoModal from '../componentes/ServicoModal.vue';
 import CriarSubservicoModal from '../componentes/SubservicoModal.vue';
 import CriarConvenioModal from '../componentes/ConvenioModal.vue';
-import Tooltip from '../componentes/Tooltip.vue'; // Importe o componente Tooltip
+import Tooltip from '../componentes/Tooltip.vue';
 
 defineProps({
   empresaNome: { type: String, default: "Empresa" }

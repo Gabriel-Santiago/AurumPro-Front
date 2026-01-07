@@ -5,22 +5,17 @@
         <h3>Gerenciar Sub Serviços</h3>
         <button class="close-btn" @click="closeModal">×</button>
       </div>
-      
+
       <div class="modal-content">
         <div class="add-section">
           <h4>Adicionar Novo Sub Serviço</h4>
           <form @submit.prevent="handleSubmit" class="add-form">
             <div class="form-group">
               <label>Nome do Sub Serviço *</label>
-              <input 
-                v-model="form.nome" 
-                placeholder="Digite o nome do subserviço" 
-                required 
-                :disabled="loading"
-                ref="nomeInput"
-              />
+              <input v-model="form.nome" placeholder="Digite o nome do subserviço" required :disabled="loading"
+                ref="nomeInput" />
             </div>
-            
+
             <div class="form-group">
               <label>Serviço *</label>
               <select v-model="form.servicoId" required :disabled="loading || servicos.length === 0">
@@ -33,32 +28,28 @@
                 Nenhum serviço cadastrado. Crie um serviço primeiro.
               </small>
             </div>
-            
+
             <div class="form-group">
               <label>Descrição</label>
-              <textarea 
-                v-model="form.descricao" 
-                placeholder="Descrição do subserviço" 
-                rows="3"
-                :disabled="loading"
-              ></textarea>
+              <textarea v-model="form.descricao" placeholder="Descrição do subserviço" rows="3"
+                :disabled="loading"></textarea>
             </div>
-            
+
             <button type="submit" class="btn-submit" :disabled="loading || servicos.length === 0">
               <span v-if="loading">Criando...</span>
               <span v-else>Criar Sub Serviço</span>
             </button>
-            
+
             <div v-if="successMessage" class="success-message">
               ✓ {{ successMessage }}
             </div>
-            
+
             <div v-if="errorMessage" class="error-message">
               ✗ {{ errorMessage }}
             </div>
           </form>
         </div>
-        
+
         <div class="list-section">
           <div class="list-header">
             <h4>Sub Serviços Cadastrados</h4>
@@ -69,24 +60,15 @@
                   {{ servico.nome }}
                 </option>
               </select>
-              <button 
-                class="btn-refresh" 
-                @click="carregarSubservicos"
-                :disabled="loadingList"
-                title="Atualizar lista"
-              >
+              <button class="btn-refresh" @click="carregarSubservicos" :disabled="loadingList" title="Atualizar lista">
                 <span v-if="loadingList">⟳</span>
                 <span v-else>↻</span>
               </button>
             </div>
           </div>
-          
+
           <div class="subservicos-list" v-if="!loadingList && subservicosFiltrados.length > 0">
-            <div 
-              v-for="subservico in subservicosFiltrados" 
-              :key="subservico.id" 
-              class="subservico-item"
-            >
+            <div v-for="subservico in subservicosFiltrados" :key="subservico.id" class="subservico-item">
               <div class="subservico-nome">{{ subservico.nome }}</div>
               <div v-if="subservico.descricao" class="subservico-descricao">
                 {{ subservico.descricao }}
@@ -96,7 +78,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="empty-state" v-else-if="!loadingList && subservicosFiltrados.length === 0">
             <div v-if="filtroServico">
               Nenhum subserviço para o serviço selecionado.
@@ -105,11 +87,11 @@
               Nenhum subserviço cadastrado ainda.
             </div>
           </div>
-          
+
           <div class="loading-state" v-else>
             Carregando subserviços...
           </div>
-          
+
           <div class="list-info">
             <small>
               Total: {{ subservicosFiltrados.length }} sub serviço(s)
@@ -118,7 +100,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="modal-actions">
         <button type="button" class="btn-cancel" @click="closeModal">Fechar</button>
       </div>
@@ -129,7 +111,6 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import subservicoService from "../../services/subservicoService";
 import servicoService from "../../services/servicoServices";
 import { notify } from '../../services/notificationService';
@@ -137,7 +118,6 @@ import { notify } from '../../services/notificationService';
 const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const servicos = ref([]);
@@ -156,8 +136,6 @@ const nomeInput = ref(null);
 const successMessage = ref("");
 const errorMessage = ref("");
 
-const empresaId = computed(() => authStore.empresa?.empresaId);
-
 onMounted(() => {
   carregarDados();
 });
@@ -168,11 +146,9 @@ const carregarDados = async () => {
 };
 
 const carregarServicos = async () => {
-  if (!empresaId.value) return;
-  
   try {
     loadingServicos.value = true;
-    const res = await servicoService.listarTodos(empresaId.value);
+    const res = await servicoService.listarTodos();
     servicos.value = res.data || [];
   } catch (err) {
     notify.error('Erro ao carregar serviços');
@@ -182,20 +158,9 @@ const carregarServicos = async () => {
 };
 
 const carregarSubservicos = async () => {
-  if (!empresaId.value) return;
-  
   try {
     loadingList.value = true;
-    
-    try {
-      const response = await subservicoService.listarPorEmpresa(empresaId.value);
-      if (response.data && Array.isArray(response.data)) {
-        subservicos.value = response.data;
-        return;
-      }
-    } catch (err1) {
-    }
-    
+
     const todosSubservicos = [];
     for (const servico of servicos.value) {
       try {
@@ -204,7 +169,7 @@ const carregarSubservicos = async () => {
           response.data.forEach(sub => {
             todosSubservicos.push({
               ...sub,
-              servicoId: servico.id 
+              servicoId: servico.id
             });
           });
         }
@@ -213,7 +178,6 @@ const carregarSubservicos = async () => {
       }
     }
     subservicos.value = todosSubservicos;
-    
   } catch (err) {
     notify.error('Erro ao carregar subserviços do serviço');
   } finally {
@@ -242,45 +206,38 @@ const handleSubmit = async () => {
     setTimeout(() => errorMessage.value = "", 3000);
     return;
   }
-  
+
   if (!form.value.servicoId) {
     errorMessage.value = "Por favor, selecione um serviço";
     setTimeout(() => errorMessage.value = "", 3000);
     return;
   }
-  
-  if (!empresaId.value) {
-    errorMessage.value = "Empresa não identificada";
-    setTimeout(() => errorMessage.value = "", 3000);
-    return;
-  }
-  
+
   try {
     loading.value = true;
     successMessage.value = "";
     errorMessage.value = "";
-    
+
     const dados = {
-      id: empresaId.value, 
-      servicoId: form.value.servicoId,  
+      servicoId: form.value.servicoId,
       nome: form.value.nome.trim(),
       descricao: form.value.descricao.trim()
     };
 
     await subservicoService.criar(dados);
-    
+
     form.value.nome = "";
     form.value.descricao = "";
     await nextTick();
     if (nomeInput.value) {
       nomeInput.value.focus();
     }
-    
+
     await carregarSubservicos();
 
     notify.success('Subserviço criado com sucesso!');
-    
-    emit("created");   
+
+    emit("created");
   } catch (err) {
     notify.error('Erro ao criar subserviço');
   } finally {
@@ -406,12 +363,14 @@ const closeModal = () => {
   overflow: hidden;
 }
 
-.add-section, .list-section {
+.add-section,
+.list-section {
   display: flex;
   flex-direction: column;
 }
 
-.add-section h4, .list-section h4 {
+.add-section h4,
+.list-section h4 {
   margin: 0 0 16px 0;
   font-size: 1.1rem;
   font-weight: 600;
@@ -454,7 +413,9 @@ const closeModal = () => {
   color: #daa520;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid;
@@ -578,8 +539,15 @@ small.warning {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .list-header {
@@ -653,8 +621,13 @@ small.warning {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .btn-refresh span {
@@ -742,7 +715,8 @@ small.warning {
   background: #333;
 }
 
-.empty-state, .loading-state {
+.empty-state,
+.loading-state {
   flex: 1;
   display: flex;
   align-items: center;
@@ -843,27 +817,28 @@ small.warning {
     width: 95vw;
     max-height: 90vh;
   }
-  
+
   .modal-content {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .subservicos-list {
     min-height: 200px;
     max-height: 250px;
   }
-  
-  .empty-state, .loading-state {
+
+  .empty-state,
+  .loading-state {
     min-height: 200px;
   }
-  
+
   .list-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .list-controls {
     width: 100%;
     justify-content: space-between;

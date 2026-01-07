@@ -1,10 +1,5 @@
-import axios from "axios";
 import { notify } from '../services/notificationService';
-
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-  headers: { "Content-Type": "application/json" }
-});
+import api from "./api";
 
 export default {
   async buscarDados(id) {

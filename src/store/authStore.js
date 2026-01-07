@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import authService from "../services/authServices";
+import empresaService from "../services/empresaService";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -8,17 +9,30 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     async login(email, senha) {
-      const res = await authService.login(email, senha);
-      this.empresa = res.data;
-      return res.data;
+      await authService.login(email, senha);
     },
 
     async register(data) {
       await authService.register(data);
     },
 
-    logout() {
-      this.empresa = null;
+    async logout() {
+      try {
+        await authService.logout();
+      } catch (e) {
+
+      } finally {
+        this.empresa = null;
+      }
+    },
+
+    async carregarEmpresa() {
+      try {
+        const response = await empresaService.getNome();
+        this.empresa = { nome: response.data };
+      } catch {
+        this.empresa = null;
+      }
     }
   }
 });

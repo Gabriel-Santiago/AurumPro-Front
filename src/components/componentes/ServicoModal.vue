@@ -80,14 +80,12 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useThemeStore } from "../../store/themeStore";
-import { useAuthStore } from "../../store/authStore";
 import servicoService from "../../services/servicoServices";
 import { notify } from '../../services/notificationService';
 
 const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
-const authStore = useAuthStore();
 const theme = computed(() => themeStore.theme);
 
 const form = ref({
@@ -100,18 +98,14 @@ const loadingList = ref(false);
 const nomeInput = ref(null);
 const successMessage = ref("");
 
-const empresaId = computed(() => authStore.empresa?.empresaId);
-
 onMounted(() => {
   carregarServicos();
 });
 
 const carregarServicos = async () => {
-  if (!empresaId.value) return;
-  
   try {
     loadingList.value = true;
-    const response = await servicoService.listarTodos(empresaId.value);
+    const response = await servicoService.listarTodos();
     servicos.value = response.data || [];
   } catch (err) {
     notify.error('Erro ao carregar serviços');
@@ -126,19 +120,12 @@ const handleSubmit = async () => {
     setTimeout(() => successMessage.value = "", 3000);
     return;
   }
-  
-  if (!empresaId.value) {
-    successMessage.value = "Empresa não identificada";
-    setTimeout(() => successMessage.value = "", 3000);
-    return;
-  }
-  
+    
   try {
     loading.value = true;
     successMessage.value = "";
     
     const dados = {
-      id: empresaId.value,
       nome: form.value.nome.trim()
     };
 

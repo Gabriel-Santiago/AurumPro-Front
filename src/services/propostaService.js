@@ -1,21 +1,16 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-  headers: { "Content-Type": "application/json" }
-});
+import api from "./api";
 
 export default {
   criar(dados) {
     return api.post('/propostas', dados);
   },
 
-  listarPorCliente(empresaId, clienteId) {
-    return api.get(`/propostas/${empresaId}/${clienteId}`);
+  listarPorCliente(clienteId) {
+    return api.get(`/propostas/${clienteId}`);
   },
 
-  listarPorEmpresa(empresaId) {
-    return api.get(`/propostas/${empresaId}`);
+  listarPorEmpresa() {
+    return api.get("/propostas");
   },
 
   downloadTermo(propostaId) {
