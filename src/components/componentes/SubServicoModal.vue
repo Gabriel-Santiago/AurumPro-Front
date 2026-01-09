@@ -150,7 +150,7 @@ const carregarServicos = async () => {
     loadingServicos.value = true;
     const res = await servicoService.listarTodos();
     servicos.value = res.data || [];
-  } catch (err) {
+  } catch {
     notify.error('Erro ao carregar serviços');
   } finally {
     loadingServicos.value = false;
@@ -173,12 +173,12 @@ const carregarSubservicos = async () => {
             });
           });
         }
-      } catch (err) {
+      } catch {
         notify.error('Erro ao carregar subserviços do serviço');
       }
     }
     subservicos.value = todosSubservicos;
-  } catch (err) {
+  } catch {
     notify.error('Erro ao carregar subserviços do serviço');
   } finally {
     loadingList.value = false;
@@ -238,7 +238,7 @@ const handleSubmit = async () => {
     notify.success('Subserviço criado com sucesso!');
 
     emit("created");
-  } catch (err) {
+  } catch {
     notify.error('Erro ao criar subserviço');
   } finally {
     loading.value = false;

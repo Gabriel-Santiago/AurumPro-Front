@@ -173,7 +173,7 @@ const carregarFuncoes = async () => {
             funcoes.value = []; 
         }
 
-    } catch (err) {
+    } catch {
         notify.error('Erro ao carregar funções');
         funcoes.value = [];
     } finally {
@@ -188,7 +188,7 @@ const carregarColaboradores = async () => {
         colaboradores.value = response.data || [];
 
         atualizarFuncoesUnicas();
-    } catch (err) {
+    } catch {
         notify.error('Erro ao carregar colaboradores');
     } finally {
         loadingList.value = false;

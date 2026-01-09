@@ -33,6 +33,7 @@ async function submitLogin() {
     await auth.login(email.value, senha.value);
     notify.success('Login realizado com sucesso!');
     router.push("/clientes");
+    await auth.carregarEmpresa();
   } catch (error) {
     senha.value = '';
     notify.error(getApiErrorMessage(error));

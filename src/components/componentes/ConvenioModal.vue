@@ -97,7 +97,7 @@ const carregarConvenios = async () => {
     loadingList.value = true;
     const response = await convenioService.listarPorEmpresa();
     convenios.value = response.data || [];
-  } catch (err) {
+  } catch {
     notify.error('Erro ao carregar convênios');
   } finally {
     loadingList.value = false;

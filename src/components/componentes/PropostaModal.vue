@@ -726,7 +726,7 @@ const criarProposta = async () => {
                     } else {
                         return null;
                     }
-                } catch (err) {
+                } catch {
                     notify.error('Falha ao criar custo');
                 }
             });
@@ -735,7 +735,7 @@ const criarProposta = async () => {
             try {
                 const custosResults = await Promise.all(custosPromises);
                 custosIds.push(...custosResults.filter(id => id !== null));
-            } catch (err) {
+            } catch {
                 notify.error('Erro ao criar custos');
                 loading.value = false;
                 return;
@@ -816,7 +816,7 @@ const criarProposta = async () => {
         };
 
         try {
-            const responseProposta = await propostaService.criar(dadosProposta);
+            await propostaService.criar(dadosProposta);
             notify.success('Proposta criada com sucesso!');
             emit("created");
             handleClose();

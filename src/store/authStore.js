@@ -5,11 +5,13 @@ import empresaService from "../services/empresaService";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     empresa: null,
+    autenticado: false
   }),
 
   actions: {
     async login(email, senha) {
       await authService.login(email, senha);
+      this.autenticado = true;
     },
 
     async register(data) {
@@ -19,10 +21,11 @@ export const useAuthStore = defineStore("auth", {
     async logout() {
       try {
         await authService.logout();
-      } catch (e) {
+      } catch {
 
       } finally {
         this.empresa = null;
+        this.autenticado = false;
       }
     },
 

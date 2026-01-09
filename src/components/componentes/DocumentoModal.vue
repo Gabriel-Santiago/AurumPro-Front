@@ -339,7 +339,7 @@ const formatarData = (dataString) => {
     try {
         const data = new Date(dataString);
         return data.toLocaleDateString('pt-BR');
-    } catch (err) {
+    } catch {
         return dataString;
     }
 };

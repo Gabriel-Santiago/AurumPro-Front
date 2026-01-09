@@ -82,7 +82,7 @@ const fetchClients = async () => {
   try {
     const res = await clientService.listarTodos();
     clients.value = Array.isArray(res.data) ? res.data : [];
-  } catch (err) {
+  } catch {
     notify.error('Erro ao buscar clientes');
     clients.value = [];
   } finally {

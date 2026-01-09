@@ -107,7 +107,7 @@ const carregarServicos = async () => {
     loadingList.value = true;
     const response = await servicoService.listarTodos();
     servicos.value = response.data || [];
-  } catch (err) {
+  } catch {
     notify.error('Erro ao carregar serviços');
   } finally {
     loadingList.value = false;
@@ -143,7 +143,7 @@ const handleSubmit = async () => {
     notify.success('Serviço criado com sucesso!');
     
     emit("created");    
-  } catch (err) {
+  } catch {
     notify.error('Erro ao criar serviço');
   } finally {
     loading.value = false;

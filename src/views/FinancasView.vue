@@ -552,7 +552,7 @@ const carregarDashboard = async () => {
 
         ultimaAtualizacao.value = new Date().toLocaleTimeString('pt-BR');
 
-    } catch (error) {
+    } catch {
         notify.error('Erro ao carregar dashboard');
         erro.value = 'Erro ao carregar dados. Tente novamente.';
         dashboard.value = {};
@@ -714,7 +714,7 @@ const formatarData = (dataString) => {
     try {
         const data = new Date(dataString);
         return data.toLocaleDateString('pt-BR');
-    } catch (err) {
+    } catch {
         return dataString;
     }
 };
@@ -725,7 +725,7 @@ const formatarDataCompleta = (dataString) => {
         const data = new Date(dataString);
         return data.toLocaleDateString('pt-BR') + ' às ' +
             data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } catch (err) {
+    } catch {
         return dataString;
     }
 };
@@ -741,15 +741,21 @@ const formatarStatus = (status) => {
 };
 
 const calcularDiasRestantes = (dataValidade) => {
-    if (!dataValidade) return '';
-    const hoje = new Date();
-    const validade = new Date(dataValidade);
-    const dias = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
+  if (!dataValidade) return '';
 
-    if (dias > 0) return `${dias} dias restantes`;
-    if (dias === 0) return 'Vence hoje';
-    return `Expirada há ${Math.abs(dias)} dias`;
+  const hoje = new Date();
+  const validade = new Date(dataValidade);
+
+  hoje.setHours(0, 0, 0, 0);
+  validade.setHours(0, 0, 0, 0);
+
+  const dias = Math.ceil((validade - hoje) / (1000 * 60 * 60 * 24));
+
+  if (dias > 0) return `${dias} dias restantes`;
+  if (dias === 0) return 'Vence hoje';
+  return `Expirada há ${Math.abs(dias)} dias`;
 };
+
 
 const calcularDiasExpiracao = (dataValidade) => {
     if (!dataValidade) return '';

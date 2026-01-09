@@ -118,7 +118,6 @@ import { useThemeStore } from "../../store/themeStore";
 import propostaService from "../../services/propostaService";
 import DocumentoModal from "../componentes/DocumentoModal.vue";
 import { notify } from '../../services/notificationService';
-import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const props = defineProps({
     cliente: { type: Object, required: true }
@@ -147,7 +146,7 @@ const carregarPropostas = async () => {
 
         const response = await propostaService.listarPorCliente(clienteId);
         propostas.value = response.data || [];
-    } catch (err) {
+    } catch {
         notify.error('Erro ao carregar propostas');
         propostas.value = [];
     } finally {
@@ -216,7 +215,7 @@ const calcularIdade = (dataNascimento) => {
         }
 
         return idade;
-    } catch (err) {
+    } catch {
         notify.error('Erro ao calcular idade');
         return null;
     }
@@ -232,7 +231,7 @@ const formatarData = (dataString) => {
             month: '2-digit',
             year: 'numeric'
         });
-    } catch (err) {
+    } catch {
         notify.error('Erro ao formatar data');
         return dataString;
     }
