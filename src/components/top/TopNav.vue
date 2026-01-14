@@ -42,6 +42,15 @@
       </div>
 
       <div class="nav-item">
+        <button class="nav-btn" @click="irParaAtividades">Atividades</button>
+        <Tooltip 
+          content="Gerencie as atividades a serem feitas nas propostas aceitas"
+          position="bottom"
+          :maxWidth="'180px'"
+        />
+      </div>
+
+      <div class="nav-item">
         <button class="nav-btn" @click="irParaFinancas">Resumo Financeiro</button>
         <Tooltip 
           content="Visualize relatórios financeiros e fluxo de caixa"
@@ -121,6 +130,10 @@ const router = useRouter();
 
 const irParaFinancas = () => {
   router.push('/financas');
+};
+
+const irParaAtividades = () => {
+  router.push('/atividades');
 };
 
 const abrirColaboradorModal = () => {

@@ -3,11 +3,13 @@ import AuthView from "../views/AuthView.vue";
 import ClientsView from "../views/ClientsView.vue";
 import FinancasView from "../views/FinancasView.vue";
 import api from "../services/api";
+import AtividadesView from "../views/AtividadesView.vue";
 
 const routes = [
   { path: "/", name: "auth", component: AuthView },
   { path: "/clientes", name: "Clients", component: ClientsView, meta: { requiresAuth: true } },
-  { path: "/financas", name: "Financas", component: FinancasView, meta: { requiresAuth: true } }
+  { path: "/financas", name: "Financas", component: FinancasView, meta: { requiresAuth: true } },
+  { path: "/atividades", name: "Atividades", component: AtividadesView, meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({

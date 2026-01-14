@@ -13,6 +13,10 @@ export default {
     return api.get("/propostas");
   },
 
+  getAceitas() {
+    return api.get('/propostas/aceitas');
+  },
+
   downloadTermo(propostaId) {
     return api.get(`/propostas/doc/${propostaId}`, {
       responseType: 'blob'
