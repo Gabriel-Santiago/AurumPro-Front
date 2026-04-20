@@ -81,7 +81,7 @@
                             </div>
                             
                             <div class="checklist-container">
-                                <div v-for="atividade in atividadesPorProposta[proposta.id]" :key="atividade.atividadeId" 
+                                <div v-for="atividade in atividadesPorProposta[proposta.id]" :key="atividade.id" 
                                     class="checklist-item">
                                     <label class="checkbox-label">
                                         <input type="checkbox" 
@@ -247,7 +247,7 @@ const carregarAtividades = async (id) => {
 
         atividadesPorProposta.value[id] = Array.isArray(data)
             ? data.map(a => ({
-                atividadeId: a.atividadeId,
+                id: a.id,
                 nome: a.nome,
                 concluida: a.concluida,
                 propostaId: a.propostaId || id
@@ -315,12 +315,13 @@ const criarAtividade = async () => {
         }
         
         atividadesPorProposta.value[propostaId].push({
-            atividadeId: novaAtividade.atividadeId,
+            id: novaAtividade.id,
             nome: novaAtividade.nome,
             concluida: novaAtividade.concluida
         });
         
         fecharModalNovaAtividade();
+        await carregarAtividades(propostaId);
         notify.success('Atividade criada com sucesso!');
         
     } catch (error) {
@@ -335,7 +336,7 @@ const alternarStatusAtividade = async (atividade) => {
         atividade.concluida = novoStatus;
         
         const updateAtividade = {
-            atividadeId: atividade.atividadeId,
+            id: atividade.id,
             concluida: novoStatus
         };
                 
@@ -372,12 +373,12 @@ const excluirAtividade = async () => {
     try {
         const { atividade } = modalExclusaoAtividade.value;
         
-        await atividadeService.delete(atividade.atividadeId);
+        await atividadeService.delete(atividade.id);
         
         const propostaId = propostaExpandida.value;
         if (atividadesPorProposta.value[propostaId]) {
             atividadesPorProposta.value[propostaId] = atividadesPorProposta.value[propostaId]
-                .filter(a => a.atividadeId !== atividade.atividadeId);
+                .filter(a => a.id !== atividade.id);
         }
         
         cancelarExclusaoAtividade();

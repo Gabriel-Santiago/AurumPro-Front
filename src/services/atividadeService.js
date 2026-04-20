@@ -9,6 +9,11 @@ export default {
         return api.post('/atividades', dados);
     },
 
+    criarAtividadeProposta(dados) {
+        const response = api.post("/atividades/proposta", dados);
+        return response;
+    },
+
     update(dto) {
         return api.patch('/atividades', dto)
     },

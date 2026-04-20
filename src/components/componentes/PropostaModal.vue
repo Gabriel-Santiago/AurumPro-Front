@@ -3,12 +3,12 @@
         <div class="modal-backdrop" @click.self="handleClose" :class="theme">
             <div class="modal" :class="theme" ref="modalElement">
                 <div class="modal-header">
-                    <h3>Criar Proposta - Passo {{ currentPage }} de 6</h3>
+                    <h3>Criar Proposta - Passo {{ currentPage }} de 7</h3>
                     <button class="close-btn" @click="handleClose">×</button>
                 </div>
 
                 <div class="progress-bar">
-                    <div class="progress" :style="{ width: `${(currentPage / 6) * 100}%` }"></div>
+                    <div class="progress" :style="{ width: `${(currentPage / 7) * 100}%` }"></div>
                     <div class="steps">
                         <span :class="{ active: currentPage >= 1 }">1</span>
                         <span :class="{ active: currentPage >= 2 }">2</span>
@@ -16,6 +16,7 @@
                         <span :class="{ active: currentPage >= 4 }">4</span>
                         <span :class="{ active: currentPage >= 5 }">5</span>
                         <span :class="{ active: currentPage >= 6 }">6</span>
+                        <span :class="{ active: currentPage >= 7 }">7</span>
                     </div>
                 </div>
 
@@ -80,6 +81,38 @@
 
                     <div v-else-if="currentPage === 2" class="page">
                         <div class="page-header">
+                            <h4>Atividades</h4>
+                            <button type="button" class="btn-add" @click="adicionarAtividade">
+                                + Adicionar Atividade
+                            </button>
+                        </div>
+
+                        <p class="page-subtitle">
+                            Cadastre as atividades que farão parte da execução da proposta.
+                        </p>
+
+                        <div v-if="form.atividades.length === 0" class="info-box">
+                            <p>Nenhuma atividade adicionada ainda.</p>
+                        </div>
+
+                        <div v-for="(atividade, index) in form.atividades" :key="index" class="item-container">
+                            <div class="item-header">
+                                <h5>Atividade {{ index + 1 }}</h5>
+                                <button type="button" class="btn-remove" @click="removerAtividade(index)">
+                                    Remover
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nome da Atividade *</label>
+                                <input v-model="atividade.nome"
+                                    placeholder="Ex: Reunião inicial, vistoria, execução do serviço" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else-if="currentPage === 3" class="page">
+                        <div class="page-header">
                             <h4>Custos Adicionais</h4>
                             <button type="button" class="btn-add" @click="adicionarCusto">
                                 + Adicionar Custo
@@ -110,7 +143,7 @@
                         </div>
                     </div>
 
-                    <div v-else-if="currentPage === 3" class="page">
+                    <div v-else-if="currentPage === 4" class="page">
                         <h4>Aplicar Desconto</h4>
 
                         <div class="form-group">
@@ -152,7 +185,7 @@
                         </div>
                     </div>
 
-                    <div v-else-if="currentPage === 4" class="page">
+                    <div v-else-if="currentPage === 5" class="page">
                         <h4>Atribuir Colaborador</h4>
                         <p class="page-subtitle">
                             Selecione um colaborador para vincular à proposta (opcional)
@@ -238,7 +271,7 @@
                         </div>
                     </div>
 
-                    <div v-else-if="currentPage === 5" class="page">
+                    <div v-else-if="currentPage === 6" class="page">
                         <h4>Origem do Cliente</h4>
                         <p class="page-subtitle">
                             Selecione como o cliente chegou à empresa (opcional)
@@ -302,7 +335,7 @@
                         </div>
                     </div>
 
-                    <div v-else-if="currentPage === 6" class="page">
+                    <div v-else-if="currentPage === 7" class="page">
                         <h4>Confirmação da Proposta</h4>
 
                         <div class="resumo">
@@ -348,6 +381,17 @@
                                 </div>
                             </div>
 
+                            <div class="resumo-section" v-if="form.atividades.length > 0">
+                                <h5>Atividades ({{ form.atividades.length }})</h5>
+                                <div v-for="(atividade, index) in form.atividades" :key="index" class="resumo-item">
+                                    <p><strong>Atividade {{ index + 1 }}:</strong> {{ atividade.nome }}</p>
+                                </div>
+                            </div>
+                            <div v-else class="resumo-section">
+                                <h5>Atividades</h5>
+                                <p><em>Nenhuma atividade cadastrada</em></p>
+                            </div>
+
                             <div class="resumo-section" v-if="form.custos.length > 0">
                                 <h5>Custos Adicionais ({{ form.custos.length }})</h5>
                                 <div v-for="(custo, index) in form.custos" :key="index" class="resumo-item">
@@ -383,12 +427,12 @@
                         Voltar
                     </button>
 
-                    <button v-if="currentPage < 6" type="button" class="btn-primary" @click="nextPage"
+                    <button v-if="currentPage < 7" type="button" class="btn-primary" @click="nextPage"
                         :disabled="!validarPaginaAtual()">
                         Próximo
                     </button>
 
-                    <button v-if="currentPage === 6" type="button" class="btn-submit" @click="criarProposta"
+                    <button v-if="currentPage === 7" type="button" class="btn-submit" @click="criarProposta"
                         :disabled="loading">
                         <span v-if="loading">Criando...</span>
                         <span v-else>Criar Proposta</span>
@@ -409,6 +453,7 @@ import propostaService from "../../services/propostaService";
 import custoService from "../../services/custoService";
 import itemPropostaService from "../../services/itemPropostaService";
 import colaboradorService from "../../services/colaboradorService";
+import atividadeService from "../../services/atividadeService";
 import { notify } from '../../services/notificationService';
 import { getApiErrorMessage } from "../../utils/errorUtils";
 
@@ -420,6 +465,8 @@ const emit = defineEmits(["close", "created"]);
 
 const themeStore = useThemeStore();
 const theme = computed(() => themeStore.theme);
+
+const TOTAL_STEPS = 7;
 
 const currentPage = ref(1);
 const servicos = ref([]);
@@ -440,10 +487,9 @@ const form = ref({
         valorTotal: 0
     }],
 
-    custos: [{
-        nome: "",
-        valor: 0
-    }],
+    atividades: [],
+
+    custos: [],
 
     tipoDesconto: "NENHUM",
     valorDesconto: 0,
@@ -458,23 +504,24 @@ const form = ref({
 
 const convenioSelecionado = computed(() => {
     if (!form.value.convenioId) return null;
-    return convenios.value.find(c => c.id === form.value.convenioId);
+    return convenios.value.find(c => c.id === form.value.convenioId) || null;
 });
 
 const colaboradorSelecionado = computed(() => {
     if (!form.value.colaboradorId) return null;
-    return colaboradores.value.find(c => c.id === form.value.colaboradorId);
+    return colaboradores.value.find(c => c.id === form.value.colaboradorId) || null;
 });
 
 const carregarDados = async () => {
     try {
-        const resServicos = await servicoService.listarTodos();
+        const [resServicos, resColaboradores, resConvenios] = await Promise.all([
+            servicoService.listarTodos(),
+            colaboradorService.listarPorEmpresa(),
+            convenioService.listarPorEmpresa()
+        ]);
+
         servicos.value = resServicos.data || [];
-
-        const resColaboradores = await colaboradorService.listarPorEmpresa();
         colaboradores.value = resColaboradores.data || [];
-
-        const resConvenios = await convenioService.listarPorEmpresa();
         convenios.value = resConvenios.data || [];
     } catch (err) {
         notify.error(getApiErrorMessage(err));
@@ -483,28 +530,32 @@ const carregarDados = async () => {
 
 const validarPaginaAtual = () => {
     switch (currentPage.value) {
-        case 1:
+        case 1: {
             const todosItensValidos = form.value.itens.every(item =>
-                item.servicoId && item.microServicoIds.length > 0
+                item.servicoId &&
+                item.microServicoIds.length > 0 &&
+                (parseFloat(item.valorHora) || 0) > 0 &&
+                (parseFloat(item.qtdHora) || 0) > 0
             );
 
-            const todosValoresValidos = form.value.itens.every(item => {
-                const valorHora = parseFloat(item.valorHora) || 0;
-                const qtdHora = parseFloat(item.qtdHora) || 0;
-                return valorHora > 0 && qtdHora > 0;
-            });
+            return todosItensValidos && form.value.itens.length > 0;
+        }
 
-            return todosItensValidos && todosValoresValidos && form.value.itens.length > 0;
+        case 2: {
+            return form.value.atividades.every(atividade =>
+                atividade.nome && atividade.nome.trim() !== ''
+            );
+        }
 
-        case 2:
-            if (form.value.custos.length === 0) {
-            }
+        case 3: {
             return form.value.custos.every(custo =>
-                custo.nome && custo.nome.trim() !== '' &&
+                custo.nome &&
+                custo.nome.trim() !== '' &&
                 (parseFloat(custo.valor) || 0) >= 0
             );
+        }
 
-        case 3:
+        case 4: {
             if (form.value.tipoDesconto === 'VALOR') {
                 return (parseFloat(form.value.valorDesconto) || 0) > 0;
             }
@@ -513,19 +564,23 @@ const validarPaginaAtual = () => {
                 return porcentagem > 0 && porcentagem <= 100;
             }
             return true;
+        }
 
-        case 4:
+        case 5: {
             if (form.value.colaboradorSelecao === 'SELECIONAR') {
                 return form.value.colaboradorId !== null && form.value.colaboradorId !== '';
             }
             return true;
+        }
 
-        case 5:
+        case 6: {
             if (form.value.convenioSelecao === 'SELECIONAR') {
                 return form.value.convenioId !== null && form.value.convenioId !== '';
             }
             return true;
+        }
 
+        case 7:
         default:
             return true;
     }
@@ -548,11 +603,33 @@ const removerItem = (index) => {
     }
 };
 
+const adicionarAtividade = () => {
+    form.value.atividades.push({
+        nome: ""
+    });
+};
+
+const removerAtividade = (index) => {
+    form.value.atividades.splice(index, 1);
+};
+
+const adicionarCusto = () => {
+    form.value.custos.push({
+        nome: "",
+        valor: 0
+    });
+};
+
+const removerCusto = (index) => {
+    form.value.custos.splice(index, 1);
+};
+
 const carregarMicroServicos = async (item) => {
     try {
         if (!item.servicoId) {
             item.microServicosDisponiveis = [];
             item.microServicoIds = [];
+            item.valorTotal = 0;
             return;
         }
 
@@ -574,19 +651,6 @@ const calcularValorTotal = (item) => {
     const valorHora = parseFloat(item.valorHora) || 0;
     const qtdHora = parseFloat(item.qtdHora) || 0;
     item.valorTotal = valorHora * qtdHora;
-};
-
-const adicionarCusto = () => {
-    form.value.custos.push({
-        nome: "",
-        valor: 0
-    });
-};
-
-const removerCusto = (index) => {
-    if (form.value.custos.length > 1) {
-        form.value.custos.splice(index, 1);
-    }
 };
 
 const abrirGerenciarColaboradores = () => {
@@ -614,7 +678,6 @@ const getNomeServico = (servicoId) => {
 
 const calcularValorTotalProposta = () => {
     let totalItens = 0;
-
     form.value.itens.forEach(item => {
         totalItens += item.valorTotal || 0;
     });
@@ -627,8 +690,7 @@ const calcularValorTotalProposta = () => {
     let totalComDesconto = totalItens + totalCustos;
 
     if (form.value.tipoDesconto === 'VALOR') {
-        const desconto = parseFloat(form.value.valorDesconto) || 0;
-        totalComDesconto -= desconto;
+        totalComDesconto -= parseFloat(form.value.valorDesconto) || 0;
     } else if (form.value.tipoDesconto === 'PORCENTAGEM') {
         const porcentagem = parseFloat(form.value.porcentagemDesconto) || 0;
         const desconto = totalComDesconto * (porcentagem / 100);
@@ -639,7 +701,7 @@ const calcularValorTotalProposta = () => {
 };
 
 const nextPage = () => {
-    if (currentPage.value < 6 && validarPaginaAtual()) {
+    if (currentPage.value < TOTAL_STEPS && validarPaginaAtual()) {
         currentPage.value++;
     } else {
         mostrarErroValidacao();
@@ -657,174 +719,164 @@ const mostrarErroValidacao = () => {
 
     switch (currentPage.value) {
         case 1:
-            mensagem = "Por favor, preencha todos os itens da proposta:\n";
-            mensagem += "- Selecione um serviço para cada item\n";
-            mensagem += "- Selecione pelo menos um micro serviço\n";
-            mensagem += "- Informe valor por hora e quantidade de horas válidos (maiores que 0)";
+            mensagem = "Preencha corretamente os itens da proposta.";
             break;
         case 2:
-            mensagem = "Por favor, corrija os custos adicionais:\n";
-            mensagem += "- Todos os custos devem ter um nome\n";
-            mensagem += "- O valor deve ser um número válido (pode ser 0)";
+            mensagem = "Se adicionar atividades, todas precisam ter nome.";
             break;
         case 3:
-            if (form.value.tipoDesconto === 'VALOR') {
-                mensagem = "Por favor, informe um valor de desconto válido (maior que 0)";
-            } else if (form.value.tipoDesconto === 'PORCENTAGEM') {
-                mensagem = "Por favor, informe uma porcentagem de desconto válida (entre 0.1% e 100%)";
-            }
+            mensagem = "Se adicionar custos, todos precisam ter nome e valor válido.";
             break;
         case 4:
-            if (form.value.colaboradorSelecao === 'SELECIONAR') {
-                mensagem = "Por favor, selecione um colaborador da lista ou altere a opção para 'Não atribuir colaborador'";
-            }
-        case 5:
-            if (form.value.convenioSelecao === 'SELECIONAR') {
-                mensagem = "Por favor, selecione um convênio da lista ou altere a opção para 'Não informar origem'";
+            if (form.value.tipoDesconto === 'VALOR') {
+                mensagem = "Informe um valor de desconto maior que zero.";
+            } else if (form.value.tipoDesconto === 'PORCENTAGEM') {
+                mensagem = "Informe uma porcentagem entre 0 e 100.";
             }
             break;
+        case 5:
+            mensagem = "Selecione um colaborador ou escolha não atribuir.";
+            break;
+        case 6:
+            mensagem = "Selecione um convênio ou escolha não informar origem.";
+            break;
+        default:
+            mensagem = "Revise os dados informados.";
     }
+
+    notify.alert(mensagem);
+};
+
+const criarCustos = async () => {
+    const custosValidos = form.value.custos.filter(custo =>
+        custo.nome &&
+        custo.nome.trim() !== '' &&
+        (parseFloat(custo.valor) || 0) >= 0
+    );
+
+    if (custosValidos.length === 0) {
+        return [];
+    }
+
+    const promises = custosValidos.map(async (custo) => {
+        const payload = {
+            nome: custo.nome.trim(),
+            valor: parseFloat(custo.valor) || 0
+        };
+
+        const response = await custoService.criar(payload);
+        return Number(response?.data?.id ?? response?.id ?? null);
+    });
+
+    const results = await Promise.all(promises);
+    return results.filter(id => id !== null && !Number.isNaN(id));
+};
+
+const criarAtividades = async () => {
+    const atividadesValidas = form.value.atividades.filter(atividade =>
+        atividade.nome && atividade.nome.trim() !== ''
+    );
+
+    if (atividadesValidas.length === 0) {
+        return [];
+    }
+
+    const promises = atividadesValidas.map(async (atividade) => {
+        const payload = {
+            nome: atividade.nome.trim()
+        };
+
+        const response = await atividadeService.criarAtividadeProposta(payload);
+        return Number(response?.data?.id ?? response?.id ?? null);
+    });
+
+    const results = await Promise.all(promises);
+    return results.filter(id => id !== null && !Number.isNaN(id));
+};
+
+const criarItens = async () => {
+    const itensValidos = form.value.itens.filter(item =>
+        item.servicoId &&
+        item.microServicoIds.length > 0
+    );
+
+    if (itensValidos.length === 0) {
+        return [];
+    }
+
+    const promises = [];
+
+    for (const item of itensValidos) {
+        for (const microServicoId of item.microServicoIds) {
+            const payload = {
+                servicoId: Number(item.servicoId),
+                microServicoId: Number(microServicoId),
+                valorHora: parseFloat(item.valorHora) || 0,
+                qtdHora: parseFloat(item.qtdHora) || 0,
+                valorTotal: parseFloat(item.valorTotal) || 0
+            };
+
+            promises.push(
+                itemPropostaService.criar(payload).then(response =>
+                    Number(response?.data?.id ?? response?.id ?? null)
+                )
+            );
+        }
+    }
+
+    const results = await Promise.all(promises);
+    return results.filter(id => id !== null && !Number.isNaN(id));
 };
 
 const criarProposta = async () => {
     try {
         loading.value = true;
 
-        const itensValidos = form.value.itens.filter(item =>
-            item.servicoId && item.microServicoIds.length > 0
-        );
-
-        if (itensValidos.length === 0) {
-            notify.alert('Adicione pelo menos um item válido à proposta!');
-            currentPage.value = 1;
-            loading.value = false;
-            return;
-        }
-
-        const custosIds = [];
-
-        const custosPromises = form.value.custos
-            .filter(custo => custo.nome && custo.valor > 0)
-            .map(async (custo) => {
-                try {
-                    const dadosCusto = {
-                        nome: custo.nome.trim(),
-                        valor: parseFloat(custo.valor)
-                    };
-
-                    const response = await custoService.criar(dadosCusto);
-
-                    let custoId = null;
-                    if (response && response.data && response.data.id) {
-                        custoId = Number(response.data.id);
-                    } else if (response && response.id) {
-                        custoId = Number(response.id);
-                    }
-
-                    if (custoId) {
-                        return custoId;
-                    } else {
-                        return null;
-                    }
-                } catch {
-                    notify.error('Falha ao criar custo');
-                }
-            });
-
-        if (custosPromises.length > 0) {
-            try {
-                const custosResults = await Promise.all(custosPromises);
-                custosIds.push(...custosResults.filter(id => id !== null));
-            } catch {
-                notify.error('Erro ao criar custos');
-                loading.value = false;
-                return;
-            }
-        }
-
-        const itemPropostaIds = [];
-        const itemPropostaPromises = [];
-
-        for (const item of itensValidos) {
-            for (const microServicoId of item.microServicoIds) {
-                const criarItemPromise = (async () => {
-                    try {
-                        const dadosItem = {
-                            servicoId: Number(item.servicoId),
-                            microServicoId: Number(microServicoId),
-                            valorHora: parseFloat(item.valorHora) || 0,
-                            qtdHora: parseFloat(item.qtdHora) || 0,
-                            valorTotal: parseFloat(item.valorTotal) || 0
-                        };
-
-                        const response = await itemPropostaService.criar(dadosItem);
-
-                        let itemId = null;
-                        if (response && response.data && response.data.id) {
-                            itemId = Number(response.data.id);
-                        } else if (response && response.id) {
-                            itemId = Number(response.id);
-                        } else if (response && typeof response === 'object' && response.id) {
-                            itemId = Number(response.id);
-                        }
-
-                        if (itemId) {
-                            return itemId;
-                        } else {
-                            return null;
-                        }
-                    } catch (err) {
-                        notify.error(`Falha ao criar item: ${err.message}`);
-                    }
-                })();
-
-                itemPropostaPromises.push(criarItemPromise);
-            }
-        }
-
-        if (itemPropostaPromises.length > 0) {
-            try {
-                const itemResults = await Promise.all(itemPropostaPromises);
-                itemPropostaIds.push(...itemResults.filter(id => id !== null));
-            } catch (err) {
-                notify.error(`Erro ao criar itens da proposta: ${err.message}`);
-                loading.value = false;
-                return;
-            }
-        }
+        const itemPropostaIds = await criarItens();
 
         if (itemPropostaIds.length === 0) {
-            notify.alert('Nenhum item da proposta foi criado!');
-            loading.value = false;
+            notify.alert('Adicione pelo menos um item válido à proposta.');
+            currentPage.value = 1;
             return;
         }
+
+        const [custosIds, atividadeIds] = await Promise.all([
+            criarCustos(),
+            criarAtividades()
+        ]);
 
         const dadosProposta = {
             clienteId: Number(props.cliente.id),
-            convenioId: form.value.convenioSelecao === 'SELECIONAR' && form.value.convenioId
-                ? Number(form.value.convenioId)
-                : null,
-            colaboradorId: form.value.colaboradorSelecao === 'SELECIONAR' && form.value.colaboradorId
-                ? Number(form.value.colaboradorId)
-                : null,
+            convenioId:
+                form.value.convenioSelecao === 'SELECIONAR' && form.value.convenioId
+                    ? Number(form.value.convenioId)
+                    : null,
+            colaboradorId:
+                form.value.colaboradorSelecao === 'SELECIONAR' && form.value.colaboradorId
+                    ? Number(form.value.colaboradorId)
+                    : null,
             custoList: custosIds,
             itemPropostaList: itemPropostaIds,
+            atividadeList: atividadeIds,
             tipoDesconto: form.value.tipoDesconto,
             desconto: form.value.tipoDesconto !== 'NENHUM',
-            valorDesconto: form.value.tipoDesconto === 'VALOR' ? parseFloat(form.value.valorDesconto) || 0 : 0,
-            porcentagemDesconto: form.value.tipoDesconto === 'PORCENTAGEM' ? parseFloat(form.value.porcentagemDesconto) || 0 : 0
+            valorDesconto:
+                form.value.tipoDesconto === 'VALOR'
+                    ? parseFloat(form.value.valorDesconto) || 0
+                    : 0,
+            porcentagemDesconto:
+                form.value.tipoDesconto === 'PORCENTAGEM'
+                    ? parseFloat(form.value.porcentagemDesconto) || 0
+                    : 0
         };
 
-        try {
-            await propostaService.criar(dadosProposta);
-            notify.success('Proposta criada com sucesso!');
-            emit("created");
-            handleClose();
-        } catch (err) {
-            notify.error(`Erro ao criar proposta: ${err.message || 'Erro desconhecido'}`);
-        }
+        await propostaService.criar(dadosProposta);
+
+        notify.success('Proposta criada com sucesso!');
+        emit("created");
+        handleClose();
     } catch (err) {
-        notify.error("💥 Erro geral no processo:", err);
+        notify.error(getApiErrorMessage(err));
     } finally {
         loading.value = false;
     }
@@ -852,6 +904,15 @@ watch(() => form.value.colaboradorSelecao, (newVal) => {
 watch(() => form.value.convenioSelecao, (newVal) => {
     if (newVal === 'NENHUM') {
         form.value.convenioId = null;
+    }
+});
+
+watch(() => form.value.tipoDesconto, (newVal) => {
+    if (newVal !== 'VALOR') {
+        form.value.valorDesconto = 0;
+    }
+    if (newVal !== 'PORCENTAGEM') {
+        form.value.porcentagemDesconto = 0;
     }
 });
 
