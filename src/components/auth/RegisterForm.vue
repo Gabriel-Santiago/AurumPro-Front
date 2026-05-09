@@ -16,8 +16,8 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Inscrição Municipal</label>
-      <input v-model="inscricaoMunicipal" required class="form-input" placeholder="Sua inscrição municipal" />
+      <label class="form-label">Email</label>
+      <input v-model="email" required class="form-input" placeholder="Seu email" />
     </div>
 
     <div class="button-container">
@@ -35,7 +35,7 @@ import { getApiErrorMessage } from '../../utils/errorUtils'
 const cnpj = ref("");
 const senha = ref("");
 const responsavel = ref("");
-const inscricaoMunicipal = ref("");
+const email = ref("");
 
 const auth = useAuthStore();
 
@@ -77,7 +77,7 @@ async function submitRegister() {
       cnpj: cnpjNumeros,
       senha: senha.value,
       responsavel: responsavel.value,
-      inscricaoMunicipal: inscricaoMunicipal.value
+      email: email.value
     });
 
     notify.success('Usuário cadastrado com sucesso!');
