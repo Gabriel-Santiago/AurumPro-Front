@@ -1,6 +1,6 @@
 <template>
     <div v-if="visible" class="modal-overlay">
-        <div class="modal-backdrop" @click.self="handleClose" :class="theme">
+        <div class="modal-backdrop" :class="theme">
             <div class="modal" :class="theme" ref="modalElement">
                 <div class="modal-header">
                     <h3>Criar Proposta - Passo {{ currentPage }} de 7</h3>
@@ -917,8 +917,6 @@ watch(() => form.value.tipoDesconto, (newVal) => {
 });
 
 onMounted(() => {
-    document.addEventListener('keydown', handleEscape);
-
     nextTick(() => {
         if (modalElement.value) {
             modalElement.value.focus();
