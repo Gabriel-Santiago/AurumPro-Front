@@ -122,8 +122,8 @@
                         <div v-for="(custo, index) in form.custos" :key="index" class="item-container">
                             <div class="item-header">
                                 <h5>Custo {{ index + 1 }}</h5>
-                                <button v-if="form.custos.length > 1" type="button" class="btn-remove"
-                                    @click="removerCusto(index)">
+
+                                <button type="button" class="btn-remove" @click="removerCusto(index)">
                                     Remover
                                 </button>
                             </div>
@@ -178,9 +178,9 @@
                         <div v-if="form.tipoDesconto !== 'NENHUM'" class="desconto-preview">
                             <p>Desconto aplicado:
                                 <span v-if="form.tipoDesconto === 'VALOR'">R$ {{ (form.valorDesconto || 0).toFixed(2)
-                                }}</span>
+                                    }}</span>
                                 <span v-if="form.tipoDesconto === 'PORCENTAGEM'">{{ form.porcentagemDesconto || 0
-                                }}%</span>
+                                    }}%</span>
                             </p>
                         </div>
                     </div>
@@ -243,7 +243,7 @@
                                     <div v-if="colaboradorSelecionado.telefone" class="colaborador-info-row">
                                         <span class="label">Telefone:</span>
                                         <span class="value">{{ formatarTelefone(colaboradorSelecionado.telefone)
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                             </div>
