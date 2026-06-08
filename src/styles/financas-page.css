@@ -1,0 +1,390 @@
+@layer components {
+  .financas-container {
+    @apply flex min-h-screen flex-col font-sans transition-all duration-300;
+  }
+
+  .financas-container.light {
+    @apply bg-gradient-to-b from-surface-light-muted to-surface-light text-text-primary;
+  }
+
+  .financas-container.dark {
+    @apply bg-gradient-to-b from-surface-dark to-surface-card-dark text-aurum;
+  }
+
+  .financas-header {
+    @apply mx-auto flex w-full max-w-[1100px] items-center justify-between px-5 py-[22px] transition-colors duration-300;
+  }
+
+  .financas-container .header-left {
+    @apply flex items-center gap-4;
+  }
+
+  .financas-container .header-content h1 {
+    @apply m-0 text-[1.6rem];
+  }
+
+  .financas-container .subtitle {
+    @apply mt-0.5 text-sm opacity-70;
+  }
+
+  .financas-container .btn-voltar {
+    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-3.5 py-2 text-sm transition-all duration-300 hover:opacity-80;
+  }
+
+  .financas-container.dark .btn-voltar {
+    @apply bg-border-dark-soft text-aurum;
+  }
+
+  .financas-container .header-actions {
+    @apply flex items-center gap-3.5;
+  }
+
+  .financas-container .icon-btn,
+  .financas-container .btn-refresh {
+    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-3 py-2 text-base transition-all duration-300;
+  }
+
+  .financas-container.dark .icon-btn,
+  .financas-container.dark .btn-refresh {
+    @apply bg-border-dark-soft text-aurum;
+  }
+
+  .financas-container .btn-refresh:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .financas-container .data-info {
+    @apply flex gap-1.5 text-sm opacity-70;
+  }
+
+  .financas-container .main-content {
+    @apply mx-auto w-full max-w-[1100px] px-5 pb-10 pt-2.5;
+  }
+
+  .financas-container .cards-container {
+    @apply mb-[26px] grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4;
+  }
+
+  .financas-container .resumo-card {
+    @apply flex cursor-pointer gap-3.5 rounded-xl bg-[#f1f5f9] p-[18px] transition-all duration-300 hover:-translate-y-0.5;
+  }
+
+  .financas-container.dark .resumo-card {
+    @apply bg-border-dark-soft;
+  }
+
+  .financas-container .card-icon span {
+    @apply text-[2rem];
+  }
+
+  .financas-container .card-content h3 {
+    @apply m-0 text-base;
+  }
+
+  .financas-container .card-value {
+    @apply my-1 text-[1.4rem] font-bold;
+  }
+
+  .financas-container .card-detalhes {
+    @apply flex flex-col gap-0.5 text-sm opacity-80;
+  }
+
+  .financas-container .status-badge {
+    @apply inline-block w-fit rounded-md px-2 py-0.5 text-xs font-semibold;
+  }
+
+  .financas-container .status-badge.em-avaliacao {
+    @apply bg-[#fde047];
+  }
+
+  .financas-container .status-badge.aceita {
+    @apply bg-[#4ade80] text-surface-dark;
+  }
+
+  .financas-container .status-badge.info {
+    @apply bg-[#3b82f6] text-white;
+  }
+
+  .financas-container .tabs-container {
+    @apply mt-6;
+  }
+
+  .financas-container .tabs-header {
+    @apply flex gap-2.5 overflow-x-auto;
+  }
+
+  .financas-container .tab-button {
+    @apply flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-lg border-0 bg-[#e5e7eb] px-[18px] py-2.5 transition-all duration-300;
+  }
+
+  .financas-container.dark .tab-button {
+    @apply bg-border-dark-soft text-aurum;
+  }
+
+  .financas-container .tab-button.active {
+    @apply bg-surface-dark font-semibold text-aurum;
+  }
+
+  .financas-container .tab-badge {
+    @apply rounded-md bg-surface-dark px-1.5 py-0.5 text-xs text-white;
+  }
+
+  .financas-container.dark .tab-badge {
+    @apply bg-aurum text-surface-dark;
+  }
+
+  .financas-container .propostas-grid {
+    @apply mt-5 grid gap-4;
+  }
+
+  .financas-container .proposta-card {
+    @apply cursor-pointer rounded-xl bg-[#f1f5f9] p-[18px] transition-all duration-300 hover:-translate-y-0.5;
+  }
+
+  .financas-container.dark .proposta-card {
+    @apply bg-border-dark-soft;
+  }
+
+  .financas-container .proposta-header {
+    @apply flex justify-between;
+  }
+
+  .financas-container .cliente-info h4 {
+    @apply m-0 text-lg;
+  }
+
+  .financas-container .proposta-metadata {
+    @apply mt-1.5 flex flex-col gap-1 text-sm opacity-80;
+  }
+
+  .financas-container .metadata-item {
+    @apply flex items-center gap-1.5;
+  }
+
+  .financas-container .valor-label {
+    @apply text-sm opacity-70;
+  }
+
+  .financas-container .valor {
+    @apply text-lg font-bold;
+  }
+
+  .financas-container .expirada {
+    @apply text-danger;
+  }
+
+  .financas-container .urgente {
+    @apply text-[#f97316];
+  }
+
+  .financas-container .proxima {
+    @apply text-[#eab308];
+  }
+
+  .financas-container .normal {
+    @apply text-[#22c55e];
+  }
+
+  .financas-container .proposta-actions {
+    @apply mt-3.5;
+  }
+
+  .financas-container .actions-group {
+    @apply flex gap-2.5;
+  }
+
+  .financas-container .detalhes-section {
+    @apply mt-5;
+  }
+
+  .financas-container .detalhes-header {
+    @apply flex items-center justify-between;
+  }
+
+  .financas-container .detalhes-grid {
+    @apply mt-4 grid gap-2.5;
+  }
+
+  .financas-container .detalhes-item .label {
+    @apply text-sm opacity-70;
+  }
+
+  .financas-container .detalhes-item .value {
+    @apply font-semibold;
+  }
+
+  .financas-container .detalhes-item .value.success {
+    @apply text-[#22c55e];
+  }
+
+  .financas-container .detalhes-item .value.error {
+    @apply text-danger;
+  }
+
+  .financas-container .actions-modal-group {
+    @apply flex flex-wrap gap-3;
+  }
+
+  .financas-container .modal-container .modal-content {
+    @apply flex flex-col gap-6 overflow-y-auto p-0;
+  }
+
+  .financas-container .sem-propostas .empty-state {
+    @apply py-10 text-center opacity-80;
+  }
+
+  .financas-container .sem-propostas .empty-icon {
+    @apply text-[2rem];
+  }
+
+  .financas-container .tab-header h3 {
+    @apply m-0 text-lg font-semibold;
+  }
+
+  .financas-container .tab-subtitle {
+    @apply mt-1 text-sm opacity-70;
+  }
+}
+
+@media (max-width: 1024px) {
+  .financas-container .financas-header {
+    @apply flex-wrap gap-4;
+  }
+
+  .financas-container .header-actions {
+    @apply flex-wrap;
+  }
+
+  .financas-container .proposta-header {
+    @apply flex-wrap gap-3;
+  }
+}
+
+@media (max-width: 768px) {
+  .financas-container .financas-header {
+    @apply flex-col items-stretch p-4;
+  }
+
+  .financas-container .header-left {
+    @apply flex-col items-start gap-3;
+  }
+
+  .financas-container .header-content h1 {
+    @apply text-[1.35rem];
+  }
+
+  .financas-container .header-actions {
+    @apply w-full flex-wrap justify-between gap-2.5;
+  }
+
+  .financas-container .data-info {
+    @apply w-full flex-wrap;
+  }
+
+  .financas-container .main-content {
+    @apply px-3 pb-8 pt-2;
+  }
+
+  .financas-container .cards-container {
+    @apply grid-cols-1 gap-3;
+  }
+
+  .financas-container .tabs-header {
+    @apply gap-2 pb-1;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .financas-container .tab-button {
+    @apply px-3.5 py-2.5 text-sm;
+  }
+
+  .financas-container .proposta-header {
+    @apply flex-col items-start;
+  }
+
+  .financas-container .proposta-valor {
+    @apply mt-2 w-full;
+  }
+
+  .financas-container .proposta-metadata {
+    @apply w-full;
+  }
+
+  .financas-container .actions-group {
+    @apply w-full flex-col;
+  }
+
+  .financas-container .btn-action {
+    @apply w-full py-3 text-center;
+  }
+
+  .financas-container .detalhes-header {
+    @apply flex-col items-start gap-2.5;
+  }
+
+  .financas-container .actions-modal-group {
+    @apply flex-col;
+  }
+
+  .financas-container .btn-action-large {
+    @apply w-full;
+  }
+}
+
+@media (max-width: 480px) {
+  .financas-container .financas-header {
+    @apply p-3;
+  }
+
+  .financas-container .header-content h1 {
+    @apply text-xl;
+  }
+
+  .financas-container .subtitle {
+    @apply text-[0.82rem];
+  }
+
+  .financas-container .btn-voltar {
+    @apply w-full text-center;
+  }
+
+  .financas-container .header-actions {
+    @apply flex-col items-stretch;
+  }
+
+  .financas-container .icon-btn,
+  .financas-container .btn-refresh {
+    @apply w-full;
+  }
+
+  .financas-container .resumo-card,
+  .financas-container .proposta-card {
+    @apply p-3.5;
+  }
+
+  .financas-container .tab-text {
+    @apply hidden;
+  }
+
+  .financas-container .tab-button {
+    @apply px-3 py-2.5;
+  }
+}
+
+@media (min-width: 1280px) {
+  .financas-container .financas-header,
+  .financas-container .main-content {
+    @apply max-w-[1200px];
+  }
+
+  .financas-container .cards-container {
+    @apply grid-cols-4;
+  }
+}
+
+@media (min-width: 1536px) {
+  .financas-container .financas-header,
+  .financas-container .main-content {
+    @apply max-w-[1320px];
+  }
+}

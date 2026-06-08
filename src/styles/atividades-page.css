@@ -1,0 +1,334 @@
+@layer components {
+  .atividades-container {
+    @apply flex min-h-screen flex-col font-sans transition-all duration-300;
+  }
+
+  .atividades-container.light {
+    @apply bg-gradient-to-b from-surface-light-muted to-surface-light text-text-primary;
+  }
+
+  .atividades-container.dark {
+    @apply bg-gradient-to-b from-surface-dark to-surface-card-dark text-aurum;
+  }
+
+  .atividades-container .atividades-header {
+    @apply mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 py-[22px] transition-colors duration-300;
+  }
+
+  .atividades-container .header-left {
+    @apply flex items-center gap-4;
+  }
+
+  .atividades-container .header-content h1 {
+    @apply m-0 text-[1.6rem];
+  }
+
+  .atividades-container .subtitle {
+    @apply mt-0.5 text-sm opacity-70;
+  }
+
+  .atividades-container .btn-voltar {
+    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-3.5 py-2 text-sm transition-all duration-300 hover:opacity-80;
+  }
+
+  .atividades-container.dark .btn-voltar {
+    @apply bg-border-dark-soft text-aurum;
+  }
+
+  .atividades-container .header-actions {
+    @apply flex items-center gap-3.5;
+  }
+
+  .atividades-container .icon-btn,
+  .atividades-container .btn-refresh {
+    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-3 py-2 text-base transition-all duration-300;
+  }
+
+  .atividades-container.dark .icon-btn,
+  .atividades-container.dark .btn-refresh {
+    @apply bg-border-dark-soft text-aurum;
+  }
+
+  .atividades-container .btn-refresh:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .atividades-container .data-info {
+    @apply flex gap-1.5 text-sm opacity-70;
+  }
+
+  .atividades-container .main-content {
+    @apply mx-auto w-full max-w-[1200px] px-5 pb-10 pt-2.5;
+  }
+
+  .atividades-container .propostas-grid {
+    @apply grid gap-5;
+  }
+
+  .atividades-container .proposta-card {
+    @apply overflow-hidden rounded-xl bg-[#f1f5f9] transition-all duration-300;
+  }
+
+  .atividades-container.dark .proposta-card {
+    @apply bg-border-dark-soft;
+  }
+
+  .atividades-container .proposta-header {
+    @apply flex cursor-pointer items-center justify-between p-[18px] transition-colors duration-300 hover:bg-black/5;
+  }
+
+  .atividades-container.dark .proposta-header:hover {
+    @apply hover:bg-white/5;
+  }
+
+  .atividades-container .proposta-info h3 {
+    @apply m-0 text-xl;
+  }
+
+  .atividades-container .proposta-metadata {
+    @apply mt-2 flex gap-4 text-sm opacity-80;
+  }
+
+  .atividades-container .metadata-item {
+    @apply flex items-center gap-1.5;
+  }
+
+  .atividades-container .proposta-actions {
+    @apply flex items-center gap-3;
+  }
+
+  .atividades-container .btn-add {
+    @apply cursor-pointer rounded-lg border-0 bg-[#3b82f6] px-4 py-2 font-medium text-white transition-all duration-300 hover:bg-[#2563eb];
+  }
+
+  .atividades-container .expand-icon {
+    @apply text-sm opacity-70 transition-transform duration-300;
+  }
+
+  .atividades-container .expand-icon.expanded {
+    @apply rotate-90;
+  }
+
+  .atividades-container .atividades-lista {
+    @apply border-t border-black/10 px-[18px] pb-[18px];
+  }
+
+  .atividades-container.dark .atividades-lista {
+    @apply border-white/10;
+  }
+
+  .atividades-container .loading-atividades {
+    @apply flex items-center justify-center gap-2.5 p-5;
+  }
+
+  .atividades-container .spinner-small {
+    @apply h-5 w-5 animate-spin rounded-full border-2 border-[#ccc] border-t-surface-dark;
+  }
+
+  .atividades-container.dark .spinner-small {
+    @apply border-t-aurum;
+  }
+
+  .atividades-container .atividades-header-list {
+    @apply mb-4 flex items-center justify-between pt-4;
+  }
+
+  .atividades-container .atividades-header-list h4 {
+    @apply m-0 text-lg;
+  }
+
+  .atividades-container .contador-atividades {
+    @apply rounded-full bg-[#e5e7eb] px-3 py-1 text-sm font-medium;
+  }
+
+  .atividades-container.dark .contador-atividades {
+    @apply bg-border-dark-soft;
+  }
+
+  .atividades-container .checklist-container {
+    @apply flex flex-col gap-3;
+  }
+
+  .atividades-container .checklist-item {
+    @apply flex items-center justify-between rounded-lg bg-white p-3 transition-all duration-300 hover:translate-x-1;
+  }
+
+  .atividades-container.dark .checklist-item {
+    @apply bg-surface-elevated-dark;
+  }
+
+  .atividades-container .checkbox-label {
+    @apply flex flex-1 cursor-pointer items-center gap-3;
+  }
+
+  .atividades-container .checkbox-input {
+    @apply hidden;
+  }
+
+  .atividades-container .checkmark {
+    @apply relative inline-block h-5 w-5 rounded border-2 border-[#ccc] transition-all duration-300;
+  }
+
+  .atividades-container .checkbox-input:checked + .checkmark {
+    @apply border-[#10b981] bg-[#10b981];
+  }
+
+  .atividades-container .checkbox-input:checked + .checkmark::after {
+    content: "✓";
+    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-white;
+  }
+
+  .atividades-container .atividade-nome {
+    @apply text-[0.95rem] transition-all duration-300;
+  }
+
+  .atividades-container .atividade-nome.concluida {
+    @apply line-through opacity-60;
+  }
+
+  .atividades-container .btn-delete-atividade {
+    @apply cursor-pointer rounded border-0 bg-transparent px-2 py-1 text-base opacity-60 transition-all duration-300 hover:bg-danger/10 hover:text-danger hover:opacity-100;
+  }
+
+  .atividades-container .sem-atividades,
+  .atividades-container .sem-propostas {
+    @apply px-5 py-10 text-center;
+  }
+
+  .atividades-container .empty-state {
+    @apply opacity-70;
+  }
+
+  .atividades-container .empty-state .empty-icon {
+    @apply mb-2.5 text-[2rem];
+  }
+
+  .atividades-container .empty-state h4 {
+    @apply my-2 text-lg;
+  }
+
+  .atividades-container .empty-state p {
+    @apply m-0 text-sm;
+  }
+}
+
+@media (max-width: 1024px) {
+  .atividades-container .atividades-header {
+    @apply flex-wrap gap-4;
+  }
+
+  .atividades-container .proposta-header {
+    @apply flex-wrap gap-3;
+  }
+}
+
+@media (max-width: 768px) {
+  .atividades-container .atividades-header {
+    @apply flex-col items-stretch p-4;
+  }
+
+  .atividades-container .header-left {
+    @apply flex-col items-start gap-3;
+  }
+
+  .atividades-container .header-content h1 {
+    @apply text-[1.35rem];
+  }
+
+  .atividades-container .header-actions {
+    @apply w-full flex-wrap justify-between gap-2.5;
+  }
+
+  .atividades-container .data-info {
+    @apply w-full flex-wrap;
+  }
+
+  .atividades-container .main-content {
+    @apply px-3 pb-8 pt-2;
+  }
+
+  .atividades-container .proposta-header {
+    @apply flex-col items-stretch gap-3;
+  }
+
+  .atividades-container .proposta-actions {
+    @apply w-full flex-wrap justify-between gap-2.5;
+  }
+
+  .atividades-container .btn-add {
+    @apply min-w-0 flex-1 text-center;
+  }
+
+  .atividades-container .proposta-metadata {
+    @apply flex-col gap-1.5;
+  }
+
+  .atividades-container .atividades-header-list {
+    @apply flex-col items-start gap-2;
+  }
+
+  .atividades-container .checklist-item {
+    @apply flex-col items-stretch gap-2.5;
+  }
+
+  .atividades-container .btn-delete-atividade {
+    @apply self-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .atividades-container .atividades-header {
+    @apply p-3;
+  }
+
+  .atividades-container .header-content h1 {
+    @apply text-xl;
+  }
+
+  .atividades-container .subtitle {
+    @apply text-[0.82rem];
+  }
+
+  .atividades-container .btn-voltar {
+    @apply w-full text-center;
+  }
+
+  .atividades-container .header-actions {
+    @apply flex-col items-stretch;
+  }
+
+  .atividades-container .icon-btn,
+  .atividades-container .btn-refresh {
+    @apply w-full;
+  }
+
+  .atividades-container .proposta-actions {
+    @apply flex-col;
+  }
+
+  .atividades-container .btn-add {
+    @apply w-full;
+  }
+
+  .atividades-container .atividades-lista {
+    @apply px-3 pb-3;
+  }
+
+  .atividades-container .checkbox-label {
+    @apply gap-2.5;
+  }
+}
+
+@media (min-width: 1280px) {
+  .atividades-container .atividades-header,
+  .atividades-container .main-content {
+    @apply max-w-[1200px];
+  }
+}
+
+@media (min-width: 1536px) {
+  .atividades-container .atividades-header,
+  .atividades-container .main-content {
+    @apply max-w-[1320px];
+  }
+}

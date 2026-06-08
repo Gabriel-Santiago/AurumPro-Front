@@ -1,32 +1,46 @@
 import api from "./api";
 import router from "../router";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../stores/authStore";
 
 let isRefreshing = false;
 let failedQueue = [];
 
-const processQueue = (error = null) => {
-  failedQueue.forEach(promise => {
+function processQueue(error = null) {
+  failedQueue.forEach((promise) => {
     if (error) {
       promise.reject(error);
     } else {
       promise.resolve();
     }
   });
+
   failedQueue = [];
-};
+}
+
+function isAuthRoute(url = "") {
+  return (
+    url.includes("/empresas/login") ||
+    url.includes("/empresas/register") ||
+    url.includes("/empresas/cadastro") ||
+    url.includes("/empresas/refresh") ||
+    url.includes("/empresas/logout")
+  );
+}
 
 api.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+
+  async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes("/empresas/login") &&
-      !originalRequest.url.includes("/empresas/refresh")
-    ) {
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+
+    const status = error.response?.status;
+    const url = originalRequest.url ?? "";
+
+    if (status === 401 && !originalRequest._retry && !isAuthRoute(url)) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -38,16 +52,24 @@ api.interceptors.response.use(
 
       try {
         await api.post("/empresas/refresh");
+
         processQueue();
+
         return api(originalRequest);
-      } catch (err) {
-        processQueue(err);
+      } catch (refreshError) {
+        processQueue(refreshError);
 
-        const auth = useAuthStore();
-        auth.logout();
-        router.push("/");
+        const authStore = useAuthStore();
 
-        return Promise.reject(err);
+        authStore.empresa = null;
+        authStore.autenticado = false;
+        authStore.sessaoVerificada = true;
+
+        if (router.currentRoute.value.path !== "/") {
+          router.push("/");
+        }
+
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }

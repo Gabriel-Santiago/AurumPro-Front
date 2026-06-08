@@ -1,55 +1,81 @@
 <template>
-  <form @submit.prevent="submitRegister" class="auth-form">
-    <div class="form-group">
-      <label class="form-label">CNPJ</label>
-      <input v-model="cnpj" @input="formatCNPJ" class="form-input" placeholder="00.000.000/0000-00" maxlength="18" required/>
+  <form class="flex w-full flex-col gap-6" @submit.prevent="submitRegister">
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">CNPJ</label>
+      <input
+        v-model="cnpj"
+        class="input-field px-4 py-3.5"
+        placeholder="00.000.000/0000-00"
+        maxlength="18"
+        required
+        @input="formatCNPJ"
+      />
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input v-model="senha" type="password" required class="form-input" placeholder="Sua senha" />
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">Senha</label>
+      <input
+        v-model="senha"
+        type="password"
+        required
+        class="input-field px-4 py-3.5"
+        placeholder="Sua senha"
+      />
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Responsável</label>
-      <input v-model="responsavel" required class="form-input" placeholder="Nome do responsável" />
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">Responsável</label>
+      <input
+        v-model="responsavel"
+        required
+        class="input-field px-4 py-3.5"
+        placeholder="Nome do responsável"
+      />
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input v-model="email" required class="form-input" placeholder="Seu email" />
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">Email</label>
+      <input
+        v-model="email"
+        required
+        class="input-field px-4 py-3.5"
+        placeholder="Seu email"
+      />
     </div>
 
-    <div class="button-container">
-      <button type="submit" class="submit-btn">Cadastrar</button>
+    <div class="mt-2.5 flex justify-center">
+      <button
+        type="submit"
+        class="w-full max-w-[280px] cursor-pointer rounded-lg border-0 bg-gradient-to-br from-aurum to-aurum-dark px-12 py-4 text-lg font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:from-aurum-light hover:to-[#c9960c] hover:shadow-[0_4px_12px_rgba(218,165,32,0.3)]"
+      >
+        Cadastrar
+      </button>
     </div>
   </form>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useAuthStore } from "../../store/authStore";
-import { notify } from '../../services/notificationService';
-import { getApiErrorMessage } from '../../utils/errorUtils'
+import { useAuthStore } from "../../stores/authStore";
+import { notify } from "../../services/notificationService";
+import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const cnpj = ref("");
 const senha = ref("");
 const responsavel = ref("");
 const email = ref("");
-
 const auth = useAuthStore();
 
-const cleanNumber = (value) => {
-  return value.replace(/\D/g, '');
-};
+function cleanNumber(value) {
+  return value.replace(/\D/g, "");
+}
 
-const formatCNPJ = (event) => {
+function formatCNPJ(event) {
   let value = cleanNumber(event.target.value);
-
   value = value.substring(0, 14);
 
   if (value.length <= 2) {
-    value = value;
+    // keep as is
   } else if (value.length <= 5) {
     value = `${value.substring(0, 2)}.${value.substring(2)}`;
   } else if (value.length <= 8) {
@@ -61,15 +87,14 @@ const formatCNPJ = (event) => {
   }
 
   cnpj.value = value;
-};
-
+}
 
 async function submitRegister() {
   try {
     const cnpjNumeros = cleanNumber(cnpj.value);
 
     if (cnpjNumeros.length !== 14) {
-      notify.error('CNPJ inválido. Digite os 14 números do CNPJ.');
+      notify.error("CNPJ inválido. Digite os 14 números do CNPJ.");
       return;
     }
 
@@ -77,75 +102,12 @@ async function submitRegister() {
       cnpj: cnpjNumeros,
       senha: senha.value,
       responsavel: responsavel.value,
-      email: email.value
+      email: email.value,
     });
 
-    notify.success('Usuário cadastrado com sucesso!');
+    notify.success("Usuário cadastrado com sucesso!");
   } catch (error) {
     notify.error(getApiErrorMessage(error));
   }
 }
-
 </script>
-
-<style scoped>
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  font-weight: 500;
-  color: #333;
-  font-size: 0.95rem;
-}
-
-.form-input {
-  padding: 14px 16px;
-  border: 2px solid #e1e1e1;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #fff;
-  width: 100%;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #daa520;
-  box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
-}
-
-.button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.submit-btn {
-  padding: 16px 48px;
-  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px;
-}
-
-.submit-btn:hover {
-  background: linear-gradient(135deg, #e6b028 0%, #c9960c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
-}
-</style>

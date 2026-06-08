@@ -1,13 +1,8 @@
 <template>
-  <div class="page-container" :class="theme">
-    <TopNav
-      :empresaNome="empresaNome"
-      @logout="handleLogout"
-      @goPropostas="goPropostas"
-      @toggleTheme="toggleTheme"
-    />
+  <div class="flex min-h-screen flex-col transition-colors" :class="isDark ? 'page-dark' : 'page-light'">
+    <TopNav :empresa-nome="empresaNome" />
 
-    <main class="main-area">
+    <main class="page-shell mt-0 max-md:px-3 max-md:py-4 max-[480px]:px-2.5">
       <FiltersBar
         :ufList="ufs"
         :tipo="filters.tipo"
@@ -18,19 +13,44 @@
         @abrirCriar="abrirCriar"
       />
 
-      <section class="clients-area">
-        <div class="clients-grid">
-          <ClientCard
-            v-for="c in filteredClients"
-            :key="c.id"
-            :cliente="c"
-            @criarProposta="() => criarProposta(c)"
-            @refresh="fetchClients"
-          />
-        </div>
+      <section class="mt-4" aria-label="Lista de clientes">
+        <LoadingState v-if="loading" message="Carregando clientes..." />
 
-        <div v-if="loading" class="empty">Carregando...</div>
-        <div v-else-if="!filteredClients.length" class="empty">Nenhum cliente encontrado.</div>
+        <ErrorState
+          v-else-if="error"
+          :message="error"
+          @retry="carregarClientes"
+        />
+
+        <template v-else-if="filteredClients.length">
+          <div
+            class="grid grid-cols-1 gap-3.5 max-lg:grid-cols-2 max-md:gap-3 lg:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] xl:gap-4"
+          >
+            <ClientCard
+              v-for="c in paginatedClients"
+              :key="c.id"
+              :cliente="c"
+              @refresh="carregarClientes"
+            />
+          </div>
+
+          <PaginationBar
+            :page="page"
+            :total-pages="totalPages"
+            :range-start="rangeStart"
+            :range-end="rangeEnd"
+            :total-items="totalItems"
+            @prev="prevPage"
+            @next="nextPage"
+          />
+        </template>
+
+        <EmptyState
+          v-else
+          icon="👥"
+          title="Nenhum cliente encontrado"
+          description="Ajuste os filtros ou crie um novo cliente para começar."
+        />
       </section>
     </main>
 
@@ -43,72 +63,75 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useAuthStore } from "../store/authStore";
-import { useThemeStore } from "../store/themeStore";
-import TopNav from "../components/top/TopNav.vue";
-import FiltersBar from "../components/clients/FiltersBar.vue";
-import ClientCard from "../components/clients/ClientCard.vue";
-import CreateClientModal from "../components/clients/CreateClienteModal.vue";
-import clientService from "../services/clientServices.js";
-import router from "../router/index.js";
-import { notify } from '../services/notificationService';
+import { ref, computed, onMounted, watch } from "vue";
+import { useAuthStore } from "@/stores/authStore";
+import { useThemeStore } from "@/stores/themeStore";
+import { useClientes } from "@/composables/useClientes";
+import { usePagination } from "@/composables/usePagination";
+import TopNav from "@/components/layout/TopNav.vue";
+import FiltersBar from "@/components/clientes/FiltersBar.vue";
+import ClientCard from "@/components/clientes/ClientCard.vue";
+import CreateClientModal from "@/components/clientes/CreateClienteModal.vue";
+import LoadingState from "@/components/common/LoadingState.vue";
+import EmptyState from "@/components/common/EmptyState.vue";
+import ErrorState from "@/components/common/ErrorState.vue";
+import PaginationBar from "@/components/common/PaginationBar.vue";
 
 const auth = useAuthStore();
 const themeStore = useThemeStore();
+const { clientes, loading, error, carregarClientes } = useClientes();
 
-const empresaNome = computed(() => 
-  auth.empresa?.nome ?? 'Empresa'
-);
-
-const clients = ref([]);
-const loading = ref(false);
+const empresaNome = computed(() => auth.empresa?.nome ?? "Empresa");
+const isDark = computed(() => themeStore.isDark);
 const showModal = ref(false);
 
 const filters = ref({
-  tipo: "ALL", 
-  estado: "" 
+  tipo: "ALL",
+  estado: "",
 });
 
 const ufs = [
-  "AC","AL","AM","AP","BA","CE","DF","ES","GO","MA","MG","MS","MT",
-  "PA","PB","PE","PI","PR","RJ","RN","RO","RR","RS","SC","SE","SP","TO"
+  "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT",
+  "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
 ];
 
-const theme = computed(() => themeStore.theme);
-
-const fetchClients = async () => {
-  loading.value = true;
-  try {
-    const res = await clientService.listarTodos();
-    clients.value = Array.isArray(res.data) ? res.data : [];
-  } catch {
-    notify.error('Erro ao buscar clientes');
-    clients.value = [];
-  } finally {
-    loading.value = false;
-  }
-};
-
-onMounted(fetchClients);
-
 const filteredClients = computed(() => {
-  return clients.value.filter(c => {
-
-    if (filters.value.tipo !== "ALL") {
-      if (c.tipoPessoa !== filters.value.tipo) return false;
+  return clientes.value.filter((c) => {
+    if (filters.value.tipo !== "ALL" && c.tipoPessoa !== filters.value.tipo) {
+      return false;
     }
 
-    if (filters.value.estado) {
-      if (!c.uf || c.uf.toUpperCase() !== filters.value.estado.toUpperCase()) {
-        return false;
-      }
+    if (
+      filters.value.estado &&
+      (!c.uf || c.uf.toUpperCase() !== filters.value.estado.toUpperCase())
+    ) {
+      return false;
     }
 
     return true;
   });
 });
 
+const {
+  page,
+  totalPages,
+  paginatedItems: paginatedClients,
+  totalItems,
+  rangeStart,
+  rangeEnd,
+  nextPage,
+  prevPage,
+  resetPage,
+} = usePagination(filteredClients, 12);
+
+watch(filters, resetPage, { deep: true });
+
+onMounted(() => {
+  if (!auth.empresa) {
+    auth.carregarEmpresa();
+  }
+  carregarClientes();
+});
 
 function onChangeTipo(tipo) {
   filters.value.tipo = tipo;
@@ -132,74 +155,7 @@ function closeModal() {
 }
 
 async function onCreated() {
-  await fetchClients();
+  await carregarClientes();
   closeModal();
 }
-
-function criarProposta(cliente) {
-}
-
-function handleLogout() {
-  auth.logout();
-  
-  router.push("/");
-}
-
-function goPropostas() {
-}
-
-function toggleTheme() {
-  themeStore.toggleTheme();
-}
 </script>
-
-<style scoped>
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  transition: all 0.3s ease;
-}
-
-.page-container.light {
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  color: #111;
-}
-
-.page-container.dark {
-  background: linear-gradient(180deg, #111 0%, #1a1a1a 100%);
-  color: #daa520;
-}
-
-.main-area {
-  width: 100%;
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 20px;
-}
-
-.clients-area {
-  margin-top: 18px;
-}
-
-.clients-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
-}
-
-.empty {
-  text-align: center;
-  padding: 40px 0;
-  transition: color 0.3s ease;
-}
-
-.page-container.light .empty {
-  color: #666;
-}
-
-.page-container.dark .empty {
-  color: #daa520;
-}
-</style>

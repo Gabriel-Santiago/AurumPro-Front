@@ -1,104 +1,57 @@
 <template>
-  <form @submit.prevent="submitLogin" class="auth-form">
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input v-model="email" type="email" required class="form-input" placeholder="seu@email.com" />
+  <form class="flex w-full flex-col gap-6" @submit.prevent="submitLogin">
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">Email</label>
+      <input
+        v-model="email"
+        type="email"
+        required
+        class="input-field px-4 py-3.5"
+        placeholder="seu@email.com"
+      />
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input v-model="senha" type="password" required class="form-input" placeholder="Sua senha" />
+    <div class="flex flex-col gap-2">
+      <label class="text-[0.95rem] font-medium text-text-body">Senha</label>
+      <input
+        v-model="senha"
+        type="password"
+        required
+        class="input-field px-4 py-3.5"
+        placeholder="Sua senha"
+      />
     </div>
 
-    <div class="button-container">
-      <button type="submit" class="submit-btn">Entrar</button>
+    <div class="mt-2.5 flex justify-center">
+      <button
+        type="submit"
+        class="w-full max-w-[280px] cursor-pointer rounded-lg border-0 bg-gradient-to-br from-aurum to-aurum-dark px-12 py-4 text-lg font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:from-aurum-light hover:to-[#c9960c] hover:shadow-[0_4px_12px_rgba(218,165,32,0.3)]"
+      >
+        Entrar
+      </button>
     </div>
   </form>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../stores/authStore";
 import router from "../../router";
-import { notify } from '../../services/notificationService';
+import { notify } from "../../services/notificationService";
 import { getApiErrorMessage } from "../../utils/errorUtils";
 
 const email = ref("");
 const senha = ref("");
-
 const auth = useAuthStore();
 
 async function submitLogin() {
   try {
     await auth.login(email.value, senha.value);
-    notify.success('Login realizado com sucesso!');
+    notify.success("Login realizado com sucesso!");
     router.push("/clientes");
-    await auth.carregarEmpresa();
   } catch (error) {
-    senha.value = '';
+    senha.value = "";
     notify.error(getApiErrorMessage(error));
   }
 }
 </script>
-
-<style scoped>
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  font-weight: 500;
-  color: #333;
-  font-size: 0.95rem;
-}
-
-.form-input {
-  padding: 14px 16px;
-  border: 2px solid #e1e1e1;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #fff;
-  width: 100%;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #daa520;
-  box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
-}
-
-.button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.submit-btn {
-  padding: 16px 48px;
-  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px;
-}
-
-.submit-btn:hover {
-  background: linear-gradient(135deg, #e6b028 0%, #c9960c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
-}
-</style>

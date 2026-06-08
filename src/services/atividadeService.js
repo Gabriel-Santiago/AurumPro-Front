@@ -1,24 +1,25 @@
 import api from "./api";
 
-export default {
-    getByProposta(propostaId) {
-        return api.get(`/atividades/${propostaId}`)
-    },
+const atividadeService = {
+  getByProposta(propostaId) {
+    return api.get(`/atividades/${propostaId}`);
+  },
 
-    criar(dados) {
-        return api.post('/atividades', dados);
-    },
+  criar(dados) {
+    return api.post("/atividades", dados);
+  },
 
-    criarAtividadeProposta(dados) {
-        const response = api.post("/atividades/proposta", dados);
-        return response;
-    },
+  criarAtividadeProposta(dados) {
+    return api.post("/atividades/proposta", dados);
+  },
 
-    update(dto) {
-        return api.patch('/atividades', dto)
-    },
+  atualizar(dto) {
+    return api.patch("/atividades", dto);
+  },
 
-    delete(atividadeId) {
-        return api.delete(`/atividades/${atividadeId}`)
-    }
-}
+  remover(atividadeId) {
+    return api.delete(`/atividades/${atividadeId}`);
+  },
+};
+
+export default atividadeService;

@@ -1,33 +1,71 @@
-import { createRouter, createWebHistory } from "vue-router";
-import AuthView from "../views/AuthView.vue";
-import ClientsView from "../views/ClientsView.vue";
-import FinancasView from "../views/FinancasView.vue";
-import api from "../services/api";
-import AtividadesView from "../views/AtividadesView.vue";
-
-const routes = [
-  { path: "/", name: "auth", component: AuthView },
-  { path: "/clientes", name: "Clients", component: ClientsView, meta: { requiresAuth: true } },
-  { path: "/financas", name: "Financas", component: FinancasView, meta: { requiresAuth: true } },
-  { path: "/atividades", name: "Atividades", component: AtividadesView, meta: { requiresAuth: true } }
-];
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-});
-
-router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth) {
-    try {
-      await api.get("/empresas/auth/check");
-      next();
-    } catch {
-      next("/");
-    }
-  } else {
-    next();
-  }
-});
-
-export default router;
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/authStore";
+
+const AuthView = () => import("../views/AuthView.vue");
+const ClientsView = () => import("../views/ClientsView.vue");
+const FinancasView = () => import("../views/FinancasView.vue");
+const AtividadesView = () => import("../views/AtividadesView.vue");
+
+const routes = [
+  {
+    path: "/",
+    name: "auth",
+    component: AuthView,
+    meta: {
+      publicOnly: true,
+    },
+  },
+  {
+    path: "/clientes",
+    name: "clientes",
+    component: ClientsView,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/financas",
+    name: "financas",
+    component: FinancasView,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/atividades",
+    name: "atividades",
+    component: AtividadesView,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/clientes",
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+
+  if (!authStore.sessaoVerificada) {
+    await authStore.verificarSessao();
+  }
+
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return "/";
+  }
+
+  if (to.meta.publicOnly && authStore.isAuthenticated) {
+    return "/clientes";
+  }
+
+  return true;
+});
+
+export default router;

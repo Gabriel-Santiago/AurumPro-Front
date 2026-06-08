@@ -1,13 +1,13 @@
 import api from "./api";
 
-export default {
-  async getDashboard() {
-    const response = await api.get("/financas/dashboard");
-    return response.data;
+const financasService = {
+  getDashboard() {
+    return api.get("/financas/dashboard");
   },
 
-  async atualizarStatusProposta(dados) {
-    const response = await api.patch('/financas', dados);
-    return response.data;
-  }
+  atualizarStatusProposta(dados) {
+    return api.patch("/financas", dados);
+  },
 };
+
+export default financasService;

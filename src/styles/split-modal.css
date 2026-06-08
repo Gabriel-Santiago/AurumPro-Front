@@ -1,0 +1,317 @@
+@layer components {
+  .base-modal.modal,
+  .base-modal.servico-modal,
+  .base-modal.convenio-modal {
+    @apply h-full w-full max-h-full rounded-none shadow-none;
+  }
+
+  .modal.light {
+    @apply border-0 bg-surface-light;
+  }
+
+  .modal.dark {
+    @apply border border-border-dark-soft bg-surface-card-dark;
+  }
+
+  .modal-content:has(.add-section),
+  .modal-content:has(.list-section) {
+    @apply grid flex-1 grid-cols-1 gap-5 overflow-hidden p-6 lg:grid-cols-2 lg:gap-6;
+  }
+
+  .add-section,
+  .list-section {
+    @apply flex flex-col;
+  }
+
+  .add-section h4,
+  .list-section h4 {
+    @apply mb-4 text-lg font-semibold;
+  }
+
+  .modal.light .add-section h4,
+  .modal.light .list-section h4,
+  .modal:not(.dark) .add-section h4,
+  .modal:not(.dark) .list-section h4 {
+    @apply text-text-body;
+  }
+
+  .modal.dark .add-section h4,
+  .modal.dark .list-section h4,
+  .dark .modal .add-section h4,
+  .dark .modal .list-section h4 {
+    @apply text-aurum;
+  }
+
+  .servico-modal .modal,
+  .convenio-modal .modal {
+    @apply flex h-full flex-col border-0 bg-transparent shadow-none;
+  }
+
+  .modal textarea {
+    @apply min-h-20 resize-y;
+  }
+
+  .convenio-descricao {
+    @apply text-sm leading-snug text-text-muted;
+  }
+
+  .dark .modal .convenio-descricao,
+  .modal.dark .convenio-descricao {
+    @apply text-text-subtle;
+  }
+
+  .add-form {
+    @apply flex flex-col gap-4;
+  }
+
+  .modal .form-group {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .modal .form-group label {
+    @apply text-sm font-medium;
+  }
+
+  .modal.light .form-group label,
+  .modal:not(.dark) .form-group label {
+    @apply text-text-body;
+  }
+
+  .modal.dark .form-group label,
+  .dark .modal .form-group label {
+    @apply text-aurum;
+  }
+
+  .modal input,
+  .modal select {
+    @apply w-full rounded-lg border px-3 py-2.5 text-sm transition-all focus:border-aurum focus:outline-none focus:ring-2 focus:ring-aurum/20;
+  }
+
+  .modal.light input,
+  .modal.light select {
+    @apply border-border-light bg-surface-light text-text-body;
+  }
+
+  .modal.dark input,
+  .dark .modal input,
+  .modal.dark select ,
+  .dark .modal select{
+    @apply border-border-dark bg-surface-elevated-dark text-aurum focus:ring-aurum/30;
+  }
+
+  small.info {
+    @apply mt-1 block text-xs italic text-text-muted;
+  }
+
+  .modal.dark small.info ,
+  .dark .modal small.info{
+    @apply text-text-subtle;
+  }
+
+  small.loading {
+    @apply italic text-text-muted;
+  }
+
+  .modal.dark small.loading ,
+  .dark .modal small.loading{
+    @apply text-text-subtle;
+  }
+
+  .add-section .btn-submit {
+    @apply mt-2 cursor-pointer rounded-lg border-0 px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .modal.light .add-section .btn-submit {
+    @apply bg-surface-dark text-white hover:bg-[#333];
+  }
+
+  .modal.dark .add-section .btn-submit {
+    @apply bg-aurum text-surface-dark hover:bg-aurum-light hover:shadow-[0_4px_12px_rgba(218,165,32,0.3)];
+  }
+
+  .success-message {
+    @apply animate-[fadeIn_0.3s_ease] rounded-lg bg-[#059669] px-3 py-2 text-sm text-white;
+  }
+
+  .error-message {
+    @apply animate-[fadeIn_0.3s_ease] rounded-lg bg-danger-dark px-3 py-2 text-sm text-white;
+  }
+
+  .funcao-badge {
+    @apply rounded-xl px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-white;
+    background: var(--funcao-color, #3b82f6);
+  }
+
+  .modal.dark .funcao-badge {
+    @apply opacity-90;
+  }
+
+  .list-header {
+    @apply mb-4 flex items-center justify-between max-md:flex-col max-md:items-start max-md:gap-2.5;
+  }
+
+  .list-controls {
+    @apply flex items-center gap-2 max-md:w-full max-md:justify-between;
+  }
+
+  .filter-select {
+    @apply min-w-40 rounded-md border px-2.5 py-1.5 text-sm;
+  }
+
+  .modal.light .filter-select {
+    @apply border-border-light bg-surface-light text-text-body;
+  }
+
+  .modal.dark .filter-select {
+    @apply border-border-dark bg-surface-elevated-dark text-aurum;
+  }
+
+  .btn-refresh {
+    @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-base transition-all disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .modal.light .btn-refresh {
+    @apply text-text-muted hover:bg-surface-hover-light hover:text-text-body;
+  }
+
+  .modal.dark .btn-refresh {
+    @apply text-text-subtle hover:bg-border-dark-soft hover:text-aurum;
+  }
+
+  .btn-refresh:disabled span {
+    @apply inline-block animate-spin;
+  }
+
+  .colaboradores-list,
+  .servicos-list,
+  .convenios-list,
+  .subservicos-list {
+    @apply max-h-[350px] min-h-[250px] flex-1 overflow-y-auto rounded-lg border p-2 max-md:max-h-[250px] max-md:min-h-[200px];
+  }
+
+  .modal.light .colaboradores-list,
+  .modal.light .servicos-list,
+  .modal.light .convenios-list,
+  .modal.light .subservicos-list {
+    @apply border-border-light bg-[#fafafa];
+  }
+
+  .modal.dark .colaboradores-list,
+  .modal.dark .servicos-list,
+  .modal.dark .convenios-list,
+  .modal.dark .subservicos-list {
+    @apply border-border-dark bg-surface-elevated-dark;
+  }
+
+  .colaborador-item,
+  .servico-item,
+  .convenio-item,
+  .subservico-item {
+    @apply border-b px-3 py-3 transition-colors last:border-b-0;
+  }
+
+  .modal.light .colaborador-item,
+  .modal.light .servico-item,
+  .modal.light .convenio-item,
+  .modal.light .subservico-item {
+    @apply border-border-faint hover:bg-surface-hover-light;
+  }
+
+  .modal.dark .colaborador-item,
+  .modal.dark .servico-item,
+  .modal.dark .convenio-item,
+  .modal.dark .subservico-item {
+    @apply border-border-dark hover:bg-border-dark-soft;
+  }
+
+  .colaborador-nome,
+  .servico-nome,
+  .convenio-nome,
+  .subservico-nome {
+    @apply mb-1 text-[0.95rem] font-semibold;
+  }
+
+  .modal.light .colaborador-nome,
+  .modal.light .servico-nome,
+  .modal.light .convenio-nome,
+  .modal.light .subservico-nome {
+    @apply text-text-body;
+  }
+
+  .modal.dark .colaborador-nome,
+  .modal.dark .servico-nome,
+  .modal.dark .convenio-nome,
+  .modal.dark .subservico-nome {
+    @apply text-aurum;
+  }
+
+  .colaborador-funcao {
+    @apply flex gap-1;
+  }
+
+  .modal .empty-state,
+  .modal .loading-state {
+    @apply flex max-h-[350px] min-h-[250px] flex-1 items-center justify-center rounded-lg border border-dashed p-10 text-center italic max-md:min-h-[200px];
+  }
+
+  .modal.light .empty-state,
+  .modal.light .loading-state {
+    @apply border-border-light bg-[#fafafa] text-text-muted;
+  }
+
+  .modal.dark .empty-state,
+  .modal.dark .loading-state {
+    @apply border-border-dark bg-surface-elevated-dark text-text-subtle;
+  }
+
+  .list-info {
+    @apply mt-3 text-center;
+  }
+
+  .list-info small {
+    @apply text-xs opacity-70;
+  }
+
+  .modal.light .list-info small {
+    @apply text-text-muted;
+  }
+
+  .modal.dark .list-info small {
+    @apply text-text-subtle;
+  }
+
+  .modal .modal-actions {
+    @apply flex justify-end border-t px-6 py-5;
+  }
+
+  .modal.light .modal-actions {
+    @apply border-border-faint bg-[#fafafa];
+  }
+
+  .modal.dark .modal-actions {
+    @apply border-border-dark-soft bg-surface-elevated-dark;
+  }
+
+  .modal .btn-cancel {
+    @apply min-w-[100px] cursor-pointer rounded-lg border bg-transparent px-5 py-2.5 text-sm font-medium transition-all;
+  }
+
+  .modal.light .btn-cancel {
+    @apply border-border-muted text-text-muted hover:border-[#ccc] hover:bg-surface-hover-light;
+  }
+
+  .modal.dark .btn-cancel {
+    @apply border-border-dark text-aurum hover:border-[#555] hover:bg-border-dark-soft;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
