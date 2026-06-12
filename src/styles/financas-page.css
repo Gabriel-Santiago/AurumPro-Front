@@ -27,14 +27,6 @@
     @apply mt-0.5 text-sm opacity-70;
   }
 
-  .financas-container .btn-voltar {
-    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-3.5 py-2 text-sm transition-all duration-300 hover:opacity-80;
-  }
-
-  .financas-container.dark .btn-voltar {
-    @apply bg-border-dark-soft text-aurum;
-  }
-
   .financas-container .header-actions {
     @apply flex items-center gap-3.5;
   }
@@ -66,15 +58,19 @@
   }
 
   .financas-container .resumo-card {
-    @apply flex cursor-pointer gap-3.5 rounded-xl bg-[#f1f5f9] p-[18px] transition-all duration-300 hover:-translate-y-0.5;
+    @apply flex cursor-pointer gap-3.5 rounded-xl bg-[#f1f5f9] p-[18px] transition-all duration-300 hover:-translate-y-0.5 min-w-0;
   }
 
   .financas-container.dark .resumo-card {
-    @apply bg-border-dark-soft;
+    @apply bg-[#222];
   }
 
   .financas-container .card-icon span {
     @apply text-[2rem];
+  }
+
+  .financas-container .card-content {
+    @apply min-w-0 flex-1;
   }
 
   .financas-container .card-content h3 {
@@ -142,7 +138,7 @@
   }
 
   .financas-container.dark .proposta-card {
-    @apply bg-border-dark-soft;
+    @apply bg-[#222];
   }
 
   .financas-container .proposta-header {
@@ -244,6 +240,26 @@
   .financas-container .tab-subtitle {
     @apply mt-1 text-sm opacity-70;
   }
+
+  .financas-container .page-bottom-actions {
+    @apply mt-8 flex justify-start border-t pt-6;
+  }
+
+  .financas-container.light .page-bottom-actions {
+    @apply border-border-light;
+  }
+
+  .financas-container.dark .page-bottom-actions {
+    @apply border-border-dark;
+  }
+
+  .financas-container .page-bottom-actions .btn-voltar {
+    @apply cursor-pointer rounded-lg border-0 bg-[#e5e7eb] px-5 py-2.5 text-sm transition-all duration-300 hover:opacity-80;
+  }
+
+  .financas-container.dark .page-bottom-actions .btn-voltar {
+    @apply bg-[#333] text-aurum;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -282,11 +298,19 @@
   }
 
   .financas-container .main-content {
-    @apply px-3 pb-8 pt-2;
+    @apply px-4 pb-8 pt-2;
   }
 
   .financas-container .cards-container {
     @apply grid-cols-1 gap-3;
+  }
+
+  .financas-container .resumo-card {
+    @apply w-full min-w-0;
+  }
+
+  .financas-container .proposta-card {
+    @apply w-full min-w-0;
   }
 
   .financas-container .tabs-header {
@@ -344,7 +368,11 @@
     @apply text-[0.82rem];
   }
 
-  .financas-container .btn-voltar {
+  .financas-container .page-bottom-actions {
+    @apply mt-6 px-0 pt-5;
+  }
+
+  .financas-container .page-bottom-actions .btn-voltar {
     @apply w-full text-center;
   }
 

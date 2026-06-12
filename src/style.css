@@ -8,6 +8,7 @@
   --color-aurum-dark: #b8860b;
   --color-surface-dark: #111111;
   --color-surface-card-dark: #1a1a1a;
+  --color-surface-card-item-dark: #222222;
   --color-surface-elevated-dark: #2a2a2a;
   --color-surface-light: #ffffff;
   --color-surface-light-muted: #f8fafc;
@@ -21,7 +22,7 @@
   --color-text-body: #333333;
   --color-text-muted: #666666;
   --color-text-subtle: #888888;
-  --color-danger: #e53e3e;
+  --color-danger: #ef4444;
   --color-danger-dark: #c53030;
   --color-danger-soft: #fc8181;
   --color-danger-bg: #fed7d7;
@@ -40,6 +41,26 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  input:not([disabled]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
+  textarea:not([disabled]),
+  select:not([disabled]) {
+    pointer-events: auto;
+    user-select: text;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="date"],
+  input:not([type]),
+  textarea {
+    cursor: text;
   }
 }
 
@@ -167,9 +188,12 @@
     grid-template-columns: 1fr !important;
   }
 
-  button,
-  .btn-action,
-  select {
+  .financas-container button,
+  .financas-container .btn-action,
+  .financas-container select,
+  .atividades-container button,
+  .atividades-container .btn-action,
+  .atividades-container select {
     min-height: 44px;
   }
 }

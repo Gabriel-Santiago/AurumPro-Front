@@ -9,7 +9,7 @@
     animation: slideUp 0.3s ease;
 }
 
-.modal-content {
+.modal.cliente-modal .modal-content {
     flex: 1;
     overflow-y: auto;
     padding: 0 32px 24px;
@@ -18,21 +18,21 @@
     gap: 32px;
 }
 
-.modal-content::-webkit-scrollbar {
+.modal.cliente-modal .modal-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.modal-content::-webkit-scrollbar-track {
+.modal.cliente-modal .modal-content::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
+.modal.cliente-modal .modal-content::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
 }
 
-.modal.dark .modal-content::-webkit-scrollbar-thumb ,
-  .dark .modal .modal-content::-webkit-scrollbar-thumb{
+.modal.cliente-modal.dark .modal-content::-webkit-scrollbar-thumb,
+.dark .modal.cliente-modal .modal-content::-webkit-scrollbar-thumb {
     background: #4b5563;
 }
 
@@ -224,7 +224,7 @@
     color: #9ca3af;
 }
 
-.modal-actions {
+.modal.cliente-modal .modal-actions {
     display: flex;
     justify-content: flex-end;
     padding: 24px 32px;
@@ -321,7 +321,7 @@
 }
 
 @media (max-width: 768px) {
-    .modal-content {
+    .modal.cliente-modal .modal-content {
         padding: 0 20px 20px;
         gap: 24px;
     }
@@ -342,7 +342,7 @@
         gap: 4px;
     }
 
-    .modal-actions {
+    .modal.cliente-modal .modal-actions {
         padding: 20px;
     }
 

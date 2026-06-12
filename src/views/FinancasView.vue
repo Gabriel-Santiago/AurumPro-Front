@@ -4,7 +4,6 @@
       :theme="theme"
       :loading="loading"
       :ultima-atualizacao="ultimaAtualizacao"
-      @voltar="voltar"
       @toggle-theme="themeStore.toggleTheme()"
       @refresh="carregarDashboard"
     />
@@ -20,6 +19,12 @@
     <div v-else class="main-content">
       <ResumoFinanceiroCards />
       <PropostasFinanceirasList />
+
+      <div class="page-bottom-actions">
+        <button class="btn-voltar" type="button" @click="voltar">
+          ← Voltar
+        </button>
+      </div>
     </div>
 
     <DetalhesPropostaModal />

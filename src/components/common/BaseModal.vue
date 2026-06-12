@@ -13,7 +13,7 @@
     >
       <div
         ref="modalRef"
-        class="flex w-full flex-col overflow-hidden shadow-2xl transition-colors"
+        class="base-modal flex w-full flex-col overflow-hidden shadow-2xl transition-colors"
         :class="[
           modalSizeClass,
           modalVariantClass,
@@ -51,7 +51,7 @@
         </div>
 
         <div
-          class="flex-1 overflow-y-auto"
+          class="flex-1 overflow-y-auto pointer-events-auto"
           :class="[
             noBodyPadding ? 'p-0' : 'px-5 py-4',
             !title && !$slots.header && !noBodyPadding ? 'pt-5' : '',

@@ -3,7 +3,7 @@
     v-if="visible"
     variant="fullscreen"
     size="lg"
-    modal-class="modal"
+    modal-class="modal proposta-modal"
     no-body-padding
     @close="handleClose"
   >

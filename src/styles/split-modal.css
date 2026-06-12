@@ -13,8 +13,8 @@
     @apply border border-border-dark-soft bg-surface-card-dark;
   }
 
-  .modal-content:has(.add-section),
-  .modal-content:has(.list-section) {
+  .base-modal.modal .modal-content:has(.add-section),
+  .base-modal.modal .modal-content:has(.list-section) {
     @apply grid flex-1 grid-cols-1 gap-5 overflow-hidden p-6 lg:grid-cols-2 lg:gap-6;
   }
 
@@ -64,11 +64,11 @@
     @apply flex flex-col gap-4;
   }
 
-  .modal .form-group {
+  .base-modal.modal .form-group {
     @apply flex flex-col gap-1.5;
   }
 
-  .modal .form-group label {
+  .base-modal.modal .form-group label {
     @apply text-sm font-medium;
   }
 
@@ -82,20 +82,22 @@
     @apply text-aurum;
   }
 
-  .modal input,
-  .modal select {
+  .base-modal.modal input,
+  .base-modal.modal select {
     @apply w-full rounded-lg border px-3 py-2.5 text-sm transition-all focus:border-aurum focus:outline-none focus:ring-2 focus:ring-aurum/20;
   }
 
-  .modal.light input,
-  .modal.light select {
+  .base-modal.modal.light input,
+  .base-modal.modal.light select,
+  .base-modal.modal:not(.dark) input,
+  .base-modal.modal:not(.dark) select {
     @apply border-border-light bg-surface-light text-text-body;
   }
 
-  .modal.dark input,
-  .dark .modal input,
-  .modal.dark select ,
-  .dark .modal select{
+  .base-modal.modal.dark input,
+  .dark .base-modal.modal input,
+  .base-modal.modal.dark select,
+  .dark .base-modal.modal select {
     @apply border-border-dark bg-surface-elevated-dark text-aurum focus:ring-aurum/30;
   }
 
@@ -117,15 +119,15 @@
     @apply text-text-subtle;
   }
 
-  .add-section .btn-submit {
+  .base-modal.modal .add-section .btn-submit {
     @apply mt-2 cursor-pointer rounded-lg border-0 px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  .modal.light .add-section .btn-submit {
+  .base-modal.modal.light .add-section .btn-submit {
     @apply bg-surface-dark text-white hover:bg-[#333];
   }
 
-  .modal.dark .add-section .btn-submit {
+  .base-modal.modal.dark .add-section .btn-submit {
     @apply bg-aurum text-surface-dark hover:bg-aurum-light hover:shadow-[0_4px_12px_rgba(218,165,32,0.3)];
   }
 
@@ -166,15 +168,15 @@
     @apply border-border-dark bg-surface-elevated-dark text-aurum;
   }
 
-  .btn-refresh {
+  .base-modal.modal .btn-refresh {
     @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-base transition-all disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  .modal.light .btn-refresh {
+  .base-modal.modal.light .btn-refresh {
     @apply text-text-muted hover:bg-surface-hover-light hover:text-text-body;
   }
 
-  .modal.dark .btn-refresh {
+  .base-modal.modal.dark .btn-refresh {
     @apply text-text-subtle hover:bg-border-dark-soft hover:text-aurum;
   }
 
@@ -280,27 +282,27 @@
     @apply text-text-subtle;
   }
 
-  .modal .modal-actions {
+  .base-modal.modal .modal-actions {
     @apply flex justify-end border-t px-6 py-5;
   }
 
-  .modal.light .modal-actions {
+  .base-modal.modal.light .modal-actions {
     @apply border-border-faint bg-[#fafafa];
   }
 
-  .modal.dark .modal-actions {
+  .base-modal.modal.dark .modal-actions {
     @apply border-border-dark-soft bg-surface-elevated-dark;
   }
 
-  .modal .btn-cancel {
+  .base-modal.modal .btn-cancel {
     @apply min-w-[100px] cursor-pointer rounded-lg border bg-transparent px-5 py-2.5 text-sm font-medium transition-all;
   }
 
-  .modal.light .btn-cancel {
+  .base-modal.modal.light .btn-cancel {
     @apply border-border-muted text-text-muted hover:border-[#ccc] hover:bg-surface-hover-light;
   }
 
-  .modal.dark .btn-cancel {
+  .base-modal.modal.dark .btn-cancel {
     @apply border-border-dark text-aurum hover:border-[#555] hover:bg-border-dark-soft;
   }
 }

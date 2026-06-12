@@ -5,7 +5,7 @@
   height: 100%;
 }
 
-.tabs {
+.modal-inner .tabs {
   display: flex;
   gap: 0;
   margin: 0 24px 20px;
@@ -13,17 +13,17 @@
   transition: border-color 0.3s ease;
 }
 
-.modal-inner.light .tabs ,
-  .modal-inner:not(.dark) .tabs{
+.modal-inner.light .tabs,
+.modal-inner:not(.dark) .tabs {
   border-color: #e6e6e6;
 }
 
-.modal-inner.dark .tabs ,
-  .dark .modal-inner .tabs{
+.modal-inner.dark .tabs,
+.dark .modal-inner .tabs {
   border-color: #333;
 }
 
-.tabs span {
+.modal-inner .tabs span {
   cursor: pointer;
   padding: 12px 20px;
   position: relative;
@@ -33,95 +33,95 @@
   margin-bottom: -1px;
 }
 
-.modal-inner.light .tabs span ,
-  .modal-inner:not(.dark) .tabs span{
+.modal-inner.light .tabs span,
+.modal-inner:not(.dark) .tabs span {
   color: #666;
 }
 
-.modal-inner.dark .tabs span ,
-  .dark .modal-inner .tabs span{
+.modal-inner.dark .tabs span,
+.dark .modal-inner .tabs span {
   color: #888;
 }
 
-.tabs .active {
+.modal-inner .tabs .active {
   font-weight: 600;
 }
 
-.modal-inner.light .tabs .active ,
-  .modal-inner:not(.dark) .tabs .active{
+.modal-inner.light .tabs .active,
+.modal-inner:not(.dark) .tabs .active {
   color: #111;
   border-bottom-color: #111;
 }
 
-.modal-inner.dark .tabs .active ,
-  .dark .modal-inner .tabs .active{
+.modal-inner.dark .tabs .active,
+.dark .modal-inner .tabs .active {
   color: #daa520;
   border-bottom-color: #daa520;
 }
 
-.form-area {
+.modal-inner .form-area {
   flex: 1;
   overflow-y: auto;
   padding: 0 24px 24px;
 }
 
-.client-form {
+.modal-inner .client-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-grid-pf,
-.form-grid-pj {
+.modal-inner .form-grid-pf,
+.modal-inner .form-grid-pj {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-row {
+.modal-inner .form-row {
   display: grid;
   gap: 12px;
 }
 
-.form-grid-pf .form-row:nth-of-type(1) {
+.modal-inner .form-grid-pf .form-row:nth-of-type(1) {
   grid-template-columns: 1fr 1fr;
 }
 
-.form-grid-pf .form-row:nth-of-type(2) {
+.modal-inner .form-grid-pf .form-row:nth-of-type(2) {
   grid-template-columns: 1fr 1fr 0.8fr;
 }
 
-.form-grid-pj .form-row {
+.modal-inner .form-grid-pj .form-row {
   grid-template-columns: 1fr 0.8fr;
 }
 
-.form-group {
+.modal-inner .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.form-group.full-width {
+.modal-inner .form-group.full-width {
   width: 100%;
 }
 
-label {
+.modal-inner label {
   font-size: 0.85rem;
   font-weight: 500;
   transition: color 0.3s ease;
 }
 
-.modal-inner.light label ,
-  .modal-inner:not(.dark) label{
+.modal-inner.light label,
+.modal-inner:not(.dark) label {
   color: #333;
 }
 
-.modal-inner.dark label ,
-  .dark .modal-inner label{
+.modal-inner.dark label,
+.dark .modal-inner label {
   color: #daa520;
 }
 
-input {
+.modal-inner input {
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid;
@@ -130,54 +130,57 @@ input {
   width: 100%;
   min-height: 42px;
   box-sizing: border-box;
+  pointer-events: auto;
+  user-select: text;
+  cursor: text;
 }
 
-.modal-inner.light input ,
-  .modal-inner:not(.dark) input{
+.modal-inner.light input,
+.modal-inner:not(.dark) input {
   border-color: #e6e6e6;
   background: #fff;
   color: #333;
 }
 
-.modal-inner.light input:focus ,
-  .modal-inner:not(.dark) input:focus{
+.modal-inner.light input:focus,
+.modal-inner:not(.dark) input:focus {
   border-color: #daa520;
   outline: none;
   box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.1);
 }
 
-.modal-inner.dark input ,
-  .dark .modal-inner input{
+.modal-inner.dark input,
+.dark .modal-inner input {
   border-color: #444;
   background: #2a2a2a;
   color: #daa520;
 }
 
-.modal-inner.dark input:focus ,
-  .dark .modal-inner input:focus{
+.modal-inner.dark input:focus,
+.dark .modal-inner input:focus {
   border-color: #daa520;
   outline: none;
   box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.2);
 }
 
-.modal-inner.dark input::placeholder ,
-  .dark .modal-inner input::placeholder{
+.modal-inner.dark input::placeholder,
+.dark .modal-inner input::placeholder {
   color: #666;
 }
 
-.date-hint {
+.modal-inner .date-hint {
   font-size: 0.75rem;
   color: #6b7280;
   margin-top: 4px;
   font-style: italic;
 }
 
-.modal-inner.dark .date-hint ,
-  .dark .modal-inner .date-hint{
+.modal-inner.dark .date-hint,
+.dark .modal-inner .date-hint {
   color: #9ca3af;
 }
 
-.form-actions {
+.modal-inner .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -187,17 +190,18 @@ input {
   transition: border-color 0.3s ease;
 }
 
-.modal-inner.light .form-actions ,
-  .modal-inner:not(.dark) .form-actions{
+.modal-inner.light .form-actions,
+.modal-inner:not(.dark) .form-actions {
   border-color: #f0f0f0;
 }
 
-.modal-inner.dark .form-actions ,
-  .dark .modal-inner .form-actions{
+.modal-inner.dark .form-actions,
+.dark .modal-inner .form-actions {
   border-color: #333;
 }
 
-.btn-cancel, .btn-submit {
+.modal-inner .btn-cancel,
+.modal-inner .btn-submit {
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
@@ -208,92 +212,93 @@ input {
   min-width: 120px;
 }
 
-.btn-cancel {
+.modal-inner .btn-cancel {
   background: transparent;
   border: 1px solid;
 }
 
-.modal-inner.light .btn-cancel ,
-  .modal-inner:not(.dark) .btn-cancel{
+.modal-inner.light .btn-cancel,
+.modal-inner:not(.dark) .btn-cancel {
   border-color: #ddd;
   color: #666;
 }
 
-.modal-inner.light .btn-cancel:hover ,
-  .modal-inner:not(.dark) .btn-cancel:hover{
+.modal-inner.light .btn-cancel:hover,
+.modal-inner:not(.dark) .btn-cancel:hover {
   background: #f8f9fa;
   border-color: #ccc;
 }
 
-.modal-inner.dark .btn-cancel ,
-  .dark .modal-inner .btn-cancel{
+.modal-inner.dark .btn-cancel,
+.dark .modal-inner .btn-cancel {
   border-color: #444;
   color: #daa520;
 }
 
-.modal-inner.dark .btn-cancel:hover ,
-  .dark .modal-inner .btn-cancel:hover{
+.modal-inner.dark .btn-cancel:hover,
+.dark .modal-inner .btn-cancel:hover {
   background: #333;
   border-color: #555;
 }
 
-.btn-submit {
+.modal-inner .btn-submit {
   background: #111;
   color: #fff;
 }
 
-.modal-inner.light .btn-submit ,
-  .modal-inner:not(.dark) .btn-submit{
+.modal-inner.light .btn-submit,
+.modal-inner:not(.dark) .btn-submit {
   background: #111;
 }
 
-.modal-inner.light .btn-submit:hover ,
-  .modal-inner:not(.dark) .btn-submit:hover{
+.modal-inner.light .btn-submit:hover,
+.modal-inner:not(.dark) .btn-submit:hover {
   background: #333;
 }
 
-.modal-inner.dark .btn-submit ,
-  .dark .modal-inner .btn-submit{
+.modal-inner.dark .btn-submit,
+.dark .modal-inner .btn-submit {
   background: #daa520;
   color: #111;
 }
 
-.modal-inner.dark .btn-submit:hover ,
-  .dark .modal-inner .btn-submit:hover{
+.modal-inner.dark .btn-submit:hover,
+.dark .modal-inner .btn-submit:hover {
   background: #e6b800;
   box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
+.modal-inner input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.7;
   transition: opacity 0.3s ease;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+.modal-inner input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
-.modal-inner.dark input[type="date"]::-webkit-calendar-picker-indicator ,
-  .dark .modal-inner input[type="date"]::-webkit-calendar-picker-indicator{
+.modal-inner.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark .modal-inner input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
 }
 
 @media (max-width: 768px) {
-  .form-row {
+  .modal-inner .form-row {
     grid-template-columns: 1fr !important;
   }
-  
-  .form-actions {
+
+  .modal-inner .form-actions {
     flex-direction: column;
   }
-  
-  .btn-cancel, .btn-submit {
+
+  .modal-inner .btn-cancel,
+  .modal-inner .btn-submit {
     min-width: auto;
     width: 100%;
   }
-  
-  .date-hint {
+
+  .modal-inner .date-hint {
     font-size: 0.7rem;
   }
 }
